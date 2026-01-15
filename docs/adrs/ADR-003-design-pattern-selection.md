@@ -1,0 +1,1 @@
+ADR-003-design-pattern-selection.md
