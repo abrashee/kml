@@ -1,0 +1,13 @@
+{
+  "name": "kml-angular",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "lint": "ng lint"
+  },
+  "devDependencies": {
+    "@angular/cli": "^16.0.0",
+    "@angular-eslint/schematics": "^16.0.0",
+    "eslint": "^8.0.0"
+  }
+}
