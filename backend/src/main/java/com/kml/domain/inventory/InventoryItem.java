@@ -79,7 +79,6 @@ public class InventoryItem {
   }
 
   // Validation helpers
-
   private void validateSku(String sku) {
     if (sku == null || sku.isBlank()) {
       throw new IllegalArgumentException("SKU must not be null or blank");
@@ -99,7 +98,6 @@ public class InventoryItem {
   }
 
   // Getters
-
   public Long getId() {
     return id;
   }

@@ -1,9 +1,10 @@
-package com.kml.capacity.service.serviceImplemenation;
+package com.kml.capacity.service.serviceImplementation;
 
 import com.kml.capacity.service.InventoryService;
 import com.kml.domain.inventory.InventoryItem;
 import com.kml.infra.InventoryRepository;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,13 +35,33 @@ public class InventoryServiceImplementation implements InventoryService {
     return inventoryRepository.save(item);
   }
 
-  // Get All Inventory
+  // Get All Inventories
+  @Override
+  public List<InventoryItem> getAllInventories() {
+    List<InventoryItem> inventoryItems = this.inventoryRepository.findAll();
+    return inventoryItems;
+  }
 
   // Get Inventory by SKU
+  @Override
+  public InventoryItem getInventoryBySku(String sku) {
+    InventoryItem inventoryItem =
+        this.inventoryRepository
+            .findBySku(sku)
+            .orElseThrow(() -> new IllegalArgumentException("Inventory item not found"));
+
+    return inventoryItem;
+  }
 
   // Get Inventory by Id
-
-  // Get All Inventories
+  @Override
+  public InventoryItem getInventoryById(Long id) {
+    InventoryItem inventoryItem =
+        this.inventoryRepository
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Inventory not found"));
+    return inventoryItem;
+  }
 
   // Delete Inventory
 }
