@@ -22,9 +22,11 @@ jobs:
 
     - name: Build with Maven
       run: mvn clean install -B
+      working-directory: backend
 
     - name: Run tests
       run: mvn test -B
+      working-directory: backend
 
     - name: Lint placeholder
       run: echo "Linting will be added here"
