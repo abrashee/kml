@@ -3,7 +3,25 @@
 
 # Log file
 *.log
+logs/
 
+# Spring Boot / Java Build directories
+target/
+build/ 
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tempory files
+*.tmp
 # BlueJ files
 *.ctxt
 
