@@ -60,7 +60,26 @@ public class InventoryServiceImplementation implements InventoryService {
         this.inventoryRepository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Inventory not found"));
+
     return inventoryItem;
+  }
+
+  // Search by Name
+  @Override
+  public List<InventoryItem> getInventoryByName(String name) {
+    return inventoryRepository.findByName(name);
+  }
+
+  // Filter by Quantity Range
+  @Override
+  public List<InventoryItem> getInventoryByRange(int minQuantity, int maxQuantity) {
+    return inventoryRepository.findByQuantityBetween(minQuantity, maxQuantity);
+  }
+
+  // | Combined Filters (SKU + name)
+  @Override
+  public List<InventoryItem> getInventoryByFilter(String sku, String name) {
+    return inventoryRepository.findBySkuAndName(sku, name);
   }
 
   // Delete Inventory
