@@ -74,6 +74,23 @@ For detailed context on each module, see their individual README.md files:
 - [Frontend README](../frontend/README.md) – purpose, applications, responsibilities, design principles.
 - [Infrastructure README](../infra/README.md) – purpose, responsibilities, security, and operational guidance.
 
+# Architecture Decision Records (ADRs)
+This folder contains all ADRs documenting the major architectural and design decisions of the KML project.
+
+## ADR List
+1. [ADR-001: Project Architecture and Module Structure](../docs/adrs/ADR-001-modular-monolith.md)
+2. [ADR-002: Layered Architecture for Backend](../docs/adrs/ADR-002-layered-architecture.md)
+3. [ADR-003: Design Pattern Selection](../docs/adrs/ADR-003-design-pattern-selection.md)
+
+Each ADR contains:
+
+- Status (Accepted / Proposed / Deprecated)
+- Context
+- Decision
+- Decision Drivers
+- Consequences
+
+
 ## Public Repository Safety
 - No real credentials, secrets, tokens, or keys.
 - No identifying machine paths, IPs, domains, or company data.
