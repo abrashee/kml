@@ -1,5 +1,7 @@
 package com.kml.domain.warehouse;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,7 +13,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "storage_units")
@@ -21,7 +22,7 @@ public class StorageUnit {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
   private String code;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -39,13 +40,10 @@ public class StorageUnit {
 
   protected StorageUnit() {}
 
-  public StorageUnit(String code, Warehouse warehouse, int capacity) {
+  public StorageUnit(String code, int capacity) {
     validateCode(code);
-    validateWarehouse(warehouse);
     validateCapacity(capacity);
-
     this.code = code;
-    this.warehouse = warehouse;
     this.capacity = capacity;
   }
 
@@ -72,16 +70,21 @@ public class StorageUnit {
     }
   }
 
-  private void validateWarehouse(Warehouse warehouse) {
-    if (warehouse == null) {
-      throw new IllegalArgumentException("Warehouse must not be null");
-    }
-  }
-
   private void validateCapacity(int capacity) {
     if (capacity < 0) {
       throw new IllegalArgumentException("Capacity must be zero or greater");
     }
+  }
+
+  public void assignToWarehouse(Warehouse warehouse) {
+    if (this.warehouse != null) {
+      throw new IllegalArgumentException("StorageUnit already assigned to a warehosue");
+    }
+    this.warehouse = warehouse;
+  }
+
+  public void unassignWarehouse() {
+    this.warehouse = null;
   }
 
   public Long getId() {

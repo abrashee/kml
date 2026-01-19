@@ -1,12 +1,17 @@
 package com.kml.capacity.service.serviceImplementation;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
 import com.kml.capacity.service.StorageUnitService;
 import com.kml.domain.warehouse.StorageUnit;
 import com.kml.domain.warehouse.Warehouse;
 import com.kml.infra.StorageUnitRepository;
 import com.kml.infra.WarehouseRepository;
+
 import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
 
 @Service
 public class StorageUnitServiceImplementation implements StorageUnitService {
@@ -27,7 +32,29 @@ public class StorageUnitServiceImplementation implements StorageUnitService {
             .findById(warehouseId)
             .orElseThrow(() -> new IllegalArgumentException("Warehouse not found"));
 
-    StorageUnit storageUnit = new StorageUnit(code, warehouse, capacity);
-    return storageUnitRepository.save(storageUnit);
+    StorageUnit storageUnit = new StorageUnit(code, capacity);
+    warehouse.addStorageUnit(storageUnit);
+
+    Warehouse savedWarehouse = warehouseRepository.save(warehouse);
+
+    return savedWarehouse.getStorageUnits().stream()
+        .filter(u -> u.getCode().equals(code))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("StorageUnit not saved correctly"));
+  }
+
+  @Override
+  public List<StorageUnit> getStorageUnitsByWarehouseId(Long warehouseId) {
+    return this.storageUnitRepository.findByWarehouse_Id(warehouseId);
+  }
+
+  @Override
+  public Optional<StorageUnit> getStorageUnitById(Long id) {
+    return this.storageUnitRepository.findById(id);
+  }
+
+  @Override
+  public Optional<StorageUnit> getStorageUnitByCode(String code) {
+    return this.storageUnitRepository.findByCode(code);
   }
 }
