@@ -1,8 +1,10 @@
 package com.kml.infra;
 
-import com.kml.domain.warehouse.Warehouse;
 import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.kml.domain.warehouse.Warehouse;
 
 public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
 

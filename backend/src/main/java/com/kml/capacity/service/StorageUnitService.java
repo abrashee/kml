@@ -15,4 +15,6 @@ public interface StorageUnitService {
   Optional<StorageUnit> getStorageUnitById(Long id);
 
   Optional<StorageUnit> getStorageUnitByCode(String code);
+
+  Optional<StorageUnit> getStorageUnitByWarehouseIdAndCode(Long warehouseId, String code);
 }
