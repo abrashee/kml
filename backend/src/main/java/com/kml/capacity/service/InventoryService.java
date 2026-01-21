@@ -1,7 +1,8 @@
 package com.kml.capacity.service;
 
-import com.kml.domain.inventory.InventoryItem;
 import java.util.List;
+
+import com.kml.domain.inventory.InventoryItem;
 
 public interface InventoryService {
 
@@ -28,5 +29,7 @@ public interface InventoryService {
   // | Combined Filters (SKU + name)
   List<InventoryItem> getInventoryByFilter(String sku, String name);
 
-  // Delete Inventory Method
+  List<InventoryItem> getInventoryByStorageUnitId(Long id);
+
+  List<InventoryItem> getInventoryByWarehouseId(Long id);
 }
