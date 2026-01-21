@@ -27,6 +27,9 @@ public class StorageUnitServiceImplementation implements StorageUnitService {
   @Override
   @Transactional
   public StorageUnit createStorageUnit(String code, Long warehouseId, int capacity) {
+    if (storageUnitRepository.findByWarehouse_IdAndCode(warehouseId, code).isPresent()) {
+      throw new IllegalArgumentException("StorageUnit code already exists in warehouse");
+    }
     Warehouse warehouse =
         this.warehouseRepository
             .findById(warehouseId)
@@ -56,5 +59,11 @@ public class StorageUnitServiceImplementation implements StorageUnitService {
   @Override
   public Optional<StorageUnit> getStorageUnitByCode(String code) {
     return this.storageUnitRepository.findByCode(code);
+  }
+
+  @Override
+  public Optional<StorageUnit> getStorageUnitByWarehouseIdAndCode(Long warehouseId, String code) {
+
+    return this.storageUnitRepository.findByWarehouse_IdAndCode(warehouseId, code);
   }
 }
