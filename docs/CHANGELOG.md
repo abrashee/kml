@@ -27,3 +27,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - GET /api/v1/layouts/by-warehouse
   - GET /api/v1/layouts/by-storage-unit
 - DTO mapping for layout responses
+
+## [0.2.0] - 24-01-2026
+
+### Added
+- Storage Unit Inventory Assignment entity + repository
+- Inventory service support for storage unit & warehouse lookups
+- Layout service & controller endpoints:
+  - GET /api/v1/layouts/by-warehouse
+  - GET /api/v1/layouts/by-storage-unit
+- DTO mapping for layout responses
