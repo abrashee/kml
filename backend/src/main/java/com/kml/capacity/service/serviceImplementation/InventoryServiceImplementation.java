@@ -12,6 +12,7 @@ import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 import com.kml.infra.InventoryRepository;
 import com.kml.infra.StorageUnitInventoryAssignmentRepository;
 import com.kml.infra.StorageUnitRepository;
+import com.kml.infra.WarehouseRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -19,14 +20,17 @@ import jakarta.transaction.Transactional;
 public class InventoryServiceImplementation implements InventoryService {
 
   private final InventoryRepository inventoryRepository;
+  private final WarehouseRepository warehouseRepository;
   private final StorageUnitRepository storageUnitRepository;
   private final StorageUnitInventoryAssignmentRepository storageUnitInventoryAssignmentRepository;
 
   public InventoryServiceImplementation(
       InventoryRepository inventoryRepository,
+      WarehouseRepository warehouseRepository,
       StorageUnitRepository storageUnitRepository,
       StorageUnitInventoryAssignmentRepository storageUnitInventoryAssignmentRepository) {
     this.inventoryRepository = inventoryRepository;
+    this.warehouseRepository = warehouseRepository;
     this.storageUnitRepository = storageUnitRepository;
     this.storageUnitInventoryAssignmentRepository = storageUnitInventoryAssignmentRepository;
   }
