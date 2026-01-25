@@ -2,14 +2,11 @@ package com.kml.api;
 
 import com.kml.capacity.dto.ShipmentRequestDto;
 import com.kml.capacity.dto.ShipmentResponseDto;
-import com.kml.capacity.dto.ShipmentStatusUpdateRequestDto;
 import com.kml.capacity.service.ShipmentService;
 import com.kml.domain.shipment.Shipment;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,14 +29,6 @@ public class ShipmentController {
             requestDto.getOrderId(), requestDto.getAddress(), requestDto.getCarrierInfo());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponseDto(shipment));
-  }
-
-  @PatchMapping("/{id}/status")
-  public ResponseEntity<ShipmentResponseDto> updateShipment(
-      @PathVariable Long id, @RequestBody @Valid ShipmentStatusUpdateRequestDto requestDto) {
-    Shipment shipment = this.shipmentService.updateShipmentStatus(id, requestDto.getStatus());
-
-    return ResponseEntity.ok(mapToResponseDto(shipment));
   }
 
   private ShipmentResponseDto mapToResponseDto(Shipment shipment) {
