@@ -10,6 +10,7 @@ import com.kml.capacity.service.ShipmentWarehouseResolverService;
 import com.kml.capacity.service.notification.WarehouseNotificationService;
 import com.kml.domain.order.Order;
 import com.kml.domain.shipment.Shipment;
+import com.kml.domain.shipment.ShipmentStatus;
 import com.kml.domain.warehouse.Warehouse;
 import com.kml.infra.OrderRepository;
 import com.kml.infra.ShipmentRepository;
@@ -54,8 +55,48 @@ public class ShipmentServiceImplementation implements ShipmentService {
               warehouseNotificationService.notifyShipmentCreated(
                   savedShipment.getId(), Set.of(w.getId())));
     } catch (Exception e) {
+      System.out.println("Warehouse notification failed");
     }
 
     return savedShipment;
+  }
+
+  @Override
+  public List<Shipment> getAllShipments() {
+    List<Shipment> shipments = this.shipmentRepository.findAll();
+    return shipments;
+  }
+
+  @Override
+  public Shipment getShipmentById(Long id) {
+    Shipment shipment =
+        this.shipmentRepository
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Shipment not found"));
+    return shipment;
+  }
+
+  @Override
+  public List<Shipment> getShipmentsByStatus(String status) {
+    ShipmentStatus shipmentStatus;
+    try {
+      shipmentStatus = ShipmentStatus.valueOf(status.toUpperCase());
+
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(
+          "Invalid shipment status. Allow values: PENDING, IN_TRANSIT, DELIVERED, RETURNED");
+    }
+    return this.shipmentRepository.findByStatus(shipmentStatus);
+  }
+
+  @Override
+  public List<Shipment> getShipmentsByOrder(Long orderId) {
+    Order order =
+        this.orderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+
+    List<Shipment> shipments = this.shipmentRepository.findByOrderId(order.getId());
+    return shipments;
   }
 }
