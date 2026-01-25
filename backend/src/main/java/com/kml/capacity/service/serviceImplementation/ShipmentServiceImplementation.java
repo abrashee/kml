@@ -3,6 +3,7 @@ package com.kml.capacity.service.serviceImplementation;
 import com.kml.capacity.service.ShipmentService;
 import com.kml.domain.order.Order;
 import com.kml.domain.shipment.Shipment;
+import com.kml.domain.shipment.ShipmentStatus;
 import com.kml.infra.OrderRepository;
 import com.kml.infra.ShipmentRepository;
 import jakarta.transaction.Transactional;
@@ -27,8 +28,19 @@ public class ShipmentServiceImplementation implements ShipmentService {
         this.orderRepository
             .findById(orderId)
             .orElseThrow(() -> new IllegalArgumentException("Order not found"));
-    if (order == null) throw new IllegalArgumentException("Order is required");
     Shipment shipment = Shipment.createWithGeneratedTracking(order, address, carrierInfo);
+    return this.shipmentRepository.save(shipment);
+  }
+
+  @Override
+  @Transactional
+  public Shipment updateShipmentStatus(Long id, ShipmentStatus nextStatus) {
+    Shipment shipment =
+        this.shipmentRepository
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Shipment not found"));
+    if (nextStatus == null) throw new IllegalArgumentException("Status is required");
+    shipment.transitionTo(nextStatus);
     return this.shipmentRepository.save(shipment);
   }
 }
