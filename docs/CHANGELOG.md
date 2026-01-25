@@ -19,7 +19,6 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - ADR and module documentation
 
 ## [0.2.0] - 21-01-2026
-
 ### Added
 - Storage Unit Inventory Assignment entity + repository
 - Inventory service support for storage unit & warehouse lookups
@@ -27,3 +26,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - GET /api/v1/layouts/by-warehouse
   - GET /api/v1/layouts/by-storage-unit
 - DTO mapping for layout responses
+
+## [0.3.0] - 25-01-2026
+### Added
+- Shipment creation endpoint (POST /api/v1/shipments)
+- Shipment domain model with tracking ID generation
+- Shipment persistence via repository and service layer
+- Shipment response DTOs for safe API output
+- Shipment retrieval endpoints:
+  - GET /api/v1/shipments
+  - GET /api/v1/shipments/{id}
+  - GET /api/v1/shipments/by-status?status={status}
+  - GET /api/v1/shipments/by-order?orderId={id} 
