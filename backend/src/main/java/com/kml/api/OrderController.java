@@ -1,15 +1,8 @@
 package com.kml.api;
 
-import com.kml.capacity.dto.OrderItemResponseDto;
-import com.kml.capacity.dto.OrderRequestDto;
-import com.kml.capacity.dto.OrderResponseDto;
-import com.kml.capacity.service.OrderService;
-import com.kml.capacity.service.OrderStatusService;
-import com.kml.domain.order.Order;
-import com.kml.domain.order.OrderItem;
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +13,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.kml.capacity.dto.OrderItemResponseDto;
+import com.kml.capacity.dto.OrderRequestDto;
+import com.kml.capacity.dto.OrderResponseDto;
+import com.kml.capacity.security.AuthorizationService;
+import com.kml.capacity.security.HardcodedUserContext;
+import com.kml.capacity.service.OrderService;
+import com.kml.capacity.service.OrderStatusService;
+import com.kml.domain.order.Order;
+import com.kml.domain.order.OrderItem;
+import com.kml.domain.user.User;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -36,6 +42,11 @@ public class OrderController {
   @PostMapping
   public ResponseEntity<OrderResponseDto> createOrder(
       @RequestBody @Valid OrderRequestDto requestDto) {
+
+    User currentUser = HardcodedUserContext.getCurrentUser();
+    if (!AuthorizationService.canCreateOrder(currentUser)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
 
     Order order =
         this.orderService.createOrder(
@@ -61,6 +72,11 @@ public class OrderController {
   public ResponseEntity<OrderResponseDto> updateOrder(
       @PathVariable Long id, @RequestBody @Valid OrderRequestDto requestDto) {
 
+    User currentUser = HardcodedUserContext.getCurrentUser();
+    if (!AuthorizationService.canCreateOrder(currentUser)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
     Order updatedOrder =
         orderService.updateOrder(id, requestDto.getStatusId(), requestDto.getItems());
     return ResponseEntity.ok(mapToResponseDto(updatedOrder));
@@ -68,6 +84,11 @@ public class OrderController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+    User currentUser = HardcodedUserContext.getCurrentUser();
+    if (!AuthorizationService.canCreateOrder(currentUser)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
     orderService.deleteOrder(id);
     return ResponseEntity.noContent().build();
   }
