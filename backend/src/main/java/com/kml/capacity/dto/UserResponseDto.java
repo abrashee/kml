@@ -1,7 +1,8 @@
 package com.kml.capacity.dto;
 
-import com.kml.domain.user.UserRole;
 import java.time.LocalDateTime;
+
+import com.kml.domain.user.UserRole;
 
 public class UserResponseDto {
   private Long id;
@@ -39,7 +40,7 @@ public class UserResponseDto {
     return userRole;
   }
 
-  public void setUserRole(String userRole) {
+  public void setUserRole(UserRole userRole) {
     this.userRole = userRole;
   }
 
