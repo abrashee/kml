@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### MVP02 – Secure Backend + API Polish + Lightweight Frontend
+- Epic 01: Backend Security & API Improvements
+- Backend Maturity Additions
+- Epic 02: Frontend (React – Customer-facing)
+- Epic 03: Frontend (Angular – Admin-facing)
+
+### MVP03 – Operational Enhancements
+- Epic 01: Reporting & Dashboards
+- Epic 02: Notifications & Alerts
+
+### MVP04 – Event-Driven & Microservice Prep
+- Epic 01: Kafka / Messaging
+- Epic 02: Microservice Separation (Initial)
+
+### MVP05 – Microservices + Full Deployment
+- Epic 01: Docker & Kubernetes
+- Epic 02: Observability & Scaling
+
+### MVP06 – Production Readiness
+- Epic 01: Security & Performance
+- Epic 02: Frontend Polish
+- Epic 03: Optional Advanced Features
 
 ## [0.1.0] - 16-01-2026
 ### Added
