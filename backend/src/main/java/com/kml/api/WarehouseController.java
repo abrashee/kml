@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kml.capacity.dto.WarehouseRequestDto;
 import com.kml.capacity.dto.WarehouseResponseDto;
+import com.kml.capacity.security.AuthorizationService;
+import com.kml.capacity.security.HardcodedUserContext;
 import com.kml.capacity.service.WarehouseService;
+import com.kml.domain.user.User;
 import com.kml.domain.warehouse.Warehouse;
 
 import jakarta.validation.Valid;
@@ -34,6 +37,10 @@ public class WarehouseController {
   @PostMapping
   public ResponseEntity<WarehouseResponseDto> createWarehouse(
       @RequestBody @Valid WarehouseRequestDto warehouseRequestDto) {
+    User currentUser = HardcodedUserContext.getCurrentUser();
+    if (!AuthorizationService.canCreateWarehouse(currentUser)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
     Warehouse warehouse =
         this.warehouseService.createWarehouse(
             warehouseRequestDto.getName(), warehouseRequestDto.getAddress());
