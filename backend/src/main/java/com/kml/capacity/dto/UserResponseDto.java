@@ -2,13 +2,11 @@ package com.kml.capacity.dto;
 
 import java.time.LocalDateTime;
 
-import com.kml.domain.user.UserRole;
-
 public class UserResponseDto {
   private Long id;
   private String name;
   private String username;
-  private UserRole userRole;
+  private String userRole;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
@@ -36,11 +34,11 @@ public class UserResponseDto {
     this.username = username;
   }
 
-  public UserRole getUserRole() {
+  public String getUserRole() {
     return userRole;
   }
 
-  public void setUserRole(UserRole userRole) {
+  public void setUserRole(String userRole) {
     this.userRole = userRole;
   }
 
