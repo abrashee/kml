@@ -50,6 +50,10 @@ public class WarehouseController {
   // Get Warehouse by Id
   @GetMapping("/{id}")
   public ResponseEntity<WarehouseResponseDto> getWarehouseById(@PathVariable Long id) {
+    User currentUser = HardcodedUserContext.getCurrentUser();
+    if (!AuthorizationService.canAccessWarehouse(currentUser, id)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
     return warehouseService
         .getWarehouseById(id)
         .map(warehouse -> ResponseEntity.ok(mapToResponseDto(warehouse)))
