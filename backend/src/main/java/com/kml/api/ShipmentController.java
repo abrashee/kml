@@ -15,11 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kml.capacity.dto.ShipmentRequestDto;
 import com.kml.capacity.dto.ShipmentResponseDto;
-import com.kml.capacity.security.AuthorizationService;
-import com.kml.capacity.security.HardcodedUserContext;
 import com.kml.capacity.service.ShipmentService;
 import com.kml.domain.shipment.Shipment;
-import com.kml.domain.user.User;
 
 import jakarta.validation.Valid;
 
@@ -35,11 +32,6 @@ public class ShipmentController {
   @PostMapping
   public ResponseEntity<ShipmentResponseDto> createShipment(
       @RequestBody @Valid ShipmentRequestDto requestDto) {
-    User currentUser = HardcodedUserContext.getCurrentUser();
-    if (!AuthorizationService.canCreateShipment(currentUser)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-    }
-
     Shipment shipment =
         this.shipmentService.createShipment(
             requestDto.getOrderId(), requestDto.getAddress(), requestDto.getCarrierInfo());
