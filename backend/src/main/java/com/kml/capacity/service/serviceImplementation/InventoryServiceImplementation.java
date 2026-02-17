@@ -138,4 +138,21 @@ public class InventoryServiceImplementation implements InventoryService {
   }
 
   // Delete Inventory
+  @Override
+  @Transactional
+  public void deleteInventoryItem(Long id) {
+    InventoryItem item =
+        inventoryRepository
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Inventory item not found"));
+
+    if (storageUnitInventoryAssignmentRepository.existsByInventoryItem_Id(id)) {
+      throw new IllegalArgumentException("Cannot delete inventory item assigned to storage units");
+    }
+    if (item.getQuantity() > 0) {
+      throw new IllegalStateException("Cannot delete inventory with remaining quantity");
+    }
+
+    inventoryRepository.delete(item);
+  }
 }

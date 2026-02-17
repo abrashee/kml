@@ -32,4 +32,7 @@ public interface InventoryService {
   List<InventoryItem> getInventoryByStorageUnitId(Long id);
 
   List<InventoryItem> getInventoryByWarehouseId(Long id);
+
+  // Delete Inventory
+  void deleteInventoryItem(Long id);
 }

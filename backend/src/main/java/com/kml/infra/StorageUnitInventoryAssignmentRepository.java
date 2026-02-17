@@ -1,11 +1,9 @@
 package com.kml.infra;
 
+import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 
 public interface StorageUnitInventoryAssignmentRepository
     extends JpaRepository<StorageUnitInventoryAssignment, Long> {
@@ -15,4 +13,6 @@ public interface StorageUnitInventoryAssignmentRepository
 
   Optional<StorageUnitInventoryAssignment> findByStorageUnit_IdAndInventoryItem_Id(
       Long storageUnitId, Long inventoryItemId);
+
+  boolean existsByInventoryItem_Id(Long inventoryItemId);
 }

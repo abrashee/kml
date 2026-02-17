@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -106,6 +107,11 @@ public class InventoryController {
   }
 
   // Delete - Delete
+  @DeleteMapping
+  public ResponseEntity<Void> deleteInventory(@PathVariable Long id) {
+    inventoryService.deleteInventoryItem(id);
+    return ResponseEntity.noContent().build();
+  }
 
   // Mapping
   private InventoryItemResponseDto mapToResponseDto(InventoryItem item) {
