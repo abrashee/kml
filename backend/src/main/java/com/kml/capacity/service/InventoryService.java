@@ -1,12 +1,12 @@
 package com.kml.capacity.service;
 
-import java.util.List;
-
 import com.kml.domain.inventory.InventoryItem;
+import java.util.List;
 
 public interface InventoryService {
 
   // Create Inventory
+  InventoryItem createInventoryItem(String sku, String name, int quantity);
 
   // Inevntory Update (increase or decrease)
   InventoryItem updateQuantity(String sku, int delta);

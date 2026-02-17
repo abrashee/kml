@@ -1,10 +1,5 @@
 package com.kml.capacity.service.serviceImplementation;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.kml.capacity.service.InventoryService;
 import com.kml.domain.inventory.InventoryItem;
 import com.kml.domain.warehouse.StorageUnit;
@@ -12,8 +7,10 @@ import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 import com.kml.infra.InventoryRepository;
 import com.kml.infra.StorageUnitInventoryAssignmentRepository;
 import com.kml.infra.StorageUnitRepository;
-
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class InventoryServiceImplementation implements InventoryService {
@@ -32,6 +29,17 @@ public class InventoryServiceImplementation implements InventoryService {
   }
 
   // Create Inventory
+  @Override
+  @Transactional
+  public InventoryItem createInventoryItem(String sku, String name, int quantity) {
+    boolean exists = inventoryRepository.findBySku(sku).isPresent();
+    if (exists) {
+      throw new IllegalArgumentException("Inventory item with SKU alrady exists");
+    }
+
+    InventoryItem item = new InventoryItem(sku, name, quantity);
+    return inventoryRepository.save(item);
+  }
 
   // Update Inventory
   @Override
