@@ -1,28 +1,23 @@
 package com.kml.capacity.service;
 
 import java.util.List;
-import java.util.Optional;
 
-import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
+import com.kml.capacity.dto.StorageUnitInventoryAssignmentDto;
 
 public interface StorageUnitInventoryAssignmentService {
 
-  // Create
-  Optional<StorageUnitInventoryAssignment> createStorageUnitInventoryAssignment(
+  StorageUnitInventoryAssignmentDto createStorageUnitInventoryAssignment(
       Long storageUnitId, Long inventoryItemId, int assignedQuantity);
 
-  // Get
-  List<StorageUnitInventoryAssignment> getAllStorageUnitInventoryItems();
+  List<StorageUnitInventoryAssignmentDto> getAllStorageUnitInventoryItems();
 
-  List<StorageUnitInventoryAssignment> getByStorageUnitId(Long storageUnitId);
+  List<StorageUnitInventoryAssignmentDto> getByStorageUnitId(Long storageUnitId);
 
-  Optional<StorageUnitInventoryAssignment> getByStorageUnitIdAndInventoryItemId(
+  StorageUnitInventoryAssignmentDto getByStorageUnitIdAndInventoryItemId(
       Long storageUnitId, Long inventoryItemId);
 
-  // Update
-  Optional<StorageUnitInventoryAssignment> updateStorageUnitInventoryAssignment(
+  StorageUnitInventoryAssignmentDto updateStorageUnitInventoryAssignment(
       Long assignmentId, int newQuantity);
 
-  // Delete
   void deleteStorageUnitInventoryItemAssignment(Long id);
 }

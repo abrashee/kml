@@ -1,11 +1,18 @@
 package com.kml.capacity.dto;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
 public class StorageUnitInventoryAssignmentDto {
-  private Long storageUnitId;
+
+  @NotNull private Long storageUnitId;
   private String storageUnitCode;
-  private Long inventoryItemId;
+
+  @NotNull private Long inventoryItemId;
   private String inventoryItemSku;
   private String inventoryItemName;
+
+  @Min(1)
   private int assignedQuantity;
 
   public Long getStorageUnitId() {

@@ -1,6 +1,13 @@
 package com.kml.capacity.service.serviceImplementation;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.kml.capacity.dto.OrderItemRequestDto;
+import com.kml.capacity.dto.OrderResponseDto;
+import com.kml.capacity.mapper.OrderMapper;
 import com.kml.capacity.service.OrderService;
 import com.kml.domain.inventory.InventoryItem;
 import com.kml.domain.order.Order;
@@ -9,10 +16,8 @@ import com.kml.domain.order.OrderStatus;
 import com.kml.infra.InventoryRepository;
 import com.kml.infra.OrderRepository;
 import com.kml.infra.OrderStatusRepository;
+
 import jakarta.transaction.Transactional;
-import java.math.BigDecimal;
-import java.util.List;
-import org.springframework.stereotype.Service;
 
 @Service
 public class OrderServiceImplementation implements OrderService {
@@ -20,11 +25,6 @@ public class OrderServiceImplementation implements OrderService {
   private final OrderRepository orderRepository;
   private final OrderStatusRepository orderStatusRepository;
   private final InventoryRepository inventoryRepository;
-
-  ////////////// ******************************* StATIC Value only for
-  // Testing******************************* */
-  private BigDecimal priceAtOrder = new BigDecimal("100.0");
-  ;
 
   public OrderServiceImplementation(
       OrderRepository orderRepository,
@@ -37,8 +37,7 @@ public class OrderServiceImplementation implements OrderService {
 
   @Override
   @Transactional
-  public Order createOrder(String code, Long statusId, List<OrderItemRequestDto> items) {
-
+  public OrderResponseDto createOrder(String code, Long statusId, List<OrderItemRequestDto> items) {
     OrderStatus status =
         orderStatusRepository
             .findById(statusId)
@@ -46,23 +45,18 @@ public class OrderServiceImplementation implements OrderService {
 
     Order order = new Order(code, status);
 
-    for (OrderItemRequestDto dto : items) {
-      InventoryItem inventoryItem =
-          inventoryRepository
-              .findById(dto.getInventoryItemId())
-              .orElseThrow(() -> new IllegalArgumentException("Invenotry not found"));
-      OrderItem orderItem = new OrderItem(inventoryItem, dto.getQuantity(), dto.getPriceAtOrder());
-
-      order.addItem(orderItem);
+    List<OrderItem> newItems = mapToOrderItems(items);
+    for (OrderItem item : newItems) {
+      order.addItem(item);
     }
 
-    return this.orderRepository.save(order);
+    Order saved = this.orderRepository.save(order);
+    return OrderMapper.toDto(saved);
   }
 
   @Override
   @Transactional
-  public Order updateOrder(Long id, Long statusId, List<OrderItemRequestDto> items) {
-
+  public OrderResponseDto updateOrder(Long id, Long statusId, List<OrderItemRequestDto> items) {
     Order order =
         this.orderRepository
             .findById(id)
@@ -75,31 +69,32 @@ public class OrderServiceImplementation implements OrderService {
 
     order.setStatus(status);
 
-    order.getItems().clear();
+    List<OrderItem> newItems = mapToOrderItems(items);
+    order.replaceItems(newItems);
 
-    for (OrderItemRequestDto dto : items) {
-      InventoryItem inventoryItem =
-          inventoryRepository
-              .findById(dto.getInventoryItemId())
-              .orElseThrow(() -> new IllegalArgumentException("Inventory Item not found"));
+    Order saved = this.orderRepository.save(order);
+    return OrderMapper.toDto(saved);
+  }
 
-      OrderItem orderItem = new OrderItem(inventoryItem, dto.getQuantity(), dto.getPriceAtOrder());
-      order.addItem(orderItem);
+  @Override
+  public List<OrderResponseDto> getAllOrders() {
+    List<Order> orders = this.orderRepository.findAll();
+
+    List<OrderResponseDto> mapped = new ArrayList<>();
+    for (Order order : orders) {
+      mapped.add(OrderMapper.toDto(order));
     }
-
-    return this.orderRepository.save(order);
+    return mapped;
   }
 
   @Override
-  public List<Order> getAllOrders() {
-    return this.orderRepository.findAll();
-  }
+  public OrderResponseDto getOrderById(Long id) {
+    Order order =
+        this.orderRepository
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
-  @Override
-  public Order getOrderById(Long id) {
-    return this.orderRepository
-        .findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+    return OrderMapper.toDto(order);
   }
 
   @Override
@@ -109,12 +104,20 @@ public class OrderServiceImplementation implements OrderService {
     }
   }
 
-  private OrderItem mapToOrderItem(OrderItemRequestDto dto) {
+  private List<OrderItem> mapToOrderItems(List<OrderItemRequestDto> items) {
+    if (items == null || items.isEmpty()) {
+      throw new IllegalArgumentException("Order must contain at least one item");
+    }
 
-    InventoryItem inventoryItem =
-        inventoryRepository
-            .findById(dto.getInventoryItemId())
-            .orElseThrow(() -> new IllegalArgumentException("Inventory Item not found"));
-    return new OrderItem(inventoryItem, dto.getQuantity(), dto.getPriceAtOrder());
+    List<OrderItem> mapped = new ArrayList<>();
+    for (OrderItemRequestDto dto : items) {
+      InventoryItem inventoryItem =
+          inventoryRepository
+              .findById(dto.getInventoryItemId())
+              .orElseThrow(() -> new IllegalArgumentException("Inventory Item not found"));
+
+      mapped.add(new OrderItem(inventoryItem, dto.getQuantity(), dto.getPriceAtOrder()));
+    }
+    return mapped;
   }
 }

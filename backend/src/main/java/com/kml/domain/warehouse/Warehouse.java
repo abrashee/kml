@@ -1,5 +1,6 @@
 package com.kml.domain.warehouse;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +12,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
@@ -30,56 +33,33 @@ public class Warehouse {
   @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<StorageUnit> storageUnits = new ArrayList<>();
 
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
+
+  @Column(name = "updated_at", nullable = false)
+  private LocalDateTime updatedAt;
+
   protected Warehouse() {}
 
   public Warehouse(String name, String address) {
     validateName(name);
     validateAddress(address);
-
     this.name = name;
     this.address = address;
   }
 
-  private void validateName(String name) {
-    if (name == null || name.isBlank()) {
-      throw new IllegalArgumentException("Warehouse name must not be null");
-    }
+  public void rename(String newName) {
+    validateName(newName);
+    this.name = newName;
   }
 
-  private void validateAddress(String address) {
-    if (address == null || address.isBlank()) {
-      throw new IllegalArgumentException("Warehouse address must not be null");
-    }
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getAddress() {
-    return address;
-  }
-
-  public void setAddress(String address) {
-    this.address = address;
+  public void changeAddress(String newAddress) {
+    validateAddress(newAddress);
+    this.address = newAddress;
   }
 
   public void addStorageUnit(StorageUnit unit) {
-    if (unit == null) {
-      throw new IllegalArgumentException("unit must not be null");
-    }
+    if (unit == null) throw new IllegalArgumentException("StorageUnit must not be null");
     unit.assignToWarehouse(this);
     storageUnits.add(unit);
   }
@@ -90,7 +70,51 @@ public class Warehouse {
     storageUnits.remove(unit);
   }
 
+  @PrePersist
+  protected void onCreate() {
+    LocalDateTime now = LocalDateTime.now();
+    this.createdAt = now;
+    this.updatedAt = now;
+  }
+
+  @PreUpdate
+  protected void onUpdate() {
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  private void validateName(String name) {
+    if (name == null || name.isBlank()) {
+      throw new IllegalArgumentException("Warehouse name must not be blank");
+    }
+  }
+
+  private void validateAddress(String address) {
+    if (address == null || address.isBlank()) {
+      throw new IllegalArgumentException("Warehouse address must not be blank");
+    }
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getAddress() {
+    return address;
+  }
+
   public List<StorageUnit> getStorageUnits() {
     return Collections.unmodifiableList(storageUnits);
+  }
+
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public LocalDateTime getUpdatedAt() {
+    return updatedAt;
   }
 }

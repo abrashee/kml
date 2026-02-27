@@ -5,6 +5,8 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import com.kml.capacity.dto.ShipmentResponseDto;
+import com.kml.capacity.mapper.ShipmentMapper;
 import com.kml.capacity.service.ShipmentService;
 import com.kml.capacity.service.ShipmentWarehouseResolverService;
 import com.kml.capacity.service.notification.WarehouseNotificationService;
@@ -38,7 +40,7 @@ public class ShipmentServiceImplementation implements ShipmentService {
 
   @Override
   @Transactional
-  public Shipment createShipment(Long orderId, String address, String carrierInfo) {
+  public ShipmentResponseDto createShipment(Long orderId, String address, String carrierInfo) {
     Order order =
         this.orderRepository
             .findById(orderId)
@@ -58,45 +60,47 @@ public class ShipmentServiceImplementation implements ShipmentService {
       System.out.println("Warehouse notification failed");
     }
 
-    return savedShipment;
+    return ShipmentMapper.toDto(savedShipment);
   }
 
   @Override
-  public List<Shipment> getAllShipments() {
-    List<Shipment> shipments = this.shipmentRepository.findAll();
-    return shipments;
+  public List<ShipmentResponseDto> getAllShipments() {
+    return this.shipmentRepository.findAll().stream().map(ShipmentMapper::toDto).toList();
   }
 
   @Override
-  public Shipment getShipmentById(Long id) {
+  public ShipmentResponseDto getShipmentById(Long id) {
     Shipment shipment =
         this.shipmentRepository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Shipment not found"));
-    return shipment;
+    return ShipmentMapper.toDto(shipment);
   }
 
   @Override
-  public List<Shipment> getShipmentsByStatus(String status) {
+  public List<ShipmentResponseDto> getShipmentsByStatus(String status) {
     ShipmentStatus shipmentStatus;
     try {
       shipmentStatus = ShipmentStatus.valueOf(status.toUpperCase());
-
     } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException(
           "Invalid shipment status. Allow values: PENDING, IN_TRANSIT, DELIVERED, RETURNED");
     }
-    return this.shipmentRepository.findByStatus(shipmentStatus);
+
+    return this.shipmentRepository.findByStatus(shipmentStatus).stream()
+        .map(ShipmentMapper::toDto)
+        .toList();
   }
 
   @Override
-  public List<Shipment> getShipmentsByOrder(Long orderId) {
+  public List<ShipmentResponseDto> getShipmentsByOrder(Long orderId) {
     Order order =
         this.orderRepository
             .findById(orderId)
             .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
-    List<Shipment> shipments = this.shipmentRepository.findByOrderId(order.getId());
-    return shipments;
+    return this.shipmentRepository.findByOrderId(order.getId()).stream()
+        .map(ShipmentMapper::toDto)
+        .toList();
   }
 }

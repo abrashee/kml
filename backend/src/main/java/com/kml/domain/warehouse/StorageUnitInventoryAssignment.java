@@ -22,6 +22,7 @@ import jakarta.persistence.UniqueConstraint;
     name = "storage_unit_inventory_item_assignments",
     uniqueConstraints = {@UniqueConstraint(columnNames = {"storage_unit_id", "inventory_item_id"})})
 public class StorageUnitInventoryAssignment {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -50,11 +51,10 @@ public class StorageUnitInventoryAssignment {
 
     validateStorageUnit(storageUnit);
     validateInventoryItem(inventoryItem);
+    validateAssignedQuantity(assignedQuantity);
 
     this.storageUnit = storageUnit;
     this.inventoryItem = inventoryItem;
-
-    validateAssignedQuantity(assignedQuantity);
     this.assignedQuantity = assignedQuantity;
   }
 
@@ -63,7 +63,6 @@ public class StorageUnitInventoryAssignment {
     this.assignedQuantity = newQuantity;
   }
 
-  // validators
   private void validateStorageUnit(StorageUnit storageUnit) {
     if (storageUnit == null) {
       throw new IllegalArgumentException("StorageUnit must not be null");
@@ -72,7 +71,7 @@ public class StorageUnitInventoryAssignment {
 
   private void validateInventoryItem(InventoryItem inventoryItem) {
     if (inventoryItem == null) {
-      throw new IllegalArgumentException("Inventory Item must not be null");
+      throw new IllegalArgumentException("InventoryItem must not be null");
     }
   }
 
@@ -80,15 +79,14 @@ public class StorageUnitInventoryAssignment {
     if (quantity <= 0) {
       throw new IllegalArgumentException("Assigned quantity must be at least 1");
     }
-    if (inventoryItem != null && quantity > inventoryItem.getQuantity()) {
-      throw new IllegalArgumentException("Assigned quantity exceeds available inventory");
-    }
+  }
+
+  private void validateWithinStorageUnitCapacity(int quantity) {
     if (storageUnit != null && quantity > storageUnit.getCapacity()) {
-      throw new IllegalArgumentException("Assigned quanitty exceeds storageUnit capacity");
+      throw new IllegalArgumentException("Assigned quantity exceeds storage unit capacity");
     }
   }
 
-  // Persistence
   @PrePersist
   public void onCreate() {
     LocalDateTime now = LocalDateTime.now();

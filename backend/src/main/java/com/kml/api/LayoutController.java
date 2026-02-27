@@ -1,8 +1,8 @@
 package com.kml.api;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kml.capacity.dto.StorageUnitInventoryAssignmentDto;
+import com.kml.capacity.mapper.StorageUnitMapper;
+import com.kml.capacity.security.AuthorizationService;
+import com.kml.capacity.security.HardcodedUserContext;
 import com.kml.capacity.service.LayoutService;
+import com.kml.domain.user.User;
 import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 
 @RestController
@@ -27,11 +31,16 @@ public class LayoutController {
   public ResponseEntity<List<StorageUnitInventoryAssignmentDto>> getWarehouseLayout(
       @RequestParam Long warehouseId) {
 
+    User currentUser = HardcodedUserContext.getCurrentUser();
+    if (!AuthorizationService.canAccessWarehouse(currentUser, warehouseId)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
     List<StorageUnitInventoryAssignment> assignments =
         layoutService.getWarehouseLayout(warehouseId);
 
     List<StorageUnitInventoryAssignmentDto> dtos =
-        assignments.stream().map(this::mapToResponseDto).collect(Collectors.toList());
+        assignments.stream().map(StorageUnitMapper::toDto).toList();
 
     return ResponseEntity.ok(dtos);
   }
@@ -39,24 +48,13 @@ public class LayoutController {
   @GetMapping("/by-storage-unit")
   public ResponseEntity<List<StorageUnitInventoryAssignmentDto>> getStorageUnitLayout(
       @RequestParam Long storageUnitId) {
+
     List<StorageUnitInventoryAssignment> assignments =
         layoutService.getStorageUnitLayout(storageUnitId);
+
     List<StorageUnitInventoryAssignmentDto> dtos =
-        assignments.stream().map(this::mapToResponseDto).collect(Collectors.toList());
+        assignments.stream().map(StorageUnitMapper::toDto).toList();
+
     return ResponseEntity.ok(dtos);
-  }
-
-  private StorageUnitInventoryAssignmentDto mapToResponseDto(
-      StorageUnitInventoryAssignment assignment) {
-    StorageUnitInventoryAssignmentDto responseDto = new StorageUnitInventoryAssignmentDto();
-    responseDto.setStorageUnitId(assignment.getStorageUnit().getId());
-    responseDto.setStorageUnitCode(assignment.getStorageUnit().getCode());
-
-    responseDto.setInventoryItemId(assignment.getInventoryItem().getId());
-    responseDto.setInventoryItemSku(assignment.getInventoryItem().getSku());
-    responseDto.setInventoryItemName(assignment.getInventoryItem().getName());
-
-    responseDto.setAssignedQuantity(assignment.getAssignedQuantity());
-    return responseDto;
   }
 }

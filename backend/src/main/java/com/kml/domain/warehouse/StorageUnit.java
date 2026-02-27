@@ -22,7 +22,7 @@ public class StorageUnit {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String code;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -52,6 +52,20 @@ public class StorageUnit {
     this.capacity = newCapacity;
   }
 
+  public void assignToWarehouse(Warehouse warehouse) {
+    if (warehouse == null) {
+      throw new IllegalArgumentException("Warehouse must not be null");
+    }
+    if (this.warehouse != null) {
+      throw new IllegalStateException("StorageUnit already assigned to a warehouse");
+    }
+    this.warehouse = warehouse;
+  }
+
+  public void unassignWarehouse() {
+    this.warehouse = null;
+  }
+
   @PrePersist
   protected void onCreate() {
     LocalDateTime now = LocalDateTime.now();
@@ -71,20 +85,9 @@ public class StorageUnit {
   }
 
   private void validateCapacity(int capacity) {
-    if (capacity < 0) {
-      throw new IllegalArgumentException("Capacity must be zero or greater");
+    if (capacity <= 0) {
+      throw new IllegalArgumentException("Capacity must be greater than zero");
     }
-  }
-
-  public void assignToWarehouse(Warehouse warehouse) {
-    if (this.warehouse != null) {
-      throw new IllegalArgumentException("StorageUnit already assigned to a warehosue");
-    }
-    this.warehouse = warehouse;
-  }
-
-  public void unassignWarehouse() {
-    this.warehouse = null;
   }
 
   public Long getId() {

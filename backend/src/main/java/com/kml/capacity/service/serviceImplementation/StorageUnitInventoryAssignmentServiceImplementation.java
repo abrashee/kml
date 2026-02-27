@@ -1,10 +1,11 @@
 package com.kml.capacity.service.serviceImplementation;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.kml.capacity.dto.StorageUnitInventoryAssignmentDto;
+import com.kml.capacity.mapper.StorageUnitMapper;
 import com.kml.capacity.service.StorageUnitInventoryAssignmentService;
 import com.kml.domain.inventory.InventoryItem;
 import com.kml.domain.warehouse.StorageUnit;
@@ -21,20 +22,20 @@ public class StorageUnitInventoryAssignmentServiceImplementation
 
   private final InventoryRepository inventoryRepository;
   private final StorageUnitRepository storageUnitRepository;
-  private final StorageUnitInventoryAssignmentRepository storageUnitInventoryAssignmentRepository;
+  private final StorageUnitInventoryAssignmentRepository assignmentRepository;
 
   public StorageUnitInventoryAssignmentServiceImplementation(
       InventoryRepository inventoryRepository,
       StorageUnitRepository storageUnitRepository,
-      StorageUnitInventoryAssignmentRepository storageUnitInventoryAssignmentRepository) {
+      StorageUnitInventoryAssignmentRepository assignmentRepository) {
     this.inventoryRepository = inventoryRepository;
     this.storageUnitRepository = storageUnitRepository;
-    this.storageUnitInventoryAssignmentRepository = storageUnitInventoryAssignmentRepository;
+    this.assignmentRepository = assignmentRepository;
   }
 
   @Override
   @Transactional
-  public Optional<StorageUnitInventoryAssignment> createStorageUnitInventoryAssignment(
+  public StorageUnitInventoryAssignmentDto createStorageUnitInventoryAssignment(
       Long storageUnitId, Long inventoryItemId, int assignedQuantity) {
 
     StorageUnit storageUnit =
@@ -47,55 +48,71 @@ public class StorageUnitInventoryAssignmentServiceImplementation
             .findById(inventoryItemId)
             .orElseThrow(() -> new IllegalArgumentException("Inventory item not found"));
 
-    Optional<StorageUnitInventoryAssignment> existing =
-        storageUnitInventoryAssignmentRepository.findByStorageUnit_IdAndInventoryItem_Id(
-            storageUnitId, inventoryItemId);
-
-    if (existing.isPresent()) {
-      throw new IllegalArgumentException("Assignment already exits");
+    boolean exists =
+        assignmentRepository
+            .findByStorageUnit_IdAndInventoryItem_Id(storageUnitId, inventoryItemId)
+            .isPresent();
+    if (exists) {
+      throw new IllegalArgumentException("Assignment already exists");
     }
 
     StorageUnitInventoryAssignment assignment =
         new StorageUnitInventoryAssignment(storageUnit, inventoryItem, assignedQuantity);
 
-    StorageUnitInventoryAssignment saved =
-        storageUnitInventoryAssignmentRepository.save(assignment);
-
-    return Optional.of(saved);
+    StorageUnitInventoryAssignment saved = assignmentRepository.save(assignment);
+    return StorageUnitMapper.toDto(saved);
   }
 
   @Override
-  public List<StorageUnitInventoryAssignment> getAllStorageUnitInventoryItems() {
-    return storageUnitInventoryAssignmentRepository.findAll();
+  public List<StorageUnitInventoryAssignmentDto> getAllStorageUnitInventoryItems() {
+    return assignmentRepository.findAll().stream().map(StorageUnitMapper::toDto).toList();
   }
 
   @Override
-  public List<StorageUnitInventoryAssignment> getByStorageUnitId(Long storageUnitId) {
-    return storageUnitInventoryAssignmentRepository.findByStorageUnit_Id(storageUnitId);
+  public List<StorageUnitInventoryAssignmentDto> getByStorageUnitId(Long storageUnitId) {
+    storageUnitRepository
+        .findById(storageUnitId)
+        .orElseThrow(() -> new IllegalArgumentException("StorageUnit not found"));
+
+    return assignmentRepository.findByStorageUnit_Id(storageUnitId).stream()
+        .map(StorageUnitMapper::toDto)
+        .toList();
   }
 
   @Override
-  public Optional<StorageUnitInventoryAssignment> updateStorageUnitInventoryAssignment(
+  public StorageUnitInventoryAssignmentDto getByStorageUnitIdAndInventoryItemId(
+      Long storageUnitId, Long inventoryItemId) {
+
+    StorageUnitInventoryAssignment assignment =
+        assignmentRepository
+            .findByStorageUnit_IdAndInventoryItem_Id(storageUnitId, inventoryItemId)
+            .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
+
+    return StorageUnitMapper.toDto(assignment);
+  }
+
+  @Override
+  @Transactional
+  public StorageUnitInventoryAssignmentDto updateStorageUnitInventoryAssignment(
       Long assignmentId, int newQuantity) {
 
     StorageUnitInventoryAssignment assignment =
-        storageUnitInventoryAssignmentRepository
+        assignmentRepository
             .findById(assignmentId)
             .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
 
     assignment.updateAssignedQuantity(newQuantity);
-    return Optional.of(storageUnitInventoryAssignmentRepository.save(assignment));
+
+    StorageUnitInventoryAssignment saved = assignmentRepository.save(assignment);
+    return StorageUnitMapper.toDto(saved);
   }
 
   @Override
+  @Transactional
   public void deleteStorageUnitInventoryItemAssignment(Long id) {
-    storageUnitInventoryAssignmentRepository.deleteById(id);
-  }
-
-  @Override
-  public Optional<StorageUnitInventoryAssignment> getByStorageUnitIdAndInventoryItemId(
-      Long storageUnitId, Long inventoryItemId) {
-    return this.storageUnitInventoryAssignmentRepository.findByStorageUnit_IdAndInventoryItem_Id(
-        storageUnitId, inventoryItemId);
+    if (!assignmentRepository.existsById(id)) {
+      throw new IllegalArgumentException("Assignment not found");
+    }
+    assignmentRepository.deleteById(id);
   }
 }

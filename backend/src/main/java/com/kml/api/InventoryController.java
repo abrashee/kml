@@ -1,13 +1,7 @@
 package com.kml.api;
 
-import com.kml.capacity.dto.InventoryItemRequestDto;
-import com.kml.capacity.dto.InventoryItemResponseDto;
-import com.kml.capacity.dto.QuantityUpdateDto;
-import com.kml.capacity.service.InventoryService;
-import com.kml.domain.inventory.InventoryItem;
-import jakarta.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kml.capacity.dto.InventoryItemRequestDto;
+import com.kml.capacity.dto.InventoryItemResponseDto;
+import com.kml.capacity.dto.QuantityUpdateDto;
+import com.kml.capacity.service.InventoryService;
+
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/inventories")
 public class InventoryController {
@@ -30,99 +31,67 @@ public class InventoryController {
     this.inventoryService = inventoryService;
   }
 
-  // Create inventory item
   @PostMapping
   public ResponseEntity<InventoryItemResponseDto> createInventoryItem(
       @RequestBody @Valid InventoryItemRequestDto requestDto) {
-    InventoryItem item =
+    InventoryItemResponseDto item =
         inventoryService.createInventoryItem(
             requestDto.getSku(), requestDto.getName(), requestDto.getQuantity());
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponseDto(item));
+    return ResponseEntity.status(HttpStatus.CREATED).body(item);
   }
 
-  // Update inventory quantity
   @PatchMapping("/{sku}/quantity")
   public ResponseEntity<InventoryItemResponseDto> updateQuantity(
       @PathVariable String sku, @Valid @RequestBody QuantityUpdateDto dto) {
-    InventoryItem updatedItem = inventoryService.updateQuantity(sku, dto.getDelta());
-    return ResponseEntity.ok(mapToResponseDto(updatedItem));
+    InventoryItemResponseDto updatedItem = inventoryService.updateQuantity(sku, dto.getDelta());
+    return ResponseEntity.ok(updatedItem);
   }
 
-  // Get All inventories
   @GetMapping
   public ResponseEntity<List<InventoryItemResponseDto>> getAllInventories() {
-    List<InventoryItem> inventoryItems = inventoryService.getAllInventories();
-
-    List<InventoryItemResponseDto> dtos =
-        inventoryItems.stream().map(this::mapToResponseDto).collect(Collectors.toList());
-    return ResponseEntity.ok(dtos);
+    List<InventoryItemResponseDto> inventoryItems = inventoryService.getAllInventories();
+    return ResponseEntity.ok(inventoryItems);
   }
 
-  // Get inventory by SKU
   @GetMapping("/sku/{sku}")
   public ResponseEntity<InventoryItemResponseDto> getInventoryBySku(@PathVariable String sku) {
-    InventoryItem item = inventoryService.getInventoryBySku(sku);
-    return ResponseEntity.ok(mapToResponseDto(item));
+    InventoryItemResponseDto item = inventoryService.getInventoryBySku(sku);
+    return ResponseEntity.ok(item);
   }
 
-  // Get inventoryby Id
   @GetMapping("/{id}")
   public ResponseEntity<InventoryItemResponseDto> getInventoryById(@PathVariable Long id) {
-    InventoryItem item = inventoryService.getInventoryById(id);
-    return ResponseEntity.ok(mapToResponseDto(item));
+    InventoryItemResponseDto item = inventoryService.getInventoryById(id);
+    return ResponseEntity.ok(item);
   }
 
-  // Search inventory by Name
   @GetMapping("/search/by-name")
   public ResponseEntity<List<InventoryItemResponseDto>> getInventoryByName(
       @RequestParam String name) {
-    List<InventoryItem> inventoryItems = inventoryService.getInventoryByName(name);
-    List<InventoryItemResponseDto> dtos =
-        inventoryItems.stream().map(this::mapToResponseDto).collect(Collectors.toList());
-    return ResponseEntity.ok(dtos);
+    List<InventoryItemResponseDto> inventoryItems = inventoryService.getInventoryByName(name);
+    return ResponseEntity.ok(inventoryItems);
   }
 
-  // Filter by Quantity Range
   @GetMapping("/search/by-quantity")
   public ResponseEntity<List<InventoryItemResponseDto>> getInventoryByQuantity(
       @RequestParam int minQuantity, @RequestParam int maxQuantity) {
-    List<InventoryItem> inventoryItems =
+    List<InventoryItemResponseDto> inventoryItems =
         inventoryService.getInventoryByRange(minQuantity, maxQuantity);
-
-    List<InventoryItemResponseDto> dtos =
-        inventoryItems.stream().map(this::mapToResponseDto).collect(Collectors.toList());
-    return ResponseEntity.ok(dtos);
+    return ResponseEntity.ok(inventoryItems);
   }
 
-  // Search by Combined Filters (Name + SKU)
   @GetMapping("/search/by-sku-name")
   public ResponseEntity<List<InventoryItemResponseDto>> getInventoryByFilter(
       @RequestParam String sku, @RequestParam String name) {
-    List<InventoryItem> inventoryItems = inventoryService.getInventoryByFilter(sku, name);
-
-    List<InventoryItemResponseDto> dtos =
-        inventoryItems.stream().map(this::mapToResponseDto).collect(Collectors.toList());
-    return ResponseEntity.ok(dtos);
+    List<InventoryItemResponseDto> inventoryItems =
+        inventoryService.getInventoryByFilter(sku, name);
+    return ResponseEntity.ok(inventoryItems);
   }
 
-  // Delete - Delete
-  @DeleteMapping
+  @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteInventory(@PathVariable Long id) {
     inventoryService.deleteInventoryItem(id);
     return ResponseEntity.noContent().build();
-  }
-
-  // Mapping
-  private InventoryItemResponseDto mapToResponseDto(InventoryItem item) {
-    InventoryItemResponseDto dto = new InventoryItemResponseDto();
-    dto.setId(item.getId());
-    dto.setSku(item.getSku());
-    dto.setName(item.getName());
-    dto.setQuantity(item.getQuantity());
-    dto.setCreatedAt(item.getCreatedAt());
-    dto.setUpdatedAt(item.getUpdatedAt());
-
-    return dto;
   }
 }

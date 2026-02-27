@@ -1,5 +1,6 @@
 package com.kml.capacity.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StorageUnitLayout {
@@ -7,7 +8,7 @@ public class StorageUnitLayout {
   private String code;
   private Long warehouseId;
   private int capacity;
-  private List<InventoryItemLayoutDto> inventoryItems;
+  private List<InventoryItemLayoutDto> inventoryItems = new ArrayList<>();
 
   public Long getId() {
     return id;
@@ -46,6 +47,6 @@ public class StorageUnitLayout {
   }
 
   public void setInventoryItems(List<InventoryItemLayoutDto> inventoryItems) {
-    this.inventoryItems = inventoryItems;
+    this.inventoryItems = (inventoryItems == null) ? new ArrayList<>() : inventoryItems;
   }
 }

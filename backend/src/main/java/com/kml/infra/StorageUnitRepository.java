@@ -14,4 +14,6 @@ public interface StorageUnitRepository extends JpaRepository<StorageUnit, Long> 
   Optional<StorageUnit> findByCode(String code);
 
   Optional<StorageUnit> findByWarehouse_IdAndCode(Long warehouseId, String code);
+
+  boolean existsByWarehouse_IdAndCode(Long warehouseId, String code);
 }
