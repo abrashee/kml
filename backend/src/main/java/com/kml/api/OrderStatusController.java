@@ -1,11 +1,19 @@
 package com.kml.api;
 
+import static com.kml.capacity.mapper.OrderStatusMapper.toDto;
+
+import com.kml.capacity.dto.OrderStatusRequestDto;
+import com.kml.capacity.dto.OrderStatusResponseDto;
+import com.kml.capacity.mapper.OrderStatusMapper;
+import com.kml.capacity.service.OrderStatusService;
+import com.kml.domain.order.OrderStatus;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,15 +22,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.kml.capacity.dto.OrderStatusRequestDto;
-import com.kml.capacity.dto.OrderStatusResponseDto;
-import com.kml.capacity.mapper.OrderStatusMapper;
-import static com.kml.capacity.mapper.OrderStatusMapper.toDto;
-import com.kml.capacity.service.OrderStatusService;
-import com.kml.domain.order.OrderStatus;
-
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/order-statuses")
@@ -34,6 +33,7 @@ public class OrderStatusController {
     this.orderStatusService = orderStatusService;
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @PostMapping
   public ResponseEntity<OrderStatusResponseDto> createOrderStatus(
       @RequestBody @Valid OrderStatusRequestDto requestDto) {
@@ -44,6 +44,7 @@ public class OrderStatusController {
     return ResponseEntity.status(HttpStatus.CREATED).body(toDto(created));
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @GetMapping
   public ResponseEntity<List<OrderStatusResponseDto>> getAllOrderStatuses() {
     List<OrderStatusResponseDto> dtos =
@@ -54,6 +55,7 @@ public class OrderStatusController {
     return ResponseEntity.ok(dtos);
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @GetMapping("/name/{name}")
   public ResponseEntity<OrderStatusResponseDto> getByName(@PathVariable String name) {
     Optional<OrderStatus> orderStatus = orderStatusService.getByName(name);
@@ -63,6 +65,7 @@ public class OrderStatusController {
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @PutMapping("/{id}")
   public ResponseEntity<OrderStatusResponseDto> updateOrderStatus(
       @PathVariable Long id, @RequestBody @Valid OrderStatusRequestDto requestDto) {
@@ -73,6 +76,7 @@ public class OrderStatusController {
     return ResponseEntity.ok(toDto(updated));
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteOrderStatus(@PathVariable Long id) {
     orderStatusService.deleteOrderStatus(id);

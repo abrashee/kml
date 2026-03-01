@@ -2,6 +2,7 @@ package com.kml.api;
 
 import com.kml.capacity.dto.UserRequestDto;
 import com.kml.capacity.dto.UserResponseDto;
+import com.kml.capacity.mapper.UserMapper;
 import com.kml.capacity.service.UserService;
 import com.kml.domain.user.User;
 import jakarta.validation.Valid;
@@ -25,23 +26,12 @@ public class UserController {
   @PostMapping
   public ResponseEntity<UserResponseDto> createUser(@RequestBody @Valid UserRequestDto requestDto) {
     User user =
-        this.userService.createUser(
+        userService.createUser(
             requestDto.getName(),
             requestDto.getUsername(),
             requestDto.getPassword(),
             requestDto.getUserRole());
-    return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponseDto(user));
-  }
 
-  private UserResponseDto mapToResponseDto(User user) {
-    UserResponseDto responseDto = new UserResponseDto();
-
-    responseDto.setId(user.getId());
-    responseDto.setName(user.getName());
-    responseDto.setUsername(user.getUsername());
-    responseDto.setUserRole(user.getUserRole().name());
-    responseDto.setCreatedAt(user.getCreatedAt());
-    responseDto.setUpdatedAt(user.getUpdatedAt());
-    return responseDto;
+    return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(user));
   }
 }
