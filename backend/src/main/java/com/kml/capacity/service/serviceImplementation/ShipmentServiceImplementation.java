@@ -1,10 +1,5 @@
 package com.kml.capacity.service.serviceImplementation;
 
-import java.util.List;
-import java.util.Set;
-
-import org.springframework.stereotype.Service;
-
 import com.kml.capacity.dto.ShipmentResponseDto;
 import com.kml.capacity.mapper.ShipmentMapper;
 import com.kml.capacity.service.ShipmentService;
@@ -16,8 +11,12 @@ import com.kml.domain.shipment.ShipmentStatus;
 import com.kml.domain.warehouse.Warehouse;
 import com.kml.infra.OrderRepository;
 import com.kml.infra.ShipmentRepository;
-
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ShipmentServiceImplementation implements ShipmentService {
@@ -26,6 +25,7 @@ public class ShipmentServiceImplementation implements ShipmentService {
   private final OrderRepository orderRepository;
   private final ShipmentWarehouseResolverService shipmentWarehouseResolverService;
   private final WarehouseNotificationService warehouseNotificationService;
+  private static final Logger log = LoggerFactory.getLogger(ShipmentServiceImplementation.class);
 
   public ShipmentServiceImplementation(
       ShipmentRepository shipmentRepository,
@@ -49,15 +49,23 @@ public class ShipmentServiceImplementation implements ShipmentService {
     Shipment shipment = Shipment.createWithGeneratedTracking(order, address, carrierInfo);
     Shipment savedShipment = shipmentRepository.save(shipment);
 
+    List<Warehouse> warehouses = List.of();
+
     try {
-      List<Warehouse> warehouses =
+      warehouses =
           shipmentWarehouseResolverService.resolveWarehouseForShipment(savedShipment.getId());
+
       warehouses.forEach(
           w ->
               warehouseNotificationService.notifyShipmentCreated(
                   savedShipment.getId(), Set.of(w.getId())));
     } catch (Exception e) {
-      System.out.println("Warehouse notification failed");
+      log.error(
+          "Failed to notify warehouses for shipment id={}, orderId={}, warehouseCount={}",
+          savedShipment.getId(),
+          orderId,
+          warehouses.size(),
+          e);
     }
 
     return ShipmentMapper.toDto(savedShipment);
