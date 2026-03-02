@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kml.capacity.dto.ShipmentHistoryResponseDto;
 import com.kml.capacity.dto.ShipmentRequestDto;
 import com.kml.capacity.dto.ShipmentResponseDto;
 import com.kml.capacity.dto.ShipmentStatusUpdateRequestDto;
+import com.kml.capacity.service.ShipmentHistoryService;
 import com.kml.capacity.service.ShipmentService;
 
 import jakarta.validation.Valid;
@@ -25,9 +27,12 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/v1/shipments")
 public class ShipmentController {
   private final ShipmentService shipmentService;
+  private final ShipmentHistoryService shipmentHistoryService;
 
-  public ShipmentController(ShipmentService shipmentService) {
+  public ShipmentController(
+      ShipmentService shipmentService, ShipmentHistoryService shipmentHistoryService) {
     this.shipmentService = shipmentService;
+    this.shipmentHistoryService = shipmentHistoryService;
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
@@ -74,5 +79,12 @@ public class ShipmentController {
       @PathVariable Long id, @RequestBody @Valid ShipmentStatusUpdateRequestDto requestDto) {
 
     return ResponseEntity.ok(shipmentService.updateShipmentStatus(id, requestDto.getStatus()));
+  }
+
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER','CUSTOMER')")
+  @GetMapping("/{id}/history")
+  public ResponseEntity<List<ShipmentHistoryResponseDto>> getShipmentHistory(
+      @PathVariable Long id) {
+    return ResponseEntity.ok(shipmentHistoryService.getHistoryForShipment(id));
   }
 }
