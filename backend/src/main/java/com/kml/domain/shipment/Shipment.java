@@ -1,6 +1,10 @@
 package com.kml.domain.shipment;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import com.kml.domain.order.Order;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,8 +18,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "shipments")
@@ -78,22 +80,32 @@ public class Shipment {
       throw new IllegalArgumentException("Status is required");
     }
 
-    if (this.status == ShipmentStatus.PENDING && nextStatus == ShipmentStatus.IN_TRANSIT) {
-      this.status = nextStatus;
-      return;
+    switch (this.status) {
+      case PENDING -> {
+        if (nextStatus != ShipmentStatus.IN_TRANSIT) {
+          throw invalidTransition(nextStatus);
+        }
+      }
+      case IN_TRANSIT -> {
+        if (nextStatus != ShipmentStatus.DELIVERED) {
+          throw invalidTransition(nextStatus);
+        }
+      }
+      case DELIVERED -> {
+        if (nextStatus != ShipmentStatus.RETURNED) {
+          throw invalidTransition(nextStatus);
+        }
+      }
+      case RETURNED -> {
+        throw new IllegalStateException("Returned shipment cannot transition further");
+      }
     }
 
-    if (this.status == ShipmentStatus.IN_TRANSIT && nextStatus == ShipmentStatus.DELIVERED) {
-      this.status = nextStatus;
-      return;
-    }
+    this.status = nextStatus;
+  }
 
-    if (nextStatus == ShipmentStatus.DELIVERED && nextStatus == ShipmentStatus.RETURNED) {
-      this.status = nextStatus;
-      return;
-    }
-
-    throw new IllegalStateException(
+  private IllegalStateException invalidTransition(ShipmentStatus nextStatus) {
+    return new IllegalStateException(
         "Invalid status transition from " + this.status + " to " + nextStatus);
   }
 
