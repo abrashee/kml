@@ -1,5 +1,12 @@
 package com.kml.capacity.service.serviceImplementation;
 
+import java.util.List;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import com.kml.capacity.dto.ShipmentResponseDto;
 import com.kml.capacity.mapper.ShipmentMapper;
 import com.kml.capacity.service.ShipmentService;
@@ -11,12 +18,8 @@ import com.kml.domain.shipment.ShipmentStatus;
 import com.kml.domain.warehouse.Warehouse;
 import com.kml.infra.OrderRepository;
 import com.kml.infra.ShipmentRepository;
+
 import jakarta.transaction.Transactional;
-import java.util.List;
-import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 @Service
 public class ShipmentServiceImplementation implements ShipmentService {
@@ -110,5 +113,19 @@ public class ShipmentServiceImplementation implements ShipmentService {
     return this.shipmentRepository.findByOrderId(order.getId()).stream()
         .map(ShipmentMapper::toDto)
         .toList();
+  }
+
+  @Override
+  @Transactional
+  public ShipmentResponseDto updateShipmentStatus(Long shipmentId, ShipmentStatus nextStatus) {
+    Shipment shipment =
+        shipmentRepository
+            .findById(shipmentId)
+            .orElseThrow(() -> new IllegalArgumentException("Shipment not found"));
+
+    shipment.transitionTo(nextStatus);
+
+    Shipment saved = shipmentRepository.save(shipment);
+    return ShipmentMapper.toDto(saved);
   }
 }

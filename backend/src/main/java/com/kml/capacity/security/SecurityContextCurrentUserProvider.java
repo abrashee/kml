@@ -1,12 +1,14 @@
 package com.kml.capacity.security;
 
-import com.kml.domain.user.User;
-import com.kml.domain.user.UserRole;
 import java.util.Locale;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import com.kml.domain.user.User;
+import com.kml.domain.user.UserRole;
 
 @Service
 public class SecurityContextCurrentUserProvider implements CurrentUserProvider {
