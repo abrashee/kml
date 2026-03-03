@@ -1,6 +1,8 @@
 package com.kml.capacity.dto;
 
+import com.kml.domain.user.UserRole;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class UserRequestDto {
@@ -14,7 +16,8 @@ public class UserRequestDto {
   @Size(min = 3)
   private String password;
 
-  private String userRole;
+  @NotNull(message = "User role is required")
+  private UserRole userRole;
 
   public String getName() {
     return name;
@@ -40,11 +43,11 @@ public class UserRequestDto {
     this.password = password;
   }
 
-  public String getUserRole() {
+  public UserRole getUserRole() {
     return userRole;
   }
 
-  public void setUserRole(String userRole) {
+  public void setUserRole(UserRole userRole) {
     this.userRole = userRole;
   }
 }

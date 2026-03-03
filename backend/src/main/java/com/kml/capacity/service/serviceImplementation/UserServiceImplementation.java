@@ -21,7 +21,7 @@ public class UserServiceImplementation implements UserService {
 
   @Override
   @Transactional
-  public User createUser(String name, String username, String password, String userRoleApi) {
+  public User createUser(String name, String username, String password, UserRole userRole) {
 
     if (name == null || name.isBlank()) {
       throw new IllegalArgumentException("Name is required");
@@ -31,14 +31,6 @@ public class UserServiceImplementation implements UserService {
     }
     if (password == null || password.isBlank()) {
       throw new IllegalArgumentException("Password is required");
-    }
-
-    UserRole userRole;
-    try {
-      userRole = UserRole.valueOf(userRoleApi.toUpperCase());
-    } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException(
-          "Invalid User Role. Allowed values: ADMIN, MANAGER, USER, CUSTOMER");
     }
 
     if (existsByUsername(username)) {
