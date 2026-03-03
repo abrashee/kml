@@ -9,10 +9,10 @@ import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 import com.kml.infra.InventoryRepository;
 import com.kml.infra.StorageUnitInventoryAssignmentRepository;
 import com.kml.infra.StorageUnitRepository;
-import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class InventoryServiceImpl implements InventoryService {
@@ -62,6 +62,7 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<InventoryItemResponseDto> getAllInventories() {
     List<InventoryItem> inventoryItems = this.inventoryRepository.findAll();
     List<InventoryItemResponseDto> dtoResponseItems = new ArrayList<>();
@@ -72,6 +73,7 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public InventoryItemResponseDto getInventoryBySku(String sku) {
     InventoryItem inventoryItem =
         this.inventoryRepository
@@ -82,6 +84,7 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public InventoryItemResponseDto getInventoryById(Long id) {
     InventoryItem inventoryItem =
         this.inventoryRepository
@@ -92,6 +95,7 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<InventoryItemResponseDto> getInventoryByName(String name) {
     List<InventoryItem> items = inventoryRepository.findByName(name);
     List<InventoryItemResponseDto> dtoResponseItems = new ArrayList<>();
@@ -102,6 +106,7 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<InventoryItemResponseDto> getInventoryByRange(int minQuantity, int maxQuantity) {
     List<InventoryItem> items = inventoryRepository.findByQuantityBetween(minQuantity, maxQuantity);
     List<InventoryItemResponseDto> dtoResponseItems = new ArrayList<>();
@@ -112,8 +117,8 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<InventoryItemResponseDto> getInventoryByFilter(String sku, String name) {
-
     List<InventoryItem> items = inventoryRepository.findBySkuAndName(sku, name);
     List<InventoryItemResponseDto> dtoResponseItems = new ArrayList<>();
     for (InventoryItem item : items) {
@@ -123,6 +128,7 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<InventoryItemResponseDto> getInventoryByStorageUnitId(Long storageUnitId) {
     List<StorageUnitInventoryAssignment> assignments =
         this.storageUnitInventoryAssignmentRepository.findByStorageUnit_Id(storageUnitId);
@@ -140,12 +146,10 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<InventoryItemResponseDto> getInventoryByWarehouseId(Long warehouseId) {
-
     List<InventoryItem> inventoryItems = new ArrayList<>();
-
     List<StorageUnit> storageUnits = this.storageUnitRepository.findByWarehouse_Id(warehouseId);
-
     for (StorageUnit storageUnit : storageUnits) {
       List<StorageUnitInventoryAssignment> assignments =
           this.storageUnitInventoryAssignmentRepository.findByStorageUnit_Id(storageUnit.getId());

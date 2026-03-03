@@ -5,6 +5,7 @@ import com.kml.domain.audit.UserActivityLog;
 import com.kml.infra.UserActivityLogRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserActivityLogServiceImpl implements UserActivityLogService {
@@ -15,12 +16,14 @@ public class UserActivityLogServiceImpl implements UserActivityLogService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<UserActivityLog> getAllUserActivityLogs() {
     List<UserActivityLog> userActivityLogs = this.userActivityLogRepository.findAll();
     return userActivityLogs;
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<UserActivityLog> getActivityLogsByUser(Long userId) {
     List<UserActivityLog> userActivityLogs = this.userActivityLogRepository.findByUserId(userId);
     return userActivityLogs;

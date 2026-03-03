@@ -4,9 +4,9 @@ import com.kml.capacity.service.UserService;
 import com.kml.domain.user.User;
 import com.kml.domain.user.UserRole;
 import com.kml.infra.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -44,6 +44,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public boolean existsByUsername(String username) {
     return this.userRepository.existsByUsername(username);
   }

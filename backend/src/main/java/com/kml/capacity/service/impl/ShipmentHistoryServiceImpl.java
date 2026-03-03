@@ -6,6 +6,7 @@ import com.kml.capacity.service.ShipmentHistoryService;
 import com.kml.infra.ShipmentHistoryRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ShipmentHistoryServiceImpl implements ShipmentHistoryService {
@@ -17,6 +18,7 @@ public class ShipmentHistoryServiceImpl implements ShipmentHistoryService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<ShipmentHistoryResponseDto> getHistoryForShipment(Long shipmentId) {
     if (shipmentId == null) {
       throw new IllegalArgumentException("ShipmentId is required");

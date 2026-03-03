@@ -11,10 +11,10 @@ import com.kml.domain.order.OrderStatus;
 import com.kml.infra.InventoryRepository;
 import com.kml.infra.OrderRepository;
 import com.kml.infra.OrderStatusRepository;
-import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -74,6 +74,7 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<OrderResponseDto> getAllOrders() {
     List<Order> orders = this.orderRepository.findAll();
 
@@ -85,6 +86,7 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public OrderResponseDto getOrderById(Long id) {
     Order order =
         this.orderRepository

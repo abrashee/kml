@@ -3,10 +3,10 @@ package com.kml.capacity.service.impl;
 import com.kml.capacity.service.OrderStatusService;
 import com.kml.domain.order.OrderStatus;
 import com.kml.infra.OrderStatusRepository;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderStatusServiceImpl implements OrderStatusService {

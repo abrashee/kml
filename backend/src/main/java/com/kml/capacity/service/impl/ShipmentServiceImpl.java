@@ -11,12 +11,12 @@ import com.kml.domain.shipment.ShipmentStatus;
 import com.kml.domain.warehouse.Warehouse;
 import com.kml.infra.OrderRepository;
 import com.kml.infra.ShipmentRepository;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ShipmentServiceImpl implements ShipmentService {
@@ -72,11 +72,13 @@ public class ShipmentServiceImpl implements ShipmentService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<ShipmentResponseDto> getAllShipments() {
     return this.shipmentRepository.findAll().stream().map(ShipmentMapper::toDto).toList();
   }
 
   @Override
+  @Transactional(readOnly = true)
   public ShipmentResponseDto getShipmentById(Long id) {
     Shipment shipment =
         this.shipmentRepository
@@ -86,6 +88,7 @@ public class ShipmentServiceImpl implements ShipmentService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<ShipmentResponseDto> getShipmentsByStatus(String status) {
     ShipmentStatus shipmentStatus;
     try {
@@ -101,6 +104,7 @@ public class ShipmentServiceImpl implements ShipmentService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<ShipmentResponseDto> getShipmentsByOrder(Long orderId) {
     Order order =
         this.orderRepository

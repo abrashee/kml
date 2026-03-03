@@ -9,9 +9,9 @@ import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 import com.kml.infra.InventoryRepository;
 import com.kml.infra.StorageUnitInventoryAssignmentRepository;
 import com.kml.infra.StorageUnitRepository;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class StorageUnitInventoryAssignmentServiceImpl
@@ -61,11 +61,13 @@ public class StorageUnitInventoryAssignmentServiceImpl
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<StorageUnitInventoryAssignmentDto> getAllStorageUnitInventoryItems() {
     return assignmentRepository.findAll().stream().map(StorageUnitMapper::toDto).toList();
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<StorageUnitInventoryAssignmentDto> getByStorageUnitId(Long storageUnitId) {
     storageUnitRepository
         .findById(storageUnitId)
@@ -77,6 +79,7 @@ public class StorageUnitInventoryAssignmentServiceImpl
   }
 
   @Override
+  @Transactional(readOnly = true)
   public StorageUnitInventoryAssignmentDto getByStorageUnitIdAndInventoryItemId(
       Long storageUnitId, Long inventoryItemId) {
 

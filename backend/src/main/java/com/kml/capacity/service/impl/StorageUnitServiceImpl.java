@@ -8,9 +8,9 @@ import com.kml.domain.warehouse.Warehouse;
 import com.kml.infra.StorageUnitInventoryAssignmentRepository;
 import com.kml.infra.StorageUnitRepository;
 import com.kml.infra.WarehouseRepository;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class StorageUnitServiceImpl implements StorageUnitService {
@@ -65,6 +65,7 @@ public class StorageUnitServiceImpl implements StorageUnitService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<StorageUnitResponseDto> getStorageUnitsByWarehouseId(Long warehouseId) {
     if (warehouseId == null) {
       throw new IllegalArgumentException("warehouseId is required");
@@ -76,6 +77,7 @@ public class StorageUnitServiceImpl implements StorageUnitService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public StorageUnitResponseDto getStorageUnitById(Long id) {
     StorageUnit unit =
         storageUnitRepository
@@ -86,6 +88,7 @@ public class StorageUnitServiceImpl implements StorageUnitService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public StorageUnitResponseDto getStorageUnitByCode(String code) {
     if (code == null || code.isBlank()) {
       throw new IllegalArgumentException("code is required");
@@ -100,6 +103,7 @@ public class StorageUnitServiceImpl implements StorageUnitService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public StorageUnitResponseDto getStorageUnitByWarehouseIdAndCode(Long warehouseId, String code) {
     if (warehouseId == null) {
       throw new IllegalArgumentException("warehouseId is required");
