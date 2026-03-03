@@ -1,4 +1,4 @@
-package com.kml.capacity.service.serviceImplementation;
+package com.kml.capacity.service.impl;
 
 import com.kml.capacity.service.UserActivityLogService;
 import com.kml.domain.audit.UserActivityLog;
@@ -7,10 +7,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserActivityLogServiceImplementation implements UserActivityLogService {
+public class UserActivityLogServiceImpl implements UserActivityLogService {
   private final UserActivityLogRepository userActivityLogRepository;
 
-  public UserActivityLogServiceImplementation(UserActivityLogRepository userActivityLogRepository) {
+  public UserActivityLogServiceImpl(UserActivityLogRepository userActivityLogRepository) {
     this.userActivityLogRepository = userActivityLogRepository;
   }
 

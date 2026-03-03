@@ -1,8 +1,4 @@
-package com.kml.capacity.service.serviceImplementation;
-
-import java.util.List;
-
-import org.springframework.stereotype.Service;
+package com.kml.capacity.service.impl;
 
 import com.kml.capacity.dto.StorageUnitInventoryAssignmentDto;
 import com.kml.capacity.mapper.StorageUnitMapper;
@@ -13,18 +9,19 @@ import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 import com.kml.infra.InventoryRepository;
 import com.kml.infra.StorageUnitInventoryAssignmentRepository;
 import com.kml.infra.StorageUnitRepository;
-
 import jakarta.transaction.Transactional;
+import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
-public class StorageUnitInventoryAssignmentServiceImplementation
+public class StorageUnitInventoryAssignmentServiceImpl
     implements StorageUnitInventoryAssignmentService {
 
   private final InventoryRepository inventoryRepository;
   private final StorageUnitRepository storageUnitRepository;
   private final StorageUnitInventoryAssignmentRepository assignmentRepository;
 
-  public StorageUnitInventoryAssignmentServiceImplementation(
+  public StorageUnitInventoryAssignmentServiceImpl(
       InventoryRepository inventoryRepository,
       StorageUnitRepository storageUnitRepository,
       StorageUnitInventoryAssignmentRepository assignmentRepository) {

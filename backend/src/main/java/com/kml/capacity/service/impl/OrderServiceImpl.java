@@ -1,9 +1,4 @@
-package com.kml.capacity.service.serviceImplementation;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
+package com.kml.capacity.service.impl;
 
 import com.kml.capacity.dto.OrderItemRequestDto;
 import com.kml.capacity.dto.OrderResponseDto;
@@ -16,17 +11,19 @@ import com.kml.domain.order.OrderStatus;
 import com.kml.infra.InventoryRepository;
 import com.kml.infra.OrderRepository;
 import com.kml.infra.OrderStatusRepository;
-
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
-public class OrderServiceImplementation implements OrderService {
+public class OrderServiceImpl implements OrderService {
 
   private final OrderRepository orderRepository;
   private final OrderStatusRepository orderStatusRepository;
   private final InventoryRepository inventoryRepository;
 
-  public OrderServiceImplementation(
+  public OrderServiceImpl(
       OrderRepository orderRepository,
       OrderStatusRepository orderStatusRepository,
       InventoryRepository inventoryRepository) {

@@ -1,20 +1,18 @@
-package com.kml.capacity.service.serviceImplementation;
-
-import java.util.List;
-
-import org.springframework.stereotype.Service;
+package com.kml.capacity.service.impl;
 
 import com.kml.capacity.dto.ShipmentHistoryResponseDto;
 import com.kml.capacity.mapper.ShipmentHistoryMapper;
 import com.kml.capacity.service.ShipmentHistoryService;
 import com.kml.infra.ShipmentHistoryRepository;
+import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
-public class ShipmentHistoryServiceImplementation implements ShipmentHistoryService {
+public class ShipmentHistoryServiceImpl implements ShipmentHistoryService {
 
   private final ShipmentHistoryRepository shipmentHistoryRepository;
 
-  public ShipmentHistoryServiceImplementation(ShipmentHistoryRepository shipmentHistoryRepository) {
+  public ShipmentHistoryServiceImpl(ShipmentHistoryRepository shipmentHistoryRepository) {
     this.shipmentHistoryRepository = shipmentHistoryRepository;
   }
 

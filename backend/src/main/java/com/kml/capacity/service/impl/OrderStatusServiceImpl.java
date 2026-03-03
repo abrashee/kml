@@ -1,4 +1,4 @@
-package com.kml.capacity.service.serviceImplementation;
+package com.kml.capacity.service.impl;
 
 import com.kml.capacity.service.OrderStatusService;
 import com.kml.domain.order.OrderStatus;
@@ -9,10 +9,10 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OrderStatusServiceImplementation implements OrderStatusService {
+public class OrderStatusServiceImpl implements OrderStatusService {
   private final OrderStatusRepository orderStatusRepository;
 
-  public OrderStatusServiceImplementation(OrderStatusRepository orderStatusRepository) {
+  public OrderStatusServiceImpl(OrderStatusRepository orderStatusRepository) {
     this.orderStatusRepository = orderStatusRepository;
   }
 

@@ -1,9 +1,4 @@
-package com.kml.capacity.service.serviceImplementation;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
+package com.kml.capacity.service.impl;
 
 import com.kml.capacity.service.LayoutService;
 import com.kml.domain.warehouse.StorageUnit;
@@ -12,15 +7,18 @@ import com.kml.infra.InventoryRepository;
 import com.kml.infra.StorageUnitInventoryAssignmentRepository;
 import com.kml.infra.StorageUnitRepository;
 import com.kml.infra.WarehouseRepository;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
-public class LayoutServiceImplementation implements LayoutService {
+public class LayoutServiceImpl implements LayoutService {
   private final InventoryRepository inventoryRepository;
   private final WarehouseRepository warehouseRepository;
   private final StorageUnitRepository storageUnitRepository;
   private final StorageUnitInventoryAssignmentRepository storageUnitInventoryAssignmentRepository;
 
-  public LayoutServiceImplementation(
+  public LayoutServiceImpl(
       InventoryRepository inventoryRepository,
       WarehouseRepository warehouseRepository,
       StorageUnitRepository storageUnitRepository,

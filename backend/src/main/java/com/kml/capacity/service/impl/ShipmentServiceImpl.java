@@ -1,11 +1,4 @@
-package com.kml.capacity.service.serviceImplementation;
-
-import java.util.List;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+package com.kml.capacity.service.impl;
 
 import com.kml.capacity.dto.ShipmentResponseDto;
 import com.kml.capacity.mapper.ShipmentMapper;
@@ -18,19 +11,23 @@ import com.kml.domain.shipment.ShipmentStatus;
 import com.kml.domain.warehouse.Warehouse;
 import com.kml.infra.OrderRepository;
 import com.kml.infra.ShipmentRepository;
-
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 @Service
-public class ShipmentServiceImplementation implements ShipmentService {
+public class ShipmentServiceImpl implements ShipmentService {
 
   private final ShipmentRepository shipmentRepository;
   private final OrderRepository orderRepository;
   private final ShipmentWarehouseResolverService shipmentWarehouseResolverService;
   private final WarehouseNotificationService warehouseNotificationService;
-  private static final Logger log = LoggerFactory.getLogger(ShipmentServiceImplementation.class);
+  private static final Logger log = LoggerFactory.getLogger(ShipmentServiceImpl.class);
 
-  public ShipmentServiceImplementation(
+  public ShipmentServiceImpl(
       ShipmentRepository shipmentRepository,
       OrderRepository orderRepository,
       ShipmentWarehouseResolverService shipmentWarehouseResolverService,

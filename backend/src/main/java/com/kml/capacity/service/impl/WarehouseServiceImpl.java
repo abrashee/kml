@@ -1,4 +1,4 @@
-package com.kml.capacity.service.serviceImplementation;
+package com.kml.capacity.service.impl;
 
 import com.kml.capacity.service.WarehouseService;
 import com.kml.domain.warehouse.Warehouse;
@@ -9,11 +9,11 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
-public class WarehouseServiceImplementation implements WarehouseService {
+public class WarehouseServiceImpl implements WarehouseService {
 
   private final WarehouseRepository warehouseRepository;
 
-  public WarehouseServiceImplementation(WarehouseRepository warehouseRepository) {
+  public WarehouseServiceImpl(WarehouseRepository warehouseRepository) {
     this.warehouseRepository = warehouseRepository;
   }
 
