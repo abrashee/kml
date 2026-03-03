@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/layouts")
+@RequestMapping("/api/v1/storage-units")
 public class LayoutController {
 
   private final LayoutService layoutService;
@@ -23,7 +23,7 @@ public class LayoutController {
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
-  @GetMapping("/by-warehouse")
+  @GetMapping("/assignments")
   public ResponseEntity<List<StorageUnitInventoryAssignmentDto>> getWarehouseLayout(
       @RequestParam Long warehouseId) {
 
@@ -37,7 +37,7 @@ public class LayoutController {
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
-  @GetMapping("/by-storage-unit")
+  @GetMapping("/{storageUnitId}/assignments")
   public ResponseEntity<List<StorageUnitInventoryAssignmentDto>> getStorageUnitLayout(
       @RequestParam Long storageUnitId) {
 

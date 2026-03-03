@@ -1,8 +1,7 @@
 package com.kml.capacity.service;
 
-import java.util.List;
-
 import com.kml.capacity.dto.InventoryItemResponseDto;
+import java.util.List;
 
 public interface InventoryService {
 
@@ -25,6 +24,9 @@ public interface InventoryService {
   List<InventoryItemResponseDto> getInventoryByStorageUnitId(Long id);
 
   List<InventoryItemResponseDto> getInventoryByWarehouseId(Long id);
+
+  List<InventoryItemResponseDto> getInventoriesFiltered(
+      String sku, String name, Integer minQuantity, Integer maxQuantity);
 
   void deleteInventoryItem(Long id);
 }

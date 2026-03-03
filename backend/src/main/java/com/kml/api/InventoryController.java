@@ -41,7 +41,7 @@ public class InventoryController {
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
-  @PatchMapping("/{sku}/quantity")
+  @PatchMapping("/{sku}")
   public ResponseEntity<InventoryItemResponseDto> updateQuantity(
       @PathVariable String sku, @Valid @RequestBody QuantityUpdateDto dto) {
     InventoryItemResponseDto updatedItem = inventoryService.updateQuantity(sku, dto.getDelta());
@@ -50,8 +50,13 @@ public class InventoryController {
 
   @PreAuthorize("isAuthenticated()")
   @GetMapping
-  public ResponseEntity<List<InventoryItemResponseDto>> getAllInventories() {
-    List<InventoryItemResponseDto> inventoryItems = inventoryService.getAllInventories();
+  public ResponseEntity<List<InventoryItemResponseDto>> getAllInventories(
+      @RequestParam(required = false) String sku,
+      @RequestParam(required = false) String name,
+      @RequestParam(required = false) Integer minQuantity,
+      @RequestParam(required = false) Integer maxQuantity) {
+    List<InventoryItemResponseDto> inventoryItems =
+        inventoryService.getInventoriesFiltered(sku, name, minQuantity, maxQuantity);
     return ResponseEntity.ok(inventoryItems);
   }
 

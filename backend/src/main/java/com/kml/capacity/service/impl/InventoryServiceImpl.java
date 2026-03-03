@@ -167,6 +167,32 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
+  @Transactional(readOnly = true)
+  public List<InventoryItemResponseDto> getInventoriesFiltered(
+      String sku, String name, Integer minQuantity, Integer maxQuantity) {
+
+    List<InventoryItem> filteredItems = new ArrayList<>();
+
+    if (sku != null && name != null) {
+      filteredItems = inventoryRepository.findBySkuAndName(sku, name);
+    } else if (sku != null) {
+      filteredItems = inventoryRepository.findBySku(sku).map(List::of).orElse(List.of());
+    } else if (name != null) {
+      filteredItems = inventoryRepository.findByName(name);
+    } else if (minQuantity != null && maxQuantity != null) {
+      filteredItems = inventoryRepository.findByQuantityBetween(minQuantity, maxQuantity);
+    } else {
+      filteredItems = inventoryRepository.findAll();
+    }
+
+    List<InventoryItemResponseDto> dtos = new ArrayList<>();
+    for (InventoryItem item : filteredItems) {
+      dtos.add(InventoryMapper.toDto(item));
+    }
+    return dtos;
+  }
+
+  @Override
   @Transactional
   public void deleteInventoryItem(Long id) {
     InventoryItem item =

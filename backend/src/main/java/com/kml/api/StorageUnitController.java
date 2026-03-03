@@ -42,18 +42,25 @@ public class StorageUnitController {
   @GetMapping("/by-warehouse")
   public ResponseEntity<List<StorageUnitResponseDto>> getStorageUnitByWarehouseId(
       @RequestParam Long warehouseId) {
-    return ResponseEntity.ok(storageUnitService.getStorageUnitsByWarehouseId(warehouseId));
+
+    List<StorageUnitResponseDto> dtos =
+        storageUnitService.getStorageUnitsByWarehouseId(warehouseId);
+    return ResponseEntity.ok(dtos);
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @GetMapping("/{id}")
   public ResponseEntity<StorageUnitResponseDto> getStorageUnitById(@PathVariable Long id) {
-    return ResponseEntity.ok(storageUnitService.getStorageUnitById(id));
+
+    StorageUnitResponseDto dto = storageUnitService.getStorageUnitById(id);
+    return ResponseEntity.ok(dto);
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @GetMapping("/by-code")
   public ResponseEntity<StorageUnitResponseDto> getStorageUnitByCode(@RequestParam String code) {
-    return ResponseEntity.ok(storageUnitService.getStorageUnitByCode(code));
+
+    StorageUnitResponseDto dto = storageUnitService.getStorageUnitByCode(code);
+    return ResponseEntity.ok(dto);
   }
 }
