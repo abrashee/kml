@@ -1,13 +1,15 @@
-package com.kml.capacity.service.notification;
+package com.kml.capacity.service.impl;
 
+import com.kml.capacity.service.WarehouseNotificationService;
 import com.kml.domain.notification.ShipmentNotificationEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
+// In Memory Warehouse Notification
 @Service
-public class InMemoryWarehouseNotificationService implements WarehouseNotificationService {
+public class WarehouseNotificationServiceImpl implements WarehouseNotificationService {
   private final List<ShipmentNotificationEvent> events = new ArrayList<>();
 
   @Override

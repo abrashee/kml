@@ -1,4 +1,4 @@
-package com.kml.capacity.service.notification;
+package com.kml.capacity.service;
 
 import java.util.Set;
 

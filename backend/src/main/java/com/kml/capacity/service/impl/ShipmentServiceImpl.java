@@ -4,7 +4,7 @@ import com.kml.capacity.dto.ShipmentResponseDto;
 import com.kml.capacity.mapper.ShipmentMapper;
 import com.kml.capacity.service.ShipmentService;
 import com.kml.capacity.service.ShipmentWarehouseResolverService;
-import com.kml.capacity.service.notification.WarehouseNotificationService;
+import com.kml.capacity.service.WarehouseNotificationService;
 import com.kml.domain.order.Order;
 import com.kml.domain.shipment.Shipment;
 import com.kml.domain.shipment.ShipmentStatus;
