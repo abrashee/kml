@@ -1,14 +1,12 @@
 package com.kml.capacity.service.serviceImplementation;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import com.kml.capacity.service.UserService;
 import com.kml.domain.user.User;
 import com.kml.domain.user.UserRole;
 import com.kml.infra.UserRepository;
-
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImplementation implements UserService {
@@ -25,23 +23,32 @@ public class UserServiceImplementation implements UserService {
   @Transactional
   public User createUser(String name, String username, String password, String userRoleApi) {
 
+    if (name == null || name.isBlank()) {
+      throw new IllegalArgumentException("Name is required");
+    }
+    if (username == null || username.isBlank()) {
+      throw new IllegalArgumentException("Username is required");
+    }
+    if (password == null || password.isBlank()) {
+      throw new IllegalArgumentException("Password is required");
+    }
+
     UserRole userRole;
     try {
       userRole = UserRole.valueOf(userRoleApi.toUpperCase());
     } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException(
-          "Invalid User Role. Allow values: ADMIN, MANAGER, USER , CUSTOMER");
+          "Invalid User Role. Allowed values: ADMIN, MANAGER, USER, CUSTOMER");
     }
 
-    boolean userExists = existsByUsername(username);
-    if (userExists) {
-      throw new IllegalArgumentException("Username already exits");
+    if (existsByUsername(username)) {
+      throw new IllegalArgumentException("Username already exists");
     }
 
     String hashedPassword = passwordEncoder.encode(password);
 
     User user = new User(name, username, hashedPassword, userRole);
-    return this.userRepository.save(user);
+    return userRepository.save(user);
   }
 
   @Override
