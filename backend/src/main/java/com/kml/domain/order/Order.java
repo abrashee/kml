@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.kml.domain.user.User;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,8 +37,9 @@ public class Order {
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<OrderItem> items = new ArrayList<>();
 
-  //   @ManyToOne
-  //   private User user;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
@@ -46,14 +49,18 @@ public class Order {
 
   protected Order() {}
 
-  public Order(String code, OrderStatus status) {
+  // CHANGED: require owner for proper authorization
+  public Order(String code, OrderStatus status, User user) {
     validateCode(code);
     validateStatus(status);
 
+    if (user == null) {
+      throw new IllegalArgumentException("Order must have an owner");
+    }
+
     this.code = code;
     this.status = status;
-
-    this.items.forEach(item -> item.setOrder(this));
+    this.user = user;
   }
 
   public void replaceItems(List<OrderItem> newItems) {
@@ -123,6 +130,10 @@ public class Order {
 
   public List<OrderItem> getItems() {
     return items;
+  }
+
+  public User getUser() {
+    return user;
   }
 
   public LocalDateTime getCreatedAt() {

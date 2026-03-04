@@ -1,10 +1,7 @@
 package com.kml.api;
 
-import com.kml.capacity.dto.OrderRequestDto;
-import com.kml.capacity.dto.OrderResponseDto;
-import com.kml.capacity.service.OrderService;
-import jakarta.validation.Valid;
 import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,14 +14,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kml.capacity.dto.OrderRequestDto;
+import com.kml.capacity.dto.OrderResponseDto;
+import com.kml.capacity.security.CurrentUserProvider;
+import com.kml.capacity.service.OrderService;
+import com.kml.domain.user.User;
+
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/orders")
 public class OrderController {
 
   private final OrderService orderService;
+  private final CurrentUserProvider currentUserProvider;
 
-  public OrderController(OrderService orderService) {
+  public OrderController(OrderService orderService, CurrentUserProvider currentUserProvider) {
     this.orderService = orderService;
+    this.currentUserProvider = currentUserProvider;
   }
 
   @PreAuthorize("hasAnyRole('USER','CUSTOMER')")
@@ -32,23 +39,26 @@ public class OrderController {
   public ResponseEntity<OrderResponseDto> createOrder(
       @RequestBody @Valid OrderRequestDto requestDto) {
 
+    User currentUser = currentUserProvider.getCurrentUser();
+
     OrderResponseDto order =
-        this.orderService.createOrder(
-            requestDto.getCode(), requestDto.getStatusId(), requestDto.getItems());
+        orderService.createOrder(
+            requestDto.getCode(), requestDto.getStatusId(), requestDto.getItems(), currentUser);
+
     return ResponseEntity.status(HttpStatus.CREATED).body(order);
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER','CUSTOMER')")
   @GetMapping
   public ResponseEntity<List<OrderResponseDto>> getAllOrders() {
-    List<OrderResponseDto> responseDtos = orderService.getAllOrders();
-    return ResponseEntity.ok(responseDtos);
+    List<OrderResponseDto> orders = orderService.getAllOrders();
+    return ResponseEntity.ok(orders);
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER','CUSTOMER')")
   @GetMapping("/{id}")
   public ResponseEntity<OrderResponseDto> getOrderById(@PathVariable Long id) {
-    OrderResponseDto order = this.orderService.getOrderById(id);
+    OrderResponseDto order = orderService.getOrderById(id);
     return ResponseEntity.ok(order);
   }
 
@@ -57,15 +67,17 @@ public class OrderController {
   public ResponseEntity<OrderResponseDto> updateOrder(
       @PathVariable Long id, @RequestBody @Valid OrderRequestDto requestDto) {
 
+    User currentUser = currentUserProvider.getCurrentUser();
+
     OrderResponseDto updatedOrder =
-        orderService.updateOrder(id, requestDto.getStatusId(), requestDto.getItems());
+        orderService.updateOrder(id, requestDto.getStatusId(), requestDto.getItems(), currentUser);
+
     return ResponseEntity.ok(updatedOrder);
   }
 
   @PreAuthorize("hasAnyRole('USER','CUSTOMER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-
     orderService.deleteOrder(id);
     return ResponseEntity.noContent().build();
   }
