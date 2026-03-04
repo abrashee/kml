@@ -38,13 +38,10 @@ public class OrderController {
   @PostMapping
   public ResponseEntity<OrderResponseDto> createOrder(
       @RequestBody @Valid OrderRequestDto requestDto) {
-
     User currentUser = currentUserProvider.getCurrentUser();
-
     OrderResponseDto order =
         orderService.createOrder(
             requestDto.getCode(), requestDto.getStatusId(), requestDto.getItems(), currentUser);
-
     return ResponseEntity.status(HttpStatus.CREATED).body(order);
   }
 
@@ -66,12 +63,9 @@ public class OrderController {
   @PutMapping("/{id}")
   public ResponseEntity<OrderResponseDto> updateOrder(
       @PathVariable Long id, @RequestBody @Valid OrderRequestDto requestDto) {
-
     User currentUser = currentUserProvider.getCurrentUser();
-
     OrderResponseDto updatedOrder =
         orderService.updateOrder(id, requestDto.getStatusId(), requestDto.getItems(), currentUser);
-
     return ResponseEntity.ok(updatedOrder);
   }
 

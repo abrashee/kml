@@ -12,17 +12,14 @@ public final class ShipmentMapper {
       return null;
     }
 
-    ShipmentResponseDto dto = new ShipmentResponseDto();
-    dto.setId(entity.getId());
-    dto.setTracking(entity.getTracking());
-    dto.setCarrierInfo(entity.getCarrierInfo());
-    dto.setAddress(entity.getAddress());
-    dto.setStatus(entity.getStatus());
-    dto.setCreatedAt(entity.getCreatedAt());
-    dto.setUpdatedAt(entity.getUpdatedAt());
-
-    dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getId() : null);
-
-    return dto;
+    return new ShipmentResponseDto(
+        entity.getId(),
+        entity.getTracking(),
+        entity.getCarrierInfo(),
+        entity.getAddress(),
+        entity.getStatus(),
+        entity.getCreatedAt(),
+        entity.getUpdatedAt(),
+        entity.getOrder() != null ? entity.getOrder().getId() : null);
   }
 }

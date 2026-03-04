@@ -33,7 +33,6 @@ public class OrderServiceImpl implements OrderService {
       OrderStatusRepository orderStatusRepository,
       InventoryRepository inventoryRepository,
       CurrentUserProvider currentUserProvider) {
-
     this.orderRepository = orderRepository;
     this.orderStatusRepository = orderStatusRepository;
     this.inventoryRepository = inventoryRepository;
@@ -44,6 +43,7 @@ public class OrderServiceImpl implements OrderService {
   @Transactional
   public OrderResponseDto createOrder(
       String code, Long statusId, List<OrderItemRequestDto> items, User user) {
+
     if (user == null) {
       user = currentUserProvider.getCurrentUser();
     }
@@ -55,12 +55,9 @@ public class OrderServiceImpl implements OrderService {
 
     Order order = new Order(code, status, user);
 
-    List<OrderItem> newItems = mapToOrderItems(items);
-    for (OrderItem item : newItems) {
-      order.addItem(item);
-    }
+    mapToOrderItems(items).forEach(order::addItem);
 
-    Order saved = this.orderRepository.save(order);
+    Order saved = orderRepository.save(order);
     return OrderMapper.toDto(saved);
   }
 
@@ -68,12 +65,13 @@ public class OrderServiceImpl implements OrderService {
   @Transactional
   public OrderResponseDto updateOrder(
       Long id, Long statusId, List<OrderItemRequestDto> items, User user) {
+
     if (user == null) {
       user = currentUserProvider.getCurrentUser();
     }
 
     Order order =
-        this.orderRepository
+        orderRepository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
@@ -87,22 +85,18 @@ public class OrderServiceImpl implements OrderService {
             .orElseThrow(() -> new IllegalArgumentException("Order status not found"));
     order.setStatus(status);
 
-    List<OrderItem> newItems = mapToOrderItems(items);
-    order.replaceItems(newItems);
+    order.replaceItems(mapToOrderItems(items));
 
-    Order saved = this.orderRepository.save(order);
+    Order saved = orderRepository.save(order);
     return OrderMapper.toDto(saved);
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<OrderResponseDto> getAllOrders() {
-    List<Order> orders = this.orderRepository.findAll();
-
+    List<Order> orders = orderRepository.findAll();
     List<OrderResponseDto> mapped = new ArrayList<>();
-    for (Order order : orders) {
-      mapped.add(OrderMapper.toDto(order));
-    }
+    orders.forEach(order -> mapped.add(OrderMapper.toDto(order)));
     return mapped;
   }
 
@@ -110,7 +104,7 @@ public class OrderServiceImpl implements OrderService {
   @Transactional(readOnly = true)
   public OrderResponseDto getOrderById(Long id) {
     Order order =
-        this.orderRepository
+        orderRepository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
@@ -118,9 +112,10 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
+  @Transactional
   public void deleteOrder(Long id) {
-    if (this.orderRepository.existsById(id)) {
-      this.orderRepository.deleteById(id);
+    if (orderRepository.existsById(id)) {
+      orderRepository.deleteById(id);
     }
   }
 

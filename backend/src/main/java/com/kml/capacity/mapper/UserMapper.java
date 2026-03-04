@@ -8,13 +8,14 @@ public final class UserMapper {
   private UserMapper() {}
 
   public static UserResponseDto toDto(User entity) {
-    UserResponseDto dto = new UserResponseDto();
-    dto.setId(entity.getId());
-    dto.setName(entity.getName());
-    dto.setUsername(entity.getUsername());
-    dto.setUserRole(entity.getUserRole().name());
-    dto.setCreatedAt(entity.getCreatedAt());
-    dto.setUpdatedAt(entity.getUpdatedAt());
-    return dto;
+    if (entity == null) return null;
+
+    return new UserResponseDto(
+        entity.getId(),
+        entity.getName(),
+        entity.getUsername(),
+        entity.getUserRole().name(),
+        entity.getCreatedAt(),
+        entity.getUpdatedAt());
   }
 }

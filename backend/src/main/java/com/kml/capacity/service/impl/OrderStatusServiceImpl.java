@@ -1,15 +1,18 @@
 package com.kml.capacity.service.impl;
 
-import com.kml.capacity.service.OrderStatusService;
-import com.kml.domain.order.OrderStatus;
-import com.kml.infra.OrderStatusRepository;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kml.capacity.service.OrderStatusService;
+import com.kml.domain.order.OrderStatus;
+import com.kml.infra.OrderStatusRepository;
+
 @Service
 public class OrderStatusServiceImpl implements OrderStatusService {
+
   private final OrderStatusRepository orderStatusRepository;
 
   public OrderStatusServiceImpl(OrderStatusRepository orderStatusRepository) {
@@ -20,36 +23,38 @@ public class OrderStatusServiceImpl implements OrderStatusService {
   @Transactional
   public OrderStatus createOrderStatus(String name, String description) {
     OrderStatus orderStatus = new OrderStatus(name, description);
-    return this.orderStatusRepository.save(orderStatus);
+    return orderStatusRepository.save(orderStatus);
   }
 
   @Override
   @Transactional
   public OrderStatus updateOrderStatus(Long id, String name, String description) {
     OrderStatus orderStatus =
-        this.orderStatusRepository
+        orderStatusRepository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Order Status not found"));
     orderStatus.setName(name);
     orderStatus.setDescription(description);
-    return this.orderStatusRepository.save(orderStatus);
+    return orderStatusRepository.save(orderStatus);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<OrderStatus> getAllOrderStatuses() {
-    return this.orderStatusRepository.findAll();
+    return orderStatusRepository.findAll();
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<OrderStatus> getByName(String name) {
-    return this.orderStatusRepository.findByName(name);
+    return orderStatusRepository.findByName(name);
   }
 
   @Override
   @Transactional
   public void deleteOrderStatus(Long id) {
-    if (this.orderStatusRepository.existsById(id)) {
-      this.orderStatusRepository.deleteById(id);
+    if (orderStatusRepository.existsById(id)) {
+      orderStatusRepository.deleteById(id);
     }
   }
 }

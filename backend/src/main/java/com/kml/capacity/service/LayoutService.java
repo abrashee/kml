@@ -2,10 +2,10 @@ package com.kml.capacity.service;
 
 import java.util.List;
 
-import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
+import com.kml.capacity.dto.StorageUnitInventoryAssignmentDto;
 
 public interface LayoutService {
-  List<StorageUnitInventoryAssignment> getWarehouseLayout(Long warehouseId);
+  List<StorageUnitInventoryAssignmentDto> getWarehouseLayout(Long warehouseId);
 
-  List<StorageUnitInventoryAssignment> getStorageUnitLayout(Long storageUnitId);
+  List<StorageUnitInventoryAssignmentDto> getStorageUnitLayout(Long storageUnitId);
 }

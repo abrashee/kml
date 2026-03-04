@@ -12,11 +12,7 @@ public final class ShipmentHistoryMapper {
       return null;
     }
 
-    ShipmentHistoryResponseDto dto = new ShipmentHistoryResponseDto();
-    dto.setId(entity.getId());
-    dto.setPreviousStatus(entity.getPreviousStatus());
-    dto.setNewStatus(entity.getNewStatus());
-    dto.setChangedAt(entity.getChangedAt());
-    return dto;
+    return new ShipmentHistoryResponseDto(
+        entity.getId(), entity.getPreviousStatus(), entity.getNewStatus(), entity.getChangedAt());
   }
 }

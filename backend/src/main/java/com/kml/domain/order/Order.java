@@ -49,7 +49,6 @@ public class Order {
 
   protected Order() {}
 
-  // CHANGED: require owner for proper authorization
   public Order(String code, OrderStatus status, User user) {
     validateCode(code);
     validateStatus(status);

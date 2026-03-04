@@ -8,12 +8,11 @@ public final class OrderStatusMapper {
   private OrderStatusMapper() {}
 
   public static OrderStatusResponseDto toDto(OrderStatus entity) {
-    OrderStatusResponseDto dto = new OrderStatusResponseDto();
-    dto.setId(entity.getId());
-    dto.setName(entity.getName());
-    dto.setDescription(entity.getDescription());
-    dto.setCreatedAt(entity.getCreatedAt());
-    dto.setUpdatedAt(entity.getUpdatedAt());
-    return dto;
+    return new OrderStatusResponseDto(
+        entity.getId(),
+        entity.getName(),
+        entity.getDescription(),
+        entity.getCreatedAt(),
+        entity.getUpdatedAt());
   }
 }

@@ -8,10 +8,7 @@ public final class WarehouseMapper {
   private WarehouseMapper() {}
 
   public static WarehouseResponseDto toDto(Warehouse entity) {
-    WarehouseResponseDto dto = new WarehouseResponseDto();
-    dto.setId(entity.getId());
-    dto.setName(entity.getName());
-    dto.setAddress(entity.getAddress());
-    return dto;
+    if (entity == null) return null;
+    return new WarehouseResponseDto(entity.getId(), entity.getName(), entity.getAddress());
   }
 }

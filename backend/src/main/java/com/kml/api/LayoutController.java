@@ -1,16 +1,17 @@
 package com.kml.api;
 
-import com.kml.capacity.dto.StorageUnitInventoryAssignmentDto;
-import com.kml.capacity.mapper.StorageUnitMapper;
-import com.kml.capacity.service.LayoutService;
-import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.kml.capacity.dto.StorageUnitInventoryAssignmentDto;
+import com.kml.capacity.service.LayoutService;
 
 @RestController
 @RequestMapping("/api/v1/storage-units")
@@ -25,28 +26,27 @@ public class LayoutController {
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @GetMapping("/assignments")
   public ResponseEntity<List<StorageUnitInventoryAssignmentDto>> getWarehouseLayout(
-      @RequestParam Long warehouseId) {
+      @RequestParam("warehouseId") Long warehouseId) {
 
-    List<StorageUnitInventoryAssignment> assignments =
-        layoutService.getWarehouseLayout(warehouseId);
+    if (warehouseId == null) {
+      throw new IllegalArgumentException("warehouseId is required");
+    }
 
-    List<StorageUnitInventoryAssignmentDto> dtos =
-        assignments.stream().map(StorageUnitMapper::toDto).toList();
-
+    List<StorageUnitInventoryAssignmentDto> dtos = layoutService.getWarehouseLayout(warehouseId);
     return ResponseEntity.ok(dtos);
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @GetMapping("/{storageUnitId}/assignments")
   public ResponseEntity<List<StorageUnitInventoryAssignmentDto>> getStorageUnitLayout(
-      @RequestParam Long storageUnitId) {
+      @PathVariable("storageUnitId") Long storageUnitId) {
 
-    List<StorageUnitInventoryAssignment> assignments =
-        layoutService.getStorageUnitLayout(storageUnitId);
+    if (storageUnitId == null) {
+      throw new IllegalArgumentException("storageUnitId is required");
+    }
 
     List<StorageUnitInventoryAssignmentDto> dtos =
-        assignments.stream().map(StorageUnitMapper::toDto).toList();
-
+        layoutService.getStorageUnitLayout(storageUnitId);
     return ResponseEntity.ok(dtos);
   }
 }
