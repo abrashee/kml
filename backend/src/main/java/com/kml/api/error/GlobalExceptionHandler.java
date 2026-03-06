@@ -1,7 +1,7 @@
 package com.kml.api.error;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.NoSuchElementException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -9,6 +9,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import jakarta.servlet.http.HttpServletRequest;
+
+/** Centralized exception handling for API. */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -27,7 +30,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
   }
 
-  // 409 Conflict)
+  // 409 Conflict
   @ExceptionHandler(IllegalStateException.class)
   public ResponseEntity<ApiError> handleIllegalState(
       IllegalStateException ex, HttpServletRequest request) {
@@ -42,7 +45,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
   }
 
-  // 400 Bad Request
+  // 400 Bad Request - Validation errors
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ApiError> handleValidationException(
       MethodArgumentNotValidException ex, HttpServletRequest request) {
@@ -78,7 +81,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
   }
 
-  // 403 Forbidden
+  // 403 Forbidden - Access denied (Spring Security)
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<ApiError> handleAccessDenied(
       AccessDeniedException ex, HttpServletRequest request) {
@@ -88,6 +91,21 @@ public class GlobalExceptionHandler {
             HttpStatus.FORBIDDEN.value(),
             HttpStatus.FORBIDDEN.getReasonPhrase(),
             ex.getMessage(),
+            request.getRequestURI());
+
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+  }
+
+  // 403 Forbidden - Ownership violation
+  @ExceptionHandler(OwnershipException.class)
+  public ResponseEntity<ApiError> handleOwnershipViolation(
+      OwnershipException ex, HttpServletRequest request) {
+
+    ApiError error =
+        new ApiError(
+            HttpStatus.FORBIDDEN.value(),
+            HttpStatus.FORBIDDEN.getReasonPhrase(),
+            ex.getMessage() != null ? ex.getMessage() : "User does not have ownership",
             request.getRequestURI());
 
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);

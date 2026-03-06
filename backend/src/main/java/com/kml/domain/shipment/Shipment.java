@@ -1,6 +1,14 @@
 package com.kml.domain.shipment;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+import com.kml.domain.common.AuditableEntity;
 import com.kml.domain.order.Order;
+import com.kml.domain.user.User;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,18 +19,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "shipments")
-public class Shipment {
+public class Shipment extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,41 +43,35 @@ public class Shipment {
   @Column(name = "status", nullable = false)
   private ShipmentStatus status;
 
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt;
-
-  @Column(name = "updated_at", nullable = false)
-  private LocalDateTime updatedAt;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "order_id", nullable = false)
   private Order order;
 
-  private transient List<Object> domainEvents = new ArrayList<>();
+  @Transient private List<Object> domainEvents = new ArrayList<>();
 
   protected Shipment() {}
 
-  public static Shipment createWithGeneratedTracking(
-      Order order, String address, String carrierInfo) {
-    String tracking = UUID.randomUUID().toString();
-    return new Shipment(tracking, carrierInfo, address, order);
-  }
-
-  public static Shipment createWithExternalTracking(
-      Order order, String address, String carrierInfo, String tracking) {
-    return new Shipment(tracking, carrierInfo, address, order);
-  }
-
-  private Shipment(String tracking, String carrierInfo, String address, Order order) {
+  private Shipment(User owner, Order order, String address, String carrierInfo, String tracking) {
+    setOwner(owner);
     validateAddress(address);
     validateOrder(order);
     validateTracking(tracking);
 
-    this.tracking = tracking;
-    this.carrierInfo = carrierInfo;
-    this.address = address;
-    this.status = ShipmentStatus.PENDING;
     this.order = order;
+    this.address = address;
+    this.carrierInfo = carrierInfo;
+    this.tracking = tracking;
+    this.status = ShipmentStatus.PENDING;
+  }
+
+  public static Shipment createWithGeneratedTracking(
+      User owner, Order order, String address, String carrierInfo) {
+    return new Shipment(owner, order, address, carrierInfo, UUID.randomUUID().toString());
+  }
+
+  public static Shipment createWithExternalTracking(
+      User owner, Order order, String address, String carrierInfo, String tracking) {
+    return new Shipment(owner, order, address, carrierInfo, tracking);
   }
 
   public void transitionTo(ShipmentStatus nextStatus) {
@@ -95,12 +91,8 @@ public class Shipment {
           throw new IllegalStateException("Returned shipment cannot transition further");
     }
 
-    ShipmentStatus previousStatus = this.status;
     this.status = nextStatus;
-
-    this.domainEvents.add(new ShipmentNotificationEvent(this.id, null));
-
-    // service.saveShipmentHistory(this, previousStatus, nextStatus);
+    this.domainEvents.add(new ShipmentNotificationEvent(this.getOwner().getId(), this.id));
   }
 
   private IllegalStateException invalidTransition(ShipmentStatus nextStatus) {
@@ -122,18 +114,6 @@ public class Shipment {
       throw new IllegalArgumentException("Tracking info is required");
   }
 
-  @PrePersist
-  public void onCreate() {
-    LocalDateTime now = LocalDateTime.now();
-    this.createdAt = now;
-    this.updatedAt = now;
-  }
-
-  @PreUpdate
-  public void onUpdate() {
-    this.updatedAt = LocalDateTime.now();
-  }
-
   public Long getId() {
     return id;
   }
@@ -152,14 +132,6 @@ public class Shipment {
 
   public ShipmentStatus getStatus() {
     return status;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
   }
 
   public Order getOrder() {

@@ -1,107 +1,73 @@
 package com.kml.domain.order;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import com.kml.domain.common.AuditableEntity;
 import com.kml.domain.user.User;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "orders")
-public class Order {
+public class Order extends AuditableEntity {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "code", nullable = false, unique = true)
+  @Column(nullable = false, unique = true)
   private String code;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "status_id", nullable = false)
+  @ManyToOne(optional = false)
   private OrderStatus status;
 
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<OrderItem> items = new ArrayList<>();
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "user_id", nullable = false)
-  private User user;
-
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt;
-
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
-
   protected Order() {}
 
-  public Order(String code, OrderStatus status, User user) {
+  public Order(User owner, String code, OrderStatus status) {
+    setOwner(owner);
     validateCode(code);
     validateStatus(status);
-    if (user == null) throw new IllegalArgumentException("Order must have an owner");
-
     this.code = code;
     this.status = status;
-    this.user = user;
   }
 
-  public void replaceItems(List<OrderItem> newItems) {
-    if (newItems == null || newItems.isEmpty()) {
-      throw new IllegalArgumentException("Order must contain at least one item");
-    }
-    for (OrderItem existing : new ArrayList<>(this.items)) {
-      removeItem(existing);
-    }
-    for (OrderItem item : newItems) {
-      addItem(item);
-    }
+  public static Order create(User owner, String code, OrderStatus status) {
+    return new Order(owner, code, status);
   }
 
   public void addItem(OrderItem item) {
+    if (item == null) throw new IllegalArgumentException("Item cannot be null");
     item.setOrder(this);
     this.items.add(item);
   }
 
-  public void removeItem(OrderItem item) {
-    item.setOrder(null);
-    this.items.remove(item);
+  public void replaceItems(List<OrderItem> newItems) {
+    this.items.clear();
+    if (newItems != null) newItems.forEach(this::addItem);
   }
 
-  public void validateCode(String code) {
-    if (code == null || code.isBlank())
-      throw new IllegalArgumentException("Order code must not be null");
+  private void validateCode(String code) {
+    if (code == null || code.isBlank()) throw new IllegalArgumentException("Order code required");
   }
 
-  public void validateStatus(OrderStatus status) {
-    if (status == null) throw new IllegalArgumentException("Order status must not be null");
+  private void validateStatus(OrderStatus status) {
+    if (status == null) throw new IllegalArgumentException("Order status required");
   }
 
-  @PrePersist
-  public void onCreate() {
-    LocalDateTime now = LocalDateTime.now();
-    this.createdAt = now;
-    this.updatedAt = now;
-  }
-
-  @PreUpdate
-  public void onUpdate() {
-    this.updatedAt = LocalDateTime.now();
-  }
-
+  // Getters
   public Long getId() {
     return id;
   }
@@ -114,24 +80,7 @@ public class Order {
     return status;
   }
 
-  public void setStatus(OrderStatus status) {
-    validateStatus(status);
-    this.status = status;
-  }
-
   public List<OrderItem> getItems() {
-    return items;
-  }
-
-  public User getUser() {
-    return user;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
+    return Collections.unmodifiableList(items);
   }
 }

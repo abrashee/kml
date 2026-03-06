@@ -2,5 +2,6 @@ package com.kml.capacity.dto;
 
 import java.time.LocalDateTime;
 
+/** Immutable DTO for user activity logs. Use constructor to set createdAt and updatedAt. */
 public record UserActivityLogDto(
-    String username, String action, String entity, Long entityId, LocalDateTime createdAt) {}
+    Long id, Long userId, String activity, LocalDateTime createdAt, LocalDateTime updatedAt) {}

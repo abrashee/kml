@@ -9,6 +9,12 @@ public final class WarehouseMapper {
 
   public static WarehouseResponseDto toDto(Warehouse entity) {
     if (entity == null) return null;
-    return new WarehouseResponseDto(entity.getId(), entity.getName(), entity.getAddress());
+
+    return new WarehouseResponseDto(
+        entity.getId(),
+        entity.getName() != null ? entity.getName() : "",
+        entity.getAddress() != null ? entity.getAddress() : "",
+        entity.getCreatedAt(),
+        entity.getUpdatedAt());
   }
 }

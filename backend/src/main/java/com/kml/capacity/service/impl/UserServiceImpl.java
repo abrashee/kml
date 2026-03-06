@@ -4,6 +4,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kml.capacity.dto.UserResponseDto;
+import com.kml.capacity.mapper.UserMapper;
 import com.kml.capacity.service.UserService;
 import com.kml.domain.user.User;
 import com.kml.domain.user.UserRole;
@@ -22,7 +24,8 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public User createUser(String name, String username, String password, UserRole userRole) {
+  public UserResponseDto createUser(
+      String name, String username, String password, UserRole userRole) {
 
     if (name == null || name.isBlank()) {
       throw new IllegalArgumentException("Name is required");
@@ -44,12 +47,14 @@ public class UserServiceImpl implements UserService {
     String hashedPassword = passwordEncoder.encode(password);
 
     User user = new User(name, username, hashedPassword, userRole);
-    return userRepository.save(user);
+    User savedUser = userRepository.save(user);
+
+    return UserMapper.toDto(savedUser);
   }
 
   @Override
   @Transactional(readOnly = true)
   public boolean existsByUsername(String username) {
-    return this.userRepository.existsByUsername(username);
+    return userRepository.existsByUsername(username);
   }
 }

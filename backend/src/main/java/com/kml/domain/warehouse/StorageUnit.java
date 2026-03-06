@@ -1,6 +1,7 @@
 package com.kml.domain.warehouse;
 
-import java.time.LocalDateTime;
+import com.kml.domain.common.AuditableEntity;
+import com.kml.domain.user.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,8 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -19,7 +18,7 @@ import jakarta.persistence.UniqueConstraint;
 @Table(
     name = "storage_units",
     uniqueConstraints = {@UniqueConstraint(columnNames = {"warehouse_id", "code"})})
-public class StorageUnit {
+public class StorageUnit extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,19 +34,22 @@ public class StorageUnit {
   @Column(nullable = false)
   private int capacity;
 
-  @Column(nullable = false, updatable = false)
-  private LocalDateTime createdAt;
-
-  @Column(nullable = false)
-  private LocalDateTime updatedAt;
-
   protected StorageUnit() {}
 
-  public StorageUnit(String code, int capacity) {
+  private StorageUnit(User owner, String code, int capacity) {
+    setOwner(owner);
     validateCode(code);
     validateCapacity(capacity);
     this.code = code;
     this.capacity = capacity;
+  }
+
+  /** Factory method used by services to create a new StorageUnit with owner validation. */
+  public static StorageUnit create(User owner, String code, int capacity) {
+    if (owner == null) {
+      throw new IllegalArgumentException("Owner must not be null");
+    }
+    return new StorageUnit(owner, code, capacity);
   }
 
   public void updateCapacity(int newCapacity) {
@@ -59,9 +61,11 @@ public class StorageUnit {
     if (warehouse == null) {
       throw new IllegalArgumentException("Warehouse must not be null");
     }
+
     if (this.warehouse != null) {
-      throw new IllegalStateException("StorageUnit already assigned to a warehouse");
+      throw new IllegalStateException("Already assigned to a warehouse");
     }
+
     this.warehouse = warehouse;
   }
 
@@ -69,27 +73,15 @@ public class StorageUnit {
     this.warehouse = null;
   }
 
-  @PrePersist
-  protected void onCreate() {
-    LocalDateTime now = LocalDateTime.now();
-    this.createdAt = now;
-    this.updatedAt = now;
-  }
-
-  @PreUpdate
-  protected void onUpdate() {
-    this.updatedAt = LocalDateTime.now();
-  }
-
   private void validateCode(String code) {
     if (code == null || code.isBlank()) {
-      throw new IllegalArgumentException("Storage unit code must not be blank");
+      throw new IllegalArgumentException("Code is required");
     }
   }
 
   private void validateCapacity(int capacity) {
     if (capacity <= 0) {
-      throw new IllegalArgumentException("Capacity must be greater than zero");
+      throw new IllegalArgumentException("Capacity must be > 0");
     }
   }
 
@@ -107,13 +99,5 @@ public class StorageUnit {
 
   public int getCapacity() {
     return capacity;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
   }
 }

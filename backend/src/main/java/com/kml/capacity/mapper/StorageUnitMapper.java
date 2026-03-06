@@ -1,5 +1,6 @@
 package com.kml.capacity.mapper;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.kml.capacity.dto.InventoryItemLayoutDto;
@@ -23,19 +24,24 @@ public final class StorageUnitMapper {
         entity.getId(),
         entity.getCode(),
         entity.getWarehouse() != null ? entity.getWarehouse().getId() : null,
-        entity.getCapacity());
+        entity.getCapacity(),
+        entity.getCreatedAt(), // <-- added
+        entity.getUpdatedAt() // <-- added
+        );
   }
 
   public static StorageUnitInventoryAssignmentDto toDto(StorageUnitInventoryAssignment entity) {
     if (entity == null) return null;
 
     return new StorageUnitInventoryAssignmentDto(
-        entity.getStorageUnit().getId(),
-        entity.getStorageUnit().getCode(),
-        entity.getInventoryItem().getId(),
-        entity.getInventoryItem().getSku(),
-        entity.getInventoryItem().getName(),
-        entity.getAssignedQuantity());
+        entity.getStorageUnit() != null ? entity.getStorageUnit().getId() : null,
+        entity.getStorageUnit() != null ? entity.getStorageUnit().getCode() : null,
+        entity.getInventoryItem() != null ? entity.getInventoryItem().getId() : null,
+        entity.getInventoryItem() != null ? entity.getInventoryItem().getSku() : null,
+        entity.getInventoryItem() != null ? entity.getInventoryItem().getName() : null,
+        entity.getAssignedQuantity(),
+        entity.getCreatedAt(),
+        entity.getUpdatedAt());
   }
 
   public static StorageUnitLayoutDto toLayoutDto(
@@ -71,5 +77,11 @@ public final class StorageUnitMapper {
         warehouse.getName(),
         warehouse.getAddress(),
         storageUnitLayouts != null ? storageUnitLayouts : List.of());
+  }
+
+  /** Helper for mapping lists safely */
+  public static <T, R> List<R> mapList(List<T> source, java.util.function.Function<T, R> mapper) {
+    if (source == null || source.isEmpty()) return Collections.emptyList();
+    return source.stream().map(mapper).toList();
   }
 }

@@ -3,17 +3,22 @@ package com.kml.capacity.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.kml.domain.warehouse.Warehouse;
+import com.kml.capacity.dto.WarehouseResponseDto;
+import com.kml.domain.user.User;
 
 public interface WarehouseService {
 
-  // Create
-  Warehouse createWarehouse(String name, String address);
+  // Create warehouse, returns DTO to avoid entity leak
+  WarehouseResponseDto createWarehouse(User owner, String name, String address);
 
-  // Get
-  Optional<Warehouse> getWarehouseById(Long id);
+  // Get single warehouse by id, returns DTO
+  Optional<WarehouseResponseDto> getWarehouseById(Long id);
 
-  Optional<Warehouse> getWarehouseByName(String name);
+  Optional<WarehouseResponseDto> getWarehouseByName(String name);
 
-  List<Warehouse> getAllWarehouses();
+  // Get all warehouses for current user
+  List<WarehouseResponseDto> getAllWarehouses();
+
+  // Ownership check (internal)
+  void enforceOwnership(Long warehouseId, User user);
 }

@@ -14,7 +14,7 @@ public final class UserMapper {
         entity.getId(),
         entity.getName(),
         entity.getUsername(),
-        entity.getUserRole().name(),
+        entity.getUserRole() != null ? entity.getUserRole().name() : null,
         entity.getCreatedAt(),
         entity.getUpdatedAt());
   }

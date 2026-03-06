@@ -11,10 +11,10 @@ public final class UserActivityLogMapper {
     if (entity == null) return null;
 
     return new UserActivityLogDto(
-        entity.getUser().getUsername(),
-        entity.getAction(),
-        entity.getEntity(),
-        entity.getEntityId(),
-        entity.getCreatedAt());
+        entity.getId(),
+        entity.getUser() != null ? entity.getUser().getId() : null,
+        entity.getAction(), // renamed to match "activity"
+        entity.getCreatedAt(),
+        entity.getUpdatedAt());
   }
 }

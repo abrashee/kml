@@ -1,5 +1,8 @@
 package com.kml.domain.shipment;
 
+import com.kml.domain.common.AuditableEntity;
+import com.kml.domain.user.User;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,13 +13,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "shipment_history")
-public class ShipmentHistory {
+public class ShipmentHistory extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,9 +31,6 @@ public class ShipmentHistory {
   @Column(name = "new_status", nullable = false)
   private ShipmentStatus newStatus;
 
-  @Column(name = "changed_at", nullable = false, updatable = false)
-  private LocalDateTime changedAt;
-
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "shipment_id", nullable = false)
   private Shipment shipment;
@@ -40,7 +38,8 @@ public class ShipmentHistory {
   protected ShipmentHistory() {}
 
   public ShipmentHistory(
-      Shipment shipment, ShipmentStatus previousStatus, ShipmentStatus newStatus) {
+      User owner, Shipment shipment, ShipmentStatus previousStatus, ShipmentStatus newStatus) {
+    setOwner(owner);
     validate(shipment, previousStatus, newStatus);
     this.shipment = shipment;
     this.previousStatus = previousStatus;
@@ -56,11 +55,6 @@ public class ShipmentHistory {
       throw new IllegalArgumentException("Previous and new status must differ");
   }
 
-  @PrePersist
-  protected void onCreate() {
-    this.changedAt = LocalDateTime.now();
-  }
-
   public Long getId() {
     return id;
   }
@@ -71,10 +65,6 @@ public class ShipmentHistory {
 
   public ShipmentStatus getNewStatus() {
     return newStatus;
-  }
-
-  public LocalDateTime getChangedAt() {
-    return changedAt;
   }
 
   public Shipment getShipment() {

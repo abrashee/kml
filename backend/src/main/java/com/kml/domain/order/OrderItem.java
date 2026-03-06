@@ -1,75 +1,63 @@
 package com.kml.domain.order;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
+import com.kml.domain.common.AuditableEntity;
 import com.kml.domain.inventory.InventoryItem;
+import com.kml.domain.user.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "order_items")
-public class OrderItem {
+public class OrderItem extends AuditableEntity {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "order_id", nullable = false)
+  @ManyToOne(optional = false)
   private Order order;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "inventory_item_id", nullable = false)
+  @ManyToOne(optional = false)
   private InventoryItem inventoryItem;
 
-  @Column(name = "quantity", nullable = false)
+  @Column(nullable = false)
   private int quantity;
 
-  @Column(name = "price_at_order", nullable = false)
+  @Column(nullable = false)
   private BigDecimal priceAtOrder;
-
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt;
-
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
 
   protected OrderItem() {}
 
-  public OrderItem(InventoryItem inventoryItem, int quantity, BigDecimal priceAtOrder) {
+  public OrderItem(User owner, InventoryItem inventoryItem, int quantity, BigDecimal priceAtOrder) {
+    setOwner(owner);
+    validate(inventoryItem, quantity, priceAtOrder);
     this.inventoryItem = inventoryItem;
     this.quantity = quantity;
     this.priceAtOrder = priceAtOrder;
-    validate();
   }
 
-  private void validate() {
-    if (inventoryItem == null) throw new IllegalArgumentException("InventoryItem is required");
-    if (quantity <= 0) throw new IllegalArgumentException("Quantity must be positive");
-    if (priceAtOrder == null || priceAtOrder.signum() <= 0)
+  public static OrderItem create(
+      User owner, InventoryItem inventoryItem, int quantity, BigDecimal priceAtOrder) {
+    return new OrderItem(owner, inventoryItem, quantity, priceAtOrder);
+  }
+
+  private void validate(InventoryItem item, int qty, BigDecimal price) {
+    if (item == null) throw new IllegalArgumentException("Inventory item required");
+    if (qty <= 0) throw new IllegalArgumentException("Quantity must be positive");
+    if (price == null || price.signum() <= 0)
       throw new IllegalArgumentException("Price must be positive");
   }
 
-  @PrePersist
-  public void onCreate() {
-    LocalDateTime now = LocalDateTime.now();
-    this.createdAt = now;
-    this.updatedAt = now;
-  }
-
-  @PreUpdate
-  public void onUpdate() {
-    this.updatedAt = LocalDateTime.now();
+  protected void setOrder(Order order) {
+    this.order = order;
   }
 
   public Long getId() {
@@ -80,16 +68,8 @@ public class OrderItem {
     return order;
   }
 
-  public void setOrder(Order order) {
-    this.order = order;
-  }
-
   public InventoryItem getInventoryItem() {
     return inventoryItem;
-  }
-
-  public void setInventoryItem(InventoryItem inventoryItem) {
-    this.inventoryItem = inventoryItem;
   }
 
   public int getQuantity() {
@@ -98,13 +78,5 @@ public class OrderItem {
 
   public BigDecimal getPriceAtOrder() {
     return priceAtOrder;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
   }
 }

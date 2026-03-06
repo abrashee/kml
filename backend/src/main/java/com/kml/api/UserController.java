@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kml.capacity.dto.UserRequestDto;
 import com.kml.capacity.dto.UserResponseDto;
-import com.kml.capacity.mapper.UserMapper;
 import com.kml.capacity.service.UserService;
-import com.kml.domain.user.User;
 
 import jakarta.validation.Valid;
 
@@ -27,13 +25,14 @@ public class UserController {
 
   @PostMapping
   public ResponseEntity<UserResponseDto> createUser(@RequestBody @Valid UserRequestDto requestDto) {
-    User user =
+
+    UserResponseDto created =
         userService.createUser(
             requestDto.getName(),
             requestDto.getUsername(),
             requestDto.getPassword(),
             requestDto.getUserRole());
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(user));
+    return ResponseEntity.status(HttpStatus.CREATED).body(created);
   }
 }

@@ -1,3 +1,11 @@
 package com.kml.capacity.dto;
 
-public record StorageUnitResponseDto(Long id, String code, Long warehouseId, int capacity) {}
+import java.time.LocalDateTime;
+
+public record StorageUnitResponseDto(
+    Long id,
+    String code,
+    Long warehouseId,
+    int capacity,
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt) {}

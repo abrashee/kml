@@ -11,16 +11,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kml.capacity.dto.StorageUnitInventoryAssignmentDto;
-import com.kml.capacity.service.LayoutService;
+import com.kml.capacity.service.InventoryItemLayoutService;
 
 @RestController
 @RequestMapping("/api/v1/storage-units")
-public class LayoutController {
+public class InventoryItemLayoutController {
 
-  private final LayoutService layoutService;
+  private final InventoryItemLayoutService inventoryItemLayoutService;
 
-  public LayoutController(LayoutService layoutService) {
-    this.layoutService = layoutService;
+  public InventoryItemLayoutController(InventoryItemLayoutService inventoryItemLayoutService) {
+    this.inventoryItemLayoutService = inventoryItemLayoutService;
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
@@ -32,7 +32,8 @@ public class LayoutController {
       throw new IllegalArgumentException("warehouseId is required");
     }
 
-    List<StorageUnitInventoryAssignmentDto> dtos = layoutService.getWarehouseLayout(warehouseId);
+    List<StorageUnitInventoryAssignmentDto> dtos =
+        inventoryItemLayoutService.getWarehouseLayout(warehouseId);
     return ResponseEntity.ok(dtos);
   }
 
@@ -46,7 +47,7 @@ public class LayoutController {
     }
 
     List<StorageUnitInventoryAssignmentDto> dtos =
-        layoutService.getStorageUnitLayout(storageUnitId);
+        inventoryItemLayoutService.getStorageUnitLayout(storageUnitId);
     return ResponseEntity.ok(dtos);
   }
 }

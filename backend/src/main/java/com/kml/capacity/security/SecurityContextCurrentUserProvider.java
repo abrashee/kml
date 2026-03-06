@@ -2,6 +2,7 @@ package com.kml.capacity.security;
 
 import java.util.Locale;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,6 +12,7 @@ import com.kml.domain.user.User;
 import com.kml.domain.user.UserRole;
 
 @Service
+@Primary
 public class SecurityContextCurrentUserProvider implements CurrentUserProvider {
 
   @Override

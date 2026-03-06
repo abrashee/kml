@@ -2,22 +2,22 @@ package com.kml.domain.shipment;
 
 public final class ShipmentNotificationEvent {
 
+  private final Long ownerId;
   private final Long shipmentId;
-  private final Long warehouseId;
 
-  public ShipmentNotificationEvent(Long shipmentId, Long warehouseId) {
+  public ShipmentNotificationEvent(Long ownerId, Long shipmentId) {
+    if (ownerId == null) throw new IllegalArgumentException("Owner ID is required");
     if (shipmentId == null) throw new IllegalArgumentException("Shipment ID is required");
-    if (warehouseId == null) throw new IllegalArgumentException("Warehouse ID is required");
 
+    this.ownerId = ownerId;
     this.shipmentId = shipmentId;
-    this.warehouseId = warehouseId;
+  }
+
+  public Long getOwnerId() {
+    return ownerId;
   }
 
   public Long getShipmentId() {
     return shipmentId;
-  }
-
-  public Long getWarehouseId() {
-    return warehouseId;
   }
 }

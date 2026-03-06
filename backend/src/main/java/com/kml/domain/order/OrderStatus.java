@@ -1,54 +1,48 @@
 package com.kml.domain.order;
 
-import java.time.LocalDateTime;
+import com.kml.domain.common.AuditableEntity;
+import com.kml.domain.user.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "order_statuses")
-public class OrderStatus {
+public class OrderStatus extends AuditableEntity {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "name", nullable = false, unique = true)
+  @Column(nullable = false, unique = true)
   private String name;
 
-  @Column(name = "description")
-  private String description;
-
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt;
-
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
+  @Column private String description;
 
   protected OrderStatus() {}
 
-  public OrderStatus(String name, String description) {
-    if (name == null || name.isBlank())
-      throw new IllegalArgumentException("Status name is required");
+  public OrderStatus(User owner, String name, String description) {
+    setOwner(owner);
+    if (name == null || name.isBlank()) {
+      throw new IllegalArgumentException("Order status name cannot be empty");
+    }
     this.name = name;
     this.description = description;
   }
 
-  @PrePersist
-  public void onCreate() {
-    LocalDateTime now = LocalDateTime.now();
-    this.createdAt = now;
-    this.updatedAt = now;
+  public static OrderStatus create(User owner, String name, String description) {
+    return new OrderStatus(owner, name, description);
   }
 
-  @PreUpdate
-  public void onUpdated() {
-    this.updatedAt = LocalDateTime.now();
+  public void update(String name, String description) {
+    if (name != null && !name.isBlank()) {
+      this.name = name;
+    }
+    this.description = description;
   }
 
   public Long getId() {
@@ -59,25 +53,7 @@ public class OrderStatus {
     return name;
   }
 
-  public void setName(String name) {
-    if (name == null || name.isBlank())
-      throw new IllegalArgumentException("Status name is required");
-    this.name = name;
-  }
-
   public String getDescription() {
     return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
   }
 }

@@ -1,9 +1,11 @@
 package com.kml.infra;
 
-import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 
 public interface StorageUnitInventoryAssignmentRepository
     extends JpaRepository<StorageUnitInventoryAssignment, Long> {

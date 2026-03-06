@@ -1,17 +1,21 @@
 package com.kml.capacity.service.impl;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.kml.capacity.dto.StorageUnitInventoryAssignmentDto;
 import com.kml.capacity.mapper.StorageUnitMapper;
+import com.kml.capacity.security.CurrentUserProvider;
 import com.kml.capacity.service.StorageUnitInventoryAssignmentService;
 import com.kml.domain.inventory.InventoryItem;
+import com.kml.domain.user.User;
 import com.kml.domain.warehouse.StorageUnit;
 import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 import com.kml.infra.InventoryRepository;
 import com.kml.infra.StorageUnitInventoryAssignmentRepository;
 import com.kml.infra.StorageUnitRepository;
-import java.util.List;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class StorageUnitInventoryAssignmentServiceImpl
@@ -20,14 +24,18 @@ public class StorageUnitInventoryAssignmentServiceImpl
   private final InventoryRepository inventoryRepository;
   private final StorageUnitRepository storageUnitRepository;
   private final StorageUnitInventoryAssignmentRepository assignmentRepository;
+  private final CurrentUserProvider currentUserProvider;
 
   public StorageUnitInventoryAssignmentServiceImpl(
       InventoryRepository inventoryRepository,
       StorageUnitRepository storageUnitRepository,
-      StorageUnitInventoryAssignmentRepository assignmentRepository) {
+      StorageUnitInventoryAssignmentRepository assignmentRepository,
+      CurrentUserProvider currentUserProvider) {
+
     this.inventoryRepository = inventoryRepository;
     this.storageUnitRepository = storageUnitRepository;
     this.assignmentRepository = assignmentRepository;
+    this.currentUserProvider = currentUserProvider;
   }
 
   @Override
@@ -45,18 +53,19 @@ public class StorageUnitInventoryAssignmentServiceImpl
             .findById(inventoryItemId)
             .orElseThrow(() -> new IllegalArgumentException("Inventory item not found"));
 
-    boolean exists =
-        assignmentRepository
-            .findByStorageUnit_IdAndInventoryItem_Id(storageUnitId, inventoryItemId)
-            .isPresent();
-    if (exists) {
+    if (assignmentRepository
+        .findByStorageUnit_IdAndInventoryItem_Id(storageUnitId, inventoryItemId)
+        .isPresent()) {
       throw new IllegalArgumentException("Assignment already exists");
     }
 
+    User user = currentUserProvider.getCurrentUser();
+
     StorageUnitInventoryAssignment assignment =
-        new StorageUnitInventoryAssignment(storageUnit, inventoryItem, assignedQuantity);
+        StorageUnitInventoryAssignment.create(user, storageUnit, inventoryItem, assignedQuantity);
 
     StorageUnitInventoryAssignment saved = assignmentRepository.save(assignment);
+
     return StorageUnitMapper.toDto(saved);
   }
 
@@ -69,6 +78,7 @@ public class StorageUnitInventoryAssignmentServiceImpl
   @Override
   @Transactional(readOnly = true)
   public List<StorageUnitInventoryAssignmentDto> getByStorageUnitId(Long storageUnitId) {
+
     storageUnitRepository
         .findById(storageUnitId)
         .orElseThrow(() -> new IllegalArgumentException("StorageUnit not found"));
@@ -104,15 +114,18 @@ public class StorageUnitInventoryAssignmentServiceImpl
     assignment.updateAssignedQuantity(newQuantity);
 
     StorageUnitInventoryAssignment saved = assignmentRepository.save(assignment);
+
     return StorageUnitMapper.toDto(saved);
   }
 
   @Override
   @Transactional
   public void deleteStorageUnitInventoryItemAssignment(Long id) {
+
     if (!assignmentRepository.existsById(id)) {
       throw new IllegalArgumentException("Assignment not found");
     }
+
     assignmentRepository.deleteById(id);
   }
 }

@@ -1,8 +1,10 @@
 package com.kml.capacity.mapper;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.kml.capacity.dto.ShipmentResponseDto;
 import com.kml.domain.shipment.Shipment;
-import java.util.List;
 
 public final class ShipmentMapper {
 
@@ -23,6 +25,9 @@ public final class ShipmentMapper {
   }
 
   public static List<ShipmentResponseDto> toDtoList(List<Shipment> entities) {
+    if (entities == null || entities.isEmpty()) {
+      return Collections.emptyList();
+    }
     return entities.stream().map(ShipmentMapper::toDto).toList();
   }
 }
