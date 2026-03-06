@@ -1,9 +1,11 @@
 package com.kml.capacity.service.impl;
 
+import com.kml.capacity.dto.UserActivityLogDto;
+import com.kml.capacity.mapper.UserActivityLogMapper;
 import com.kml.capacity.service.UserActivityLogService;
-import com.kml.domain.audit.UserActivityLog;
 import com.kml.infra.UserActivityLogRepository;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,15 +19,20 @@ public class UserActivityLogServiceImpl implements UserActivityLogService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<UserActivityLog> getAllUserActivityLogs() {
-    List<UserActivityLog> userActivityLogs = this.userActivityLogRepository.findAll();
-    return userActivityLogs;
+  public List<UserActivityLogDto> getAllUserActivityLogs() {
+    return userActivityLogRepository.findAll().stream()
+        .map(UserActivityLogMapper::toDto)
+        .collect(Collectors.toList());
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<UserActivityLog> getActivityLogsByUser(Long userId) {
-    List<UserActivityLog> userActivityLogs = this.userActivityLogRepository.findByUserId(userId);
-    return userActivityLogs;
+  public List<UserActivityLogDto> getActivityLogsByUser(Long userId) {
+    if (userId == null) {
+      throw new IllegalArgumentException("User ID must not be null");
+    }
+    return userActivityLogRepository.findByUserId(userId).stream()
+        .map(UserActivityLogMapper::toDto)
+        .collect(Collectors.toList());
   }
 }

@@ -33,9 +33,8 @@ public class OrderStatus {
   protected OrderStatus() {}
 
   public OrderStatus(String name, String description) {
-    if (name == null || name.isBlank()) {
+    if (name == null || name.isBlank())
       throw new IllegalArgumentException("Status name is required");
-    }
     this.name = name;
     this.description = description;
   }
@@ -61,9 +60,8 @@ public class OrderStatus {
   }
 
   public void setName(String name) {
-    if (name == null || name.isBlank()) {
+    if (name == null || name.isBlank())
       throw new IllegalArgumentException("Status name is required");
-    }
     this.name = name;
   }
 

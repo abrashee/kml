@@ -2,7 +2,6 @@ package com.kml.api;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,25 +37,29 @@ public class OrderStatusController {
   @PostMapping
   public ResponseEntity<OrderStatusResponseDto> createOrderStatus(
       @RequestBody @Valid OrderStatusRequestDto requestDto) {
+
     OrderStatus created =
         orderStatusService.createOrderStatus(requestDto.getName(), requestDto.getDescription());
+
     return ResponseEntity.status(HttpStatus.CREATED).body(OrderStatusMapper.toDto(created));
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @GetMapping
   public ResponseEntity<List<OrderStatusResponseDto>> getAllOrderStatuses() {
+
     List<OrderStatusResponseDto> dtos =
-        orderStatusService.getAllOrderStatuses().stream()
-            .map(OrderStatusMapper::toDto)
-            .collect(Collectors.toList());
+        orderStatusService.getAllOrderStatuses().stream().map(OrderStatusMapper::toDto).toList();
+
     return ResponseEntity.ok(dtos);
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @GetMapping("/name/{name}")
   public ResponseEntity<OrderStatusResponseDto> getByName(@PathVariable String name) {
+
     Optional<OrderStatus> orderStatus = orderStatusService.getByName(name);
+
     return orderStatus
         .map(status -> ResponseEntity.ok(OrderStatusMapper.toDto(status)))
         .orElseGet(() -> ResponseEntity.notFound().build());
@@ -66,15 +69,19 @@ public class OrderStatusController {
   @PutMapping("/{id}")
   public ResponseEntity<OrderStatusResponseDto> updateOrderStatus(
       @PathVariable Long id, @RequestBody @Valid OrderStatusRequestDto requestDto) {
+
     OrderStatus updated =
         orderStatusService.updateOrderStatus(id, requestDto.getName(), requestDto.getDescription());
+
     return ResponseEntity.ok(OrderStatusMapper.toDto(updated));
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteOrderStatus(@PathVariable Long id) {
+
     orderStatusService.deleteOrderStatus(id);
+
     return ResponseEntity.noContent().build();
   }
 }

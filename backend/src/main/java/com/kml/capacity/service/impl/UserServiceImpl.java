@@ -1,12 +1,13 @@
 package com.kml.capacity.service.impl;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.kml.capacity.service.UserService;
 import com.kml.domain.user.User;
 import com.kml.domain.user.UserRole;
 import com.kml.infra.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -31,6 +32,9 @@ public class UserServiceImpl implements UserService {
     }
     if (password == null || password.isBlank()) {
       throw new IllegalArgumentException("Password is required");
+    }
+    if (userRole == null) {
+      throw new IllegalArgumentException("User role is required");
     }
 
     if (existsByUsername(username)) {

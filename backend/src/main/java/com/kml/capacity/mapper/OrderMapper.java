@@ -12,6 +12,7 @@ public final class OrderMapper {
   private OrderMapper() {}
 
   public static OrderResponseDto toDto(Order entity) {
+
     if (entity == null) return null;
 
     List<OrderItemResponseDto> items = entity.getItems().stream().map(OrderMapper::toDto).toList();
@@ -29,7 +30,10 @@ public final class OrderMapper {
   }
 
   private static OrderItemResponseDto toDto(OrderItem item) {
+
+    Long inventoryItemId = item.getInventoryItem() != null ? item.getInventoryItem().getId() : null;
+
     return new OrderItemResponseDto(
-        item.getId(), item.getInventoryItem().getId(), item.getQuantity(), item.getPriceAtOrder());
+        item.getId(), inventoryItemId, item.getQuantity(), item.getPriceAtOrder());
   }
 }

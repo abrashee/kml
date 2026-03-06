@@ -1,6 +1,10 @@
 package com.kml.domain.order;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 import com.kml.domain.inventory.InventoryItem;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,8 +16,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "order_items")
@@ -48,7 +50,6 @@ public class OrderItem {
     this.inventoryItem = inventoryItem;
     this.quantity = quantity;
     this.priceAtOrder = priceAtOrder;
-
     validate();
   }
 
@@ -56,7 +57,7 @@ public class OrderItem {
     if (inventoryItem == null) throw new IllegalArgumentException("InventoryItem is required");
     if (quantity <= 0) throw new IllegalArgumentException("Quantity must be positive");
     if (priceAtOrder == null || priceAtOrder.signum() <= 0)
-      throw new IllegalArgumentException("Price must be Posiitive");
+      throw new IllegalArgumentException("Price must be positive");
   }
 
   @PrePersist

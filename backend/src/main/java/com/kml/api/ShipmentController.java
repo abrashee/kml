@@ -37,6 +37,7 @@ public class ShipmentController {
   @PostMapping
   public ResponseEntity<ShipmentResponseDto> createShipment(
       @RequestBody @Valid ShipmentRequestDto requestDto) {
+
     ShipmentResponseDto shipment =
         shipmentService.createShipment(
             requestDto.getOrderId(), requestDto.getAddress(), requestDto.getCarrierInfo());
@@ -50,6 +51,7 @@ public class ShipmentController {
       @RequestParam(required = false) String status, @RequestParam(required = false) Long orderId) {
 
     List<ShipmentResponseDto> shipments;
+
     if (status != null) {
       shipments = shipmentService.getShipmentsByStatus(status);
     } else if (orderId != null) {
@@ -71,7 +73,9 @@ public class ShipmentController {
   @PatchMapping("/{id}/status")
   public ResponseEntity<ShipmentResponseDto> updateShipmentStatus(
       @PathVariable Long id, @RequestBody @Valid ShipmentStatusUpdateRequestDto requestDto) {
+
     ShipmentResponseDto updated = shipmentService.updateShipmentStatus(id, requestDto.getStatus());
+
     return ResponseEntity.ok(updated);
   }
 
@@ -79,7 +83,9 @@ public class ShipmentController {
   @GetMapping("/{id}/history")
   public ResponseEntity<List<ShipmentHistoryResponseDto>> getShipmentHistory(
       @PathVariable Long id) {
+
     List<ShipmentHistoryResponseDto> history = shipmentHistoryService.getHistoryForShipment(id);
+
     return ResponseEntity.ok(history);
   }
 }

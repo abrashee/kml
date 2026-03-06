@@ -20,12 +20,9 @@ public class ShipmentHistoryServiceImpl implements ShipmentHistoryService {
   @Override
   @Transactional(readOnly = true)
   public List<ShipmentHistoryResponseDto> getHistoryForShipment(Long shipmentId) {
-    if (shipmentId == null) {
-      throw new IllegalArgumentException("ShipmentId is required");
-    }
+    if (shipmentId == null) throw new IllegalArgumentException("ShipmentId is required");
 
-    return shipmentHistoryRepository.findByShipment_IdOrderByChangedAtAsc(shipmentId).stream()
-        .map(ShipmentHistoryMapper::toDto)
-        .toList();
+    return ShipmentHistoryMapper.toDtoList(
+        shipmentHistoryRepository.findByShipment_IdOrderByChangedAtAsc(shipmentId));
   }
 }

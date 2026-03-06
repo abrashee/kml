@@ -1,12 +1,11 @@
 package com.kml.capacity.service;
 
+import com.kml.capacity.dto.UserActivityLogDto;
 import java.util.List;
-
-import com.kml.domain.audit.UserActivityLog;
 
 public interface UserActivityLogService {
 
-  List<UserActivityLog> getAllUserActivityLogs();
+  List<UserActivityLogDto> getAllUserActivityLogs();
 
-  List<UserActivityLog> getActivityLogsByUser(Long userId);
+  List<UserActivityLogDto> getActivityLogsByUser(Long userId);
 }

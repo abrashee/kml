@@ -25,6 +25,7 @@ public class ShipmentServiceImpl implements ShipmentService {
   private final OrderRepository orderRepository;
   private final ShipmentWarehouseResolverService shipmentWarehouseResolverService;
   private final WarehouseNotificationService warehouseNotificationService;
+
   private static final Logger log = LoggerFactory.getLogger(ShipmentServiceImpl.class);
 
   public ShipmentServiceImpl(
@@ -41,8 +42,12 @@ public class ShipmentServiceImpl implements ShipmentService {
   @Override
   @Transactional
   public ShipmentResponseDto createShipment(Long orderId, String address, String carrierInfo) {
+    if (orderId == null) throw new IllegalArgumentException("OrderId is required");
+    if (address == null || address.isBlank())
+      throw new IllegalArgumentException("Address is required");
+
     Order order =
-        this.orderRepository
+        orderRepository
             .findById(orderId)
             .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
@@ -54,7 +59,6 @@ public class ShipmentServiceImpl implements ShipmentService {
     try {
       warehouses =
           shipmentWarehouseResolverService.resolveWarehouseForShipment(savedShipment.getId());
-
       warehouses.forEach(
           w ->
               warehouseNotificationService.notifyShipmentCreated(
@@ -74,14 +78,15 @@ public class ShipmentServiceImpl implements ShipmentService {
   @Override
   @Transactional(readOnly = true)
   public List<ShipmentResponseDto> getAllShipments() {
-    return this.shipmentRepository.findAll().stream().map(ShipmentMapper::toDto).toList();
+    return ShipmentMapper.toDtoList(shipmentRepository.findAll());
   }
 
   @Override
   @Transactional(readOnly = true)
   public ShipmentResponseDto getShipmentById(Long id) {
+    if (id == null) throw new IllegalArgumentException("ShipmentId is required");
     Shipment shipment =
-        this.shipmentRepository
+        shipmentRepository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Shipment not found"));
     return ShipmentMapper.toDto(shipment);
@@ -90,6 +95,8 @@ public class ShipmentServiceImpl implements ShipmentService {
   @Override
   @Transactional(readOnly = true)
   public List<ShipmentResponseDto> getShipmentsByStatus(String status) {
+    if (status == null || status.isBlank())
+      throw new IllegalArgumentException("Status is required");
     ShipmentStatus shipmentStatus;
     try {
       shipmentStatus = ShipmentStatus.valueOf(status.toUpperCase());
@@ -98,27 +105,26 @@ public class ShipmentServiceImpl implements ShipmentService {
           "Invalid shipment status. Allow values: PENDING, IN_TRANSIT, DELIVERED, RETURNED");
     }
 
-    return this.shipmentRepository.findByStatus(shipmentStatus).stream()
-        .map(ShipmentMapper::toDto)
-        .toList();
+    return ShipmentMapper.toDtoList(shipmentRepository.findByStatus(shipmentStatus));
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<ShipmentResponseDto> getShipmentsByOrder(Long orderId) {
+    if (orderId == null) throw new IllegalArgumentException("OrderId is required");
     Order order =
-        this.orderRepository
+        orderRepository
             .findById(orderId)
             .orElseThrow(() -> new IllegalArgumentException("Order not found"));
-
-    return this.shipmentRepository.findByOrderId(order.getId()).stream()
-        .map(ShipmentMapper::toDto)
-        .toList();
+    return ShipmentMapper.toDtoList(shipmentRepository.findByOrderId(order.getId()));
   }
 
   @Override
   @Transactional
   public ShipmentResponseDto updateShipmentStatus(Long shipmentId, ShipmentStatus nextStatus) {
+    if (shipmentId == null) throw new IllegalArgumentException("ShipmentId is required");
+    if (nextStatus == null) throw new IllegalArgumentException("NextStatus is required");
+
     Shipment shipment =
         shipmentRepository
             .findById(shipmentId)

@@ -1,7 +1,5 @@
 package com.kml.domain.shipment;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "shipment_history")
@@ -38,10 +37,6 @@ public class ShipmentHistory {
   @JoinColumn(name = "shipment_id", nullable = false)
   private Shipment shipment;
 
-  // @ManyToOne(fetch = FetchType.LAZY)
-  // @JoinColumn(name = "user_id")
-  // private User user;
-
   protected ShipmentHistory() {}
 
   public ShipmentHistory(
@@ -57,9 +52,8 @@ public class ShipmentHistory {
     if (shipment == null) throw new IllegalArgumentException("Shipment is required");
     if (previousStatus == null) throw new IllegalArgumentException("Previous status is required");
     if (newStatus == null) throw new IllegalArgumentException("New status is required");
-    if (previousStatus == newStatus) {
-      throw new IllegalArgumentException("Previous status and new status must differ");
-    }
+    if (previousStatus == newStatus)
+      throw new IllegalArgumentException("Previous and new status must differ");
   }
 
   @PrePersist

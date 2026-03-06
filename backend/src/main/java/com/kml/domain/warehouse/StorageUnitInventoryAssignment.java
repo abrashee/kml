@@ -52,6 +52,7 @@ public class StorageUnitInventoryAssignment {
     validateStorageUnit(storageUnit);
     validateInventoryItem(inventoryItem);
     validateAssignedQuantity(assignedQuantity);
+    validateWithinStorageUnitCapacity(storageUnit, assignedQuantity);
 
     this.storageUnit = storageUnit;
     this.inventoryItem = inventoryItem;
@@ -60,6 +61,7 @@ public class StorageUnitInventoryAssignment {
 
   public void updateAssignedQuantity(int newQuantity) {
     validateAssignedQuantity(newQuantity);
+    validateWithinStorageUnitCapacity(this.storageUnit, newQuantity);
     this.assignedQuantity = newQuantity;
   }
 
@@ -81,9 +83,14 @@ public class StorageUnitInventoryAssignment {
     }
   }
 
-  private void validateWithinStorageUnitCapacity(int quantity) {
+  private void validateWithinStorageUnitCapacity(StorageUnit storageUnit, int quantity) {
     if (storageUnit != null && quantity > storageUnit.getCapacity()) {
-      throw new IllegalArgumentException("Assigned quantity exceeds storage unit capacity");
+      throw new IllegalArgumentException(
+          "Assigned quantity ("
+              + quantity
+              + ") exceeds storage unit capacity ("
+              + storageUnit.getCapacity()
+              + ")");
     }
   }
 

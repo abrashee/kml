@@ -38,24 +38,31 @@ public class OrderController {
   @PostMapping
   public ResponseEntity<OrderResponseDto> createOrder(
       @RequestBody @Valid OrderRequestDto requestDto) {
+
     User currentUser = currentUserProvider.getCurrentUser();
+
     OrderResponseDto order =
         orderService.createOrder(
             requestDto.getCode(), requestDto.getStatusId(), requestDto.getItems(), currentUser);
+
     return ResponseEntity.status(HttpStatus.CREATED).body(order);
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER','CUSTOMER')")
   @GetMapping
   public ResponseEntity<List<OrderResponseDto>> getAllOrders() {
+
     List<OrderResponseDto> orders = orderService.getAllOrders();
+
     return ResponseEntity.ok(orders);
   }
 
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER','CUSTOMER')")
   @GetMapping("/{id}")
   public ResponseEntity<OrderResponseDto> getOrderById(@PathVariable Long id) {
+
     OrderResponseDto order = orderService.getOrderById(id);
+
     return ResponseEntity.ok(order);
   }
 
@@ -63,16 +70,21 @@ public class OrderController {
   @PutMapping("/{id}")
   public ResponseEntity<OrderResponseDto> updateOrder(
       @PathVariable Long id, @RequestBody @Valid OrderRequestDto requestDto) {
+
     User currentUser = currentUserProvider.getCurrentUser();
+
     OrderResponseDto updatedOrder =
         orderService.updateOrder(id, requestDto.getStatusId(), requestDto.getItems(), currentUser);
+
     return ResponseEntity.ok(updatedOrder);
   }
 
   @PreAuthorize("hasAnyRole('USER','CUSTOMER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+
     orderService.deleteOrder(id);
+
     return ResponseEntity.noContent().build();
   }
 }

@@ -2,9 +2,11 @@ package com.kml.api;
 
 import com.kml.capacity.dto.InventoryItemRequestDto;
 import com.kml.capacity.dto.InventoryItemResponseDto;
-import com.kml.capacity.dto.QuantityUpdateDto;
+import com.kml.capacity.dto.InventoryQuantityUpdateRequestDto;
 import com.kml.capacity.service.InventoryService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +35,7 @@ public class InventoryController {
   @PostMapping
   public ResponseEntity<InventoryItemResponseDto> createInventoryItem(
       @RequestBody @Valid InventoryItemRequestDto requestDto) {
+
     InventoryItemResponseDto item =
         inventoryService.createInventoryItem(
             requestDto.getSku(), requestDto.getName(), requestDto.getQuantity());
@@ -43,66 +46,45 @@ public class InventoryController {
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @PatchMapping("/{sku}")
   public ResponseEntity<InventoryItemResponseDto> updateQuantity(
-      @PathVariable String sku, @Valid @RequestBody QuantityUpdateDto dto) {
+      @PathVariable @NotBlank String sku,
+      @Valid @RequestBody InventoryQuantityUpdateRequestDto dto) {
+
     InventoryItemResponseDto updatedItem = inventoryService.updateQuantity(sku, dto.getDelta());
     return ResponseEntity.ok(updatedItem);
   }
 
   @PreAuthorize("isAuthenticated()")
   @GetMapping
-  public ResponseEntity<List<InventoryItemResponseDto>> getAllInventories(
+  public ResponseEntity<List<InventoryItemResponseDto>> getInventories(
       @RequestParam(required = false) String sku,
       @RequestParam(required = false) String name,
-      @RequestParam(required = false) Integer minQuantity,
-      @RequestParam(required = false) Integer maxQuantity) {
+      @RequestParam(required = false) @Min(0) Integer minQuantity,
+      @RequestParam(required = false) @Min(0) Integer maxQuantity) {
+
     List<InventoryItemResponseDto> inventoryItems =
         inventoryService.getInventoriesFiltered(sku, name, minQuantity, maxQuantity);
+
     return ResponseEntity.ok(inventoryItems);
   }
 
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/sku/{sku}")
-  public ResponseEntity<InventoryItemResponseDto> getInventoryBySku(@PathVariable String sku) {
+  public ResponseEntity<InventoryItemResponseDto> getInventoryBySku(
+      @PathVariable @NotBlank String sku) {
     InventoryItemResponseDto item = inventoryService.getInventoryBySku(sku);
     return ResponseEntity.ok(item);
   }
 
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/{id}")
-  public ResponseEntity<InventoryItemResponseDto> getInventoryById(@PathVariable Long id) {
+  public ResponseEntity<InventoryItemResponseDto> getInventoryById(@PathVariable @Min(1) Long id) {
     InventoryItemResponseDto item = inventoryService.getInventoryById(id);
     return ResponseEntity.ok(item);
   }
 
-  @PreAuthorize("isAuthenticated()")
-  @GetMapping("/search/by-name")
-  public ResponseEntity<List<InventoryItemResponseDto>> getInventoryByName(
-      @RequestParam String name) {
-    List<InventoryItemResponseDto> inventoryItems = inventoryService.getInventoryByName(name);
-    return ResponseEntity.ok(inventoryItems);
-  }
-
-  @PreAuthorize("isAuthenticated()")
-  @GetMapping("/search/by-quantity")
-  public ResponseEntity<List<InventoryItemResponseDto>> getInventoryByQuantity(
-      @RequestParam int minQuantity, @RequestParam int maxQuantity) {
-    List<InventoryItemResponseDto> inventoryItems =
-        inventoryService.getInventoryByRange(minQuantity, maxQuantity);
-    return ResponseEntity.ok(inventoryItems);
-  }
-
-  @PreAuthorize("isAuthenticated()")
-  @GetMapping("/search/by-sku-name")
-  public ResponseEntity<List<InventoryItemResponseDto>> getInventoryByFilter(
-      @RequestParam String sku, @RequestParam String name) {
-    List<InventoryItemResponseDto> inventoryItems =
-        inventoryService.getInventoryByFilter(sku, name);
-    return ResponseEntity.ok(inventoryItems);
-  }
-
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteInventory(@PathVariable Long id) {
+  public ResponseEntity<Void> deleteInventory(@PathVariable @Min(1) Long id) {
     inventoryService.deleteInventoryItem(id);
     return ResponseEntity.noContent().build();
   }

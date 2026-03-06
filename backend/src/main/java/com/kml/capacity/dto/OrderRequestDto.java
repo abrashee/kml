@@ -1,22 +1,24 @@
 package com.kml.capacity.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 public class OrderRequestDto {
+
   @NotBlank(message = "Order code is required")
   private String code;
 
   @NotNull(message = "Status ID is required")
   private Long statusId;
 
-  @NotEmpty(message = "Order msut contain at least one item")
+  @NotEmpty(message = "Order must contain at least one item")
   private List<OrderItemRequestDto> items = new ArrayList<>();
 
-  //   private Long userId;
+  public OrderRequestDto() {}
 
   public String getCode() {
     return code;
@@ -41,6 +43,4 @@ public class OrderRequestDto {
   public void setItems(List<OrderItemRequestDto> items) {
     this.items = items;
   }
-
-  public OrderRequestDto() {}
 }

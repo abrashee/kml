@@ -1,9 +1,6 @@
 package com.kml.domain.audit;
 
-import java.time.LocalDateTime;
-
 import com.kml.domain.user.User;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,88 +11,81 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_activity_log")
 public class UserActivityLog {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "user_id", nullable = false)
-  private User user;
+  private final User user;
 
   @Column(name = "action", nullable = false)
-  private String action;
+  private final String action;
 
   @Column(name = "entity", nullable = false)
-  private String entity;
+  private final String entity;
 
   @Column(name = "entity_id")
-  private Long entityId;
+  private final Long entityId;
 
-  @Column(name = "created_at", nullable = false)
+  @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
-  // details get username through user
-
-  protected UserActivityLog() {}
+  protected UserActivityLog() {
+    this.user = null;
+    this.action = null;
+    this.entity = null;
+    this.entityId = null;
+  }
 
   public UserActivityLog(User user, String action, String entity, Long entityId) {
+    if (user == null) {
+      throw new IllegalArgumentException("User must not be null");
+    }
+    if (action == null || action.isBlank()) {
+      throw new IllegalArgumentException("Action must not be blank");
+    }
+    if (entity == null || entity.isBlank()) {
+      throw new IllegalArgumentException("Entity must not be blank");
+    }
     this.user = user;
     this.action = action;
     this.entity = entity;
     this.entityId = entityId;
+  }
+
+  @PrePersist
+  public void onCreate() {
+    this.createdAt = LocalDateTime.now();
   }
 
   public Long getId() {
     return id;
   }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
-
   public User getUser() {
     return user;
-  }
-
-  public void setUser(User user) {
-    this.user = user;
   }
 
   public String getAction() {
     return action;
   }
 
-  public void setAction(String action) {
-    this.action = action;
-  }
-
   public String getEntity() {
     return entity;
-  }
-
-  public void setEntity(String entity) {
-    this.entity = entity;
   }
 
   public Long getEntityId() {
     return entityId;
   }
 
-  public void setEntityId(Long entityId) {
-    this.entityId = entityId;
-  }
-
   public LocalDateTime getCreatedAt() {
     return createdAt;
-  }
-
-  @PrePersist
-  public void onCreate() {
-    LocalDateTime now = LocalDateTime.now();
-    this.createdAt = now;
   }
 }

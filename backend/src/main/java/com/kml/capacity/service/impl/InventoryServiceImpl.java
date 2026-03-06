@@ -4,12 +4,9 @@ import com.kml.capacity.dto.InventoryItemResponseDto;
 import com.kml.capacity.mapper.InventoryMapper;
 import com.kml.capacity.service.InventoryService;
 import com.kml.domain.inventory.InventoryItem;
-import com.kml.domain.warehouse.StorageUnit;
-import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 import com.kml.infra.InventoryRepository;
 import com.kml.infra.StorageUnitInventoryAssignmentRepository;
 import com.kml.infra.StorageUnitRepository;
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,13 +30,14 @@ public class InventoryServiceImpl implements InventoryService {
   @Override
   @Transactional
   public InventoryItemResponseDto createInventoryItem(String sku, String name, int quantity) {
-    boolean exists = inventoryRepository.findBySku(sku).isPresent();
-    if (exists) {
-      throw new IllegalArgumentException("Inventory item with SKU already exists");
-    }
+    inventoryRepository
+        .findBySku(sku)
+        .ifPresent(
+            i -> {
+              throw new IllegalArgumentException("Inventory item with SKU already exists");
+            });
 
-    InventoryItem item = new InventoryItem(sku, name, quantity);
-    InventoryItem saved = inventoryRepository.save(item);
+    InventoryItem saved = inventoryRepository.save(new InventoryItem(sku, name, quantity));
     return InventoryMapper.toDto(saved);
   }
 
@@ -49,147 +47,98 @@ public class InventoryServiceImpl implements InventoryService {
     InventoryItem item =
         inventoryRepository
             .findBySku(sku)
-            .orElseThrow(() -> new IllegalArgumentException("Item not found"));
-    if (delta > 0) {
-      item.increaseQuantity(delta);
-    } else if (delta < 0) {
-      item.decreaseQuantity(-delta);
-    }
+            .orElseThrow(() -> new IllegalArgumentException("Inventory item not found"));
 
-    InventoryItem saved = inventoryRepository.save(item);
+    if (delta > 0) item.increaseQuantity(delta);
+    if (delta < 0) item.decreaseQuantity(Math.abs(delta));
 
-    return InventoryMapper.toDto(saved);
+    return InventoryMapper.toDto(inventoryRepository.save(item));
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<InventoryItemResponseDto> getAllInventories() {
-    List<InventoryItem> inventoryItems = this.inventoryRepository.findAll();
-    List<InventoryItemResponseDto> dtoResponseItems = new ArrayList<>();
-    for (InventoryItem item : inventoryItems) {
-      dtoResponseItems.add(InventoryMapper.toDto(item));
-    }
-    return dtoResponseItems;
+    return inventoryRepository.findAll().stream().map(InventoryMapper::toDto).toList();
   }
 
   @Override
   @Transactional(readOnly = true)
   public InventoryItemResponseDto getInventoryBySku(String sku) {
-    InventoryItem inventoryItem =
-        this.inventoryRepository
+    InventoryItem item =
+        inventoryRepository
             .findBySku(sku)
             .orElseThrow(() -> new IllegalArgumentException("Inventory item not found"));
-
-    return InventoryMapper.toDto(inventoryItem);
+    return InventoryMapper.toDto(item);
   }
 
   @Override
   @Transactional(readOnly = true)
   public InventoryItemResponseDto getInventoryById(Long id) {
-    InventoryItem inventoryItem =
-        this.inventoryRepository
+    InventoryItem item =
+        inventoryRepository
             .findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Inventory not found"));
-
-    return InventoryMapper.toDto(inventoryItem);
+            .orElseThrow(() -> new IllegalArgumentException("Inventory item not found"));
+    return InventoryMapper.toDto(item);
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<InventoryItemResponseDto> getInventoryByName(String name) {
-    List<InventoryItem> items = inventoryRepository.findByName(name);
-    List<InventoryItemResponseDto> dtoResponseItems = new ArrayList<>();
-    for (InventoryItem item : items) {
-      dtoResponseItems.add(InventoryMapper.toDto(item));
-    }
-    return dtoResponseItems;
+    return inventoryRepository.findByName(name).stream().map(InventoryMapper::toDto).toList();
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<InventoryItemResponseDto> getInventoryByRange(int minQuantity, int maxQuantity) {
-    List<InventoryItem> items = inventoryRepository.findByQuantityBetween(minQuantity, maxQuantity);
-    List<InventoryItemResponseDto> dtoResponseItems = new ArrayList<>();
-    for (InventoryItem item : items) {
-      dtoResponseItems.add(InventoryMapper.toDto(item));
-    }
-    return dtoResponseItems;
+  public List<InventoryItemResponseDto> getInventoryByRange(int min, int max) {
+    return inventoryRepository.findByQuantityBetween(min, max).stream()
+        .map(InventoryMapper::toDto)
+        .toList();
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<InventoryItemResponseDto> getInventoryByFilter(String sku, String name) {
-    List<InventoryItem> items = inventoryRepository.findBySkuAndName(sku, name);
-    List<InventoryItemResponseDto> dtoResponseItems = new ArrayList<>();
-    for (InventoryItem item : items) {
-      dtoResponseItems.add(InventoryMapper.toDto(item));
-    }
-    return dtoResponseItems;
+    List<InventoryItem> items =
+        (sku != null && name != null) ? inventoryRepository.findBySkuAndName(sku, name) : List.of();
+    return items.stream().map(InventoryMapper::toDto).toList();
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<InventoryItemResponseDto> getInventoryByStorageUnitId(Long storageUnitId) {
-    List<StorageUnitInventoryAssignment> assignments =
-        this.storageUnitInventoryAssignmentRepository.findByStorageUnit_Id(storageUnitId);
-
-    List<InventoryItem> inventoryItems = new ArrayList<>();
-    for (StorageUnitInventoryAssignment assignment : assignments) {
-      inventoryItems.add(assignment.getInventoryItem());
-    }
-
-    List<InventoryItemResponseDto> dtoResponseItems = new ArrayList<>();
-    for (InventoryItem item : inventoryItems) {
-      dtoResponseItems.add(InventoryMapper.toDto(item));
-    }
-    return dtoResponseItems;
+    return storageUnitInventoryAssignmentRepository.findByStorageUnit_Id(storageUnitId).stream()
+        .map(assignment -> InventoryMapper.toDto(assignment.getInventoryItem()))
+        .toList();
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<InventoryItemResponseDto> getInventoryByWarehouseId(Long warehouseId) {
-    List<InventoryItem> inventoryItems = new ArrayList<>();
-    List<StorageUnit> storageUnits = this.storageUnitRepository.findByWarehouse_Id(warehouseId);
-    for (StorageUnit storageUnit : storageUnits) {
-      List<StorageUnitInventoryAssignment> assignments =
-          this.storageUnitInventoryAssignmentRepository.findByStorageUnit_Id(storageUnit.getId());
-
-      for (StorageUnitInventoryAssignment assignment : assignments) {
-        inventoryItems.add(assignment.getInventoryItem());
-      }
-    }
-
-    List<InventoryItemResponseDto> dtoResponseItems = new ArrayList<>();
-    for (InventoryItem item : inventoryItems) {
-      dtoResponseItems.add(InventoryMapper.toDto(item));
-    }
-    return dtoResponseItems;
+    return storageUnitRepository.findByWarehouse_Id(warehouseId).stream()
+        .flatMap(
+            storageUnit ->
+                storageUnitInventoryAssignmentRepository
+                    .findByStorageUnit_Id(storageUnit.getId())
+                    .stream())
+        .map(assignment -> InventoryMapper.toDto(assignment.getInventoryItem()))
+        .toList();
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<InventoryItemResponseDto> getInventoriesFiltered(
-      String sku, String name, Integer minQuantity, Integer maxQuantity) {
+      String sku, String name, Integer min, Integer max) {
+    List<InventoryItem> filtered;
 
-    List<InventoryItem> filteredItems = new ArrayList<>();
+    if (sku != null && name != null) filtered = inventoryRepository.findBySkuAndName(sku, name);
+    else if (sku != null)
+      filtered = inventoryRepository.findBySku(sku).map(List::of).orElse(List.of());
+    else if (name != null) filtered = inventoryRepository.findByName(name);
+    else if (min != null && max != null)
+      filtered = inventoryRepository.findByQuantityBetween(min, max);
+    else filtered = inventoryRepository.findAll();
 
-    if (sku != null && name != null) {
-      filteredItems = inventoryRepository.findBySkuAndName(sku, name);
-    } else if (sku != null) {
-      filteredItems = inventoryRepository.findBySku(sku).map(List::of).orElse(List.of());
-    } else if (name != null) {
-      filteredItems = inventoryRepository.findByName(name);
-    } else if (minQuantity != null && maxQuantity != null) {
-      filteredItems = inventoryRepository.findByQuantityBetween(minQuantity, maxQuantity);
-    } else {
-      filteredItems = inventoryRepository.findAll();
-    }
-
-    List<InventoryItemResponseDto> dtos = new ArrayList<>();
-    for (InventoryItem item : filteredItems) {
-      dtos.add(InventoryMapper.toDto(item));
-    }
-    return dtos;
+    return filtered.stream().map(InventoryMapper::toDto).toList();
   }
 
   @Override
@@ -200,13 +149,10 @@ public class InventoryServiceImpl implements InventoryService {
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Inventory item not found"));
 
-    if (item.getQuantity() > 0) {
+    if (item.getQuantity() > 0)
       throw new IllegalStateException("Cannot delete inventory with remaining quantity");
-    }
-
-    if (storageUnitInventoryAssignmentRepository.existsByInventoryItem_Id(id)) {
+    if (storageUnitInventoryAssignmentRepository.existsByInventoryItem_Id(id))
       throw new IllegalArgumentException("Cannot delete inventory item assigned to storage units");
-    }
 
     inventoryRepository.delete(item);
   }

@@ -1,10 +1,6 @@
 package com.kml.domain.shipment;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 import com.kml.domain.order.Order;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,6 +14,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "shipments")
@@ -50,19 +51,9 @@ public class Shipment {
   @JoinColumn(name = "order_id", nullable = false)
   private Order order;
 
+  private transient List<Object> domainEvents = new ArrayList<>();
+
   protected Shipment() {}
-
-  public Shipment(String tracking, String carrierInfo, String address, Order order) {
-    validateAddress(address);
-    validateOrder(order);
-    validateTracking(tracking);
-
-    this.tracking = tracking;
-    this.carrierInfo = carrierInfo;
-    this.address = address;
-    this.status = ShipmentStatus.PENDING;
-    this.order = order;
-  }
 
   public static Shipment createWithGeneratedTracking(
       Order order, String address, String carrierInfo) {
@@ -75,33 +66,41 @@ public class Shipment {
     return new Shipment(tracking, carrierInfo, address, order);
   }
 
+  private Shipment(String tracking, String carrierInfo, String address, Order order) {
+    validateAddress(address);
+    validateOrder(order);
+    validateTracking(tracking);
+
+    this.tracking = tracking;
+    this.carrierInfo = carrierInfo;
+    this.address = address;
+    this.status = ShipmentStatus.PENDING;
+    this.order = order;
+  }
+
   public void transitionTo(ShipmentStatus nextStatus) {
-    if (nextStatus == null) {
-      throw new IllegalArgumentException("Status is required");
-    }
+    if (nextStatus == null) throw new IllegalArgumentException("Status is required");
 
     switch (this.status) {
       case PENDING -> {
-        if (nextStatus != ShipmentStatus.IN_TRANSIT) {
-          throw invalidTransition(nextStatus);
-        }
+        if (nextStatus != ShipmentStatus.IN_TRANSIT) throw invalidTransition(nextStatus);
       }
       case IN_TRANSIT -> {
-        if (nextStatus != ShipmentStatus.DELIVERED) {
-          throw invalidTransition(nextStatus);
-        }
+        if (nextStatus != ShipmentStatus.DELIVERED) throw invalidTransition(nextStatus);
       }
       case DELIVERED -> {
-        if (nextStatus != ShipmentStatus.RETURNED) {
-          throw invalidTransition(nextStatus);
-        }
+        if (nextStatus != ShipmentStatus.RETURNED) throw invalidTransition(nextStatus);
       }
-      case RETURNED -> {
-        throw new IllegalStateException("Returned shipment cannot transition further");
-      }
+      case RETURNED ->
+          throw new IllegalStateException("Returned shipment cannot transition further");
     }
 
+    ShipmentStatus previousStatus = this.status;
     this.status = nextStatus;
+
+    this.domainEvents.add(new ShipmentNotificationEvent(this.id, null));
+
+    // service.saveShipmentHistory(this, previousStatus, nextStatus);
   }
 
   private IllegalStateException invalidTransition(ShipmentStatus nextStatus) {
@@ -110,21 +109,17 @@ public class Shipment {
   }
 
   private void validateAddress(String address) {
-    if (address == null || address.isBlank()) {
+    if (address == null || address.isBlank())
       throw new IllegalArgumentException("Address is required");
-    }
   }
 
   private void validateOrder(Order order) {
-    if (order == null) {
-      throw new IllegalArgumentException("Order is required");
-    }
+    if (order == null) throw new IllegalArgumentException("Order is required");
   }
 
   private void validateTracking(String tracking) {
-    if (tracking == null || tracking.isBlank()) {
+    if (tracking == null || tracking.isBlank())
       throw new IllegalArgumentException("Tracking info is required");
-    }
   }
 
   @PrePersist
@@ -169,5 +164,13 @@ public class Shipment {
 
   public Order getOrder() {
     return order;
+  }
+
+  public List<Object> getDomainEvents() {
+    return Collections.unmodifiableList(domainEvents);
+  }
+
+  public void clearDomainEvents() {
+    domainEvents.clear();
   }
 }

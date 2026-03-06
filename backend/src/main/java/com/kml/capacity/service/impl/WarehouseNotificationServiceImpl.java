@@ -1,7 +1,7 @@
 package com.kml.capacity.service.impl;
 
 import com.kml.capacity.service.WarehouseNotificationService;
-import com.kml.domain.notification.ShipmentNotificationEvent;
+import com.kml.domain.shipment.ShipmentNotificationEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

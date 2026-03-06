@@ -52,10 +52,7 @@ public class Order {
   public Order(String code, OrderStatus status, User user) {
     validateCode(code);
     validateStatus(status);
-
-    if (user == null) {
-      throw new IllegalArgumentException("Order must have an owner");
-    }
+    if (user == null) throw new IllegalArgumentException("Order must have an owner");
 
     this.code = code;
     this.status = status;
@@ -66,25 +63,11 @@ public class Order {
     if (newItems == null || newItems.isEmpty()) {
       throw new IllegalArgumentException("Order must contain at least one item");
     }
-
     for (OrderItem existing : new ArrayList<>(this.items)) {
       removeItem(existing);
     }
-
     for (OrderItem item : newItems) {
       addItem(item);
-    }
-  }
-
-  public void validateCode(String code) {
-    if (code == null || code.isBlank()) {
-      throw new IllegalArgumentException("Order code must not be null");
-    }
-  }
-
-  public void validateStatus(OrderStatus status) {
-    if (status == null) {
-      throw new IllegalArgumentException("Order Status must not be null");
     }
   }
 
@@ -96,6 +79,15 @@ public class Order {
   public void removeItem(OrderItem item) {
     item.setOrder(null);
     this.items.remove(item);
+  }
+
+  public void validateCode(String code) {
+    if (code == null || code.isBlank())
+      throw new IllegalArgumentException("Order code must not be null");
+  }
+
+  public void validateStatus(OrderStatus status) {
+    if (status == null) throw new IllegalArgumentException("Order status must not be null");
   }
 
   @PrePersist
