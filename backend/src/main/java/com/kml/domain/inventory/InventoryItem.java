@@ -1,23 +1,21 @@
 package com.kml.domain.inventory;
 
-import java.time.LocalDateTime;
+import com.kml.domain.common.AuditableEntity;
+import com.kml.domain.user.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "inventory_items")
-public class InventoryItem {
+public class InventoryItem extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
   private Long id;
 
   @Column(name = "sku", nullable = false, unique = true)
@@ -29,16 +27,10 @@ public class InventoryItem {
   @Column(name = "quantity", nullable = false)
   private int quantity;
 
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt;
-
-  @Column(name = "updated_at", nullable = false)
-  private LocalDateTime updatedAt;
-
-  // JPA
   protected InventoryItem() {}
 
-  public InventoryItem(String sku, String name, int quantity) {
+  public InventoryItem(User owner, String sku, String name, int quantity) {
+    setOwner(owner);
     validateSku(sku);
     validateName(name);
     validateQuantity(quantity);
@@ -48,57 +40,39 @@ public class InventoryItem {
     this.quantity = quantity;
   }
 
-  // Domain
+  public static InventoryItem create(String sku, String name, int quantity, User createdBy) {
+    InventoryItem item = new InventoryItem(createdBy, sku, name, quantity);
+    return item;
+  }
+
   public void increaseQuantity(int amount) {
-    if (amount <= 0) {
-      throw new IllegalArgumentException("Increase amount must be positive");
-    }
+    if (amount <= 0) throw new IllegalArgumentException("Inventory increase must be positive");
     this.quantity += amount;
   }
 
   public void decreaseQuantity(int amount) {
-    if (amount <= 0) {
-      throw new IllegalArgumentException("Decrease amount must be positive");
-    }
-    if (this.quantity - amount < 0) {
-      throw new IllegalStateException("Inventory quantity cannot be negative");
-    }
+    if (amount <= 0) throw new IllegalArgumentException("Inventory decrease must be positive");
+    if (this.quantity - amount < 0) throw new IllegalStateException("Quantity cannot be negative");
     this.quantity -= amount;
   }
 
-  // Persistence
-  @PrePersist
-  protected void onCreate() {
-    LocalDateTime now = LocalDateTime.now();
-    this.createdAt = now;
-    this.updatedAt = now;
+  public void setQuantity(int newQuantity) {
+    validateQuantity(newQuantity);
+    this.quantity = newQuantity;
   }
 
-  @PreUpdate
-  protected void onUpdate() {
-    this.updatedAt = LocalDateTime.now();
-  }
-
-  // Validation helpers
   private void validateSku(String sku) {
-    if (sku == null || sku.isBlank()) {
-      throw new IllegalArgumentException("SKU must not be null or blank");
-    }
+    if (sku == null || sku.isBlank()) throw new IllegalArgumentException("SKU is required");
   }
 
   private void validateName(String name) {
-    if (name == null || name.isBlank()) {
-      throw new IllegalArgumentException("Name must not be null or blank");
-    }
+    if (name == null || name.isBlank()) throw new IllegalArgumentException("Name is required");
   }
 
   private void validateQuantity(int quantity) {
-    if (quantity < 0) {
-      throw new IllegalArgumentException("Quantity must be zero or greater");
-    }
+    if (quantity < 0) throw new IllegalArgumentException("Quantity must be >= 0");
   }
 
-  // Getters
   public Long getId() {
     return id;
   }
@@ -113,13 +87,5 @@ public class InventoryItem {
 
   public int getQuantity() {
     return quantity;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
   }
 }

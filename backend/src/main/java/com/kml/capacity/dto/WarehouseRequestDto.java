@@ -6,7 +6,7 @@ public class WarehouseRequestDto {
 
   @NotBlank private String name;
 
-  private String address;
+  @NotBlank private String address;
 
   public WarehouseRequestDto() {}
 

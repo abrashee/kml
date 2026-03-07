@@ -2,17 +2,20 @@ package com.kml.capacity.service;
 
 import java.util.List;
 
-import com.kml.domain.shipment.Shipment;
+import com.kml.capacity.dto.ShipmentResponseDto;
+import com.kml.domain.shipment.ShipmentStatus;
 
 public interface ShipmentService {
 
-  Shipment createShipment(Long orderId, String address, String carrierInfo);
+  ShipmentResponseDto createShipment(Long orderId, String address, String carrierInfo);
 
-  List<Shipment> getAllShipments();
+  List<ShipmentResponseDto> getAllShipments();
 
-  Shipment getShipmentById(Long id);
+  ShipmentResponseDto getShipmentById(Long id);
 
-  List<Shipment> getShipmentsByStatus(String status);
+  List<ShipmentResponseDto> getShipmentsByStatus(String status);
 
-  List<Shipment> getShipmentsByOrder(Long orderId);
+  List<ShipmentResponseDto> getShipmentsByOrder(Long orderId);
+
+  ShipmentResponseDto updateShipmentStatus(Long shipmentId, ShipmentStatus nextStatus);
 }

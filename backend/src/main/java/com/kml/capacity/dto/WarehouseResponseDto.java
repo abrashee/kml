@@ -1,31 +1,6 @@
 package com.kml.capacity.dto;
 
-public class WarehouseResponseDto {
-  private Long id;
-  private String name;
-  private String address;
+import java.time.LocalDateTime;
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getAddress() {
-    return address;
-  }
-
-  public void setAddress(String address) {
-    this.address = address;
-  }
-}
+public record WarehouseResponseDto(
+    Long id, String name, String address, LocalDateTime createdAt, LocalDateTime updatedAt) {}

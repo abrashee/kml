@@ -1,7 +1,5 @@
 package com.kml.domain.user;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -44,11 +43,25 @@ public class User {
   public User(String name, String username, String password, UserRole userRole) {
     validateName(name);
     validateUsername(username);
+    validatePassword(password);
+    validateUserRole(userRole);
 
     this.name = name;
     this.username = username;
     this.password = password;
     this.userRole = userRole;
+  }
+
+  private void validatePassword(String password) {
+    if (password == null || password.isBlank()) {
+      throw new IllegalArgumentException("Password is required");
+    }
+  }
+
+  private void validateUserRole(UserRole userRole) {
+    if (userRole == null) {
+      throw new IllegalArgumentException("User role is required");
+    }
   }
 
   public void validateName(String name) {

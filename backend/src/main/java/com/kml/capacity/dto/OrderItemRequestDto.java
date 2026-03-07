@@ -2,10 +2,19 @@ package com.kml.capacity.dto;
 
 import java.math.BigDecimal;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
 public class OrderItemRequestDto {
-  private Long inventoryItemId;
+
+  @NotNull private Long inventoryItemId;
+
+  @Min(1)
   private int quantity;
-  private BigDecimal priceAtOrder;
+
+  @NotNull private BigDecimal priceAtOrder;
+
+  public OrderItemRequestDto() {}
 
   public Long getInventoryItemId() {
     return inventoryItemId;
@@ -22,8 +31,6 @@ public class OrderItemRequestDto {
   public void setQuantity(int quantity) {
     this.quantity = quantity;
   }
-
-  public OrderItemRequestDto() {}
 
   public BigDecimal getPriceAtOrder() {
     return priceAtOrder;

@@ -1,19 +1,17 @@
 package com.kml.capacity.service;
 
-import com.kml.domain.warehouse.Warehouse;
-import com.kml.infra.ShipmentWarehouseRepository;
 import java.util.List;
-import org.springframework.stereotype.Service;
 
-@Service
-public class ShipmentWarehouseResolverService {
-  private final ShipmentWarehouseRepository shipmentWarehouseRepository;
+import com.kml.domain.warehouse.Warehouse;
 
-  public ShipmentWarehouseResolverService(ShipmentWarehouseRepository shipmentWarehouseRepository) {
-    this.shipmentWarehouseRepository = shipmentWarehouseRepository;
-  }
+public interface ShipmentWarehouseResolverService {
 
-  public List<Warehouse> resolveWarehouseForShipment(Long shipmentId) {
-    return shipmentWarehouseRepository.findWarehouseByShipmentId(shipmentId);
-  }
+  /**
+   * Resolves the warehouses responsible for fulfilling a shipment by looking at inventory
+   * assignments of each order item.
+   *
+   * @param shipmentId the shipment id to resolve
+   * @return distinct list of warehouses involved in the shipment
+   */
+  List<Warehouse> resolveWarehouseForShipment(Long shipmentId);
 }

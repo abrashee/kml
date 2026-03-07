@@ -1,23 +1,25 @@
 package com.kml.api;
 
+import com.kml.capacity.dto.InventoryItemRequestDto;
+import com.kml.capacity.dto.InventoryItemResponseDto;
+import com.kml.capacity.dto.InventoryQuantityUpdateRequestDto;
+import com.kml.capacity.service.InventoryService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
-import java.util.stream.Collectors;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.kml.capacity.dto.InventoryItemResponseDto;
-import com.kml.capacity.dto.QuantityUpdateDto;
-import com.kml.capacity.service.InventoryService;
-import com.kml.domain.inventory.InventoryItem;
-
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/inventories")
@@ -29,85 +31,61 @@ public class InventoryController {
     this.inventoryService = inventoryService;
   }
 
-  // Create inventory item
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+  @PostMapping
+  public ResponseEntity<InventoryItemResponseDto> createInventoryItem(
+      @RequestBody @Valid InventoryItemRequestDto requestDto) {
 
-  // Update inventory quantity
-  @PatchMapping("/{sku}/quantity")
+    InventoryItemResponseDto item =
+        inventoryService.createInventoryItem(
+            requestDto.getSku(), requestDto.getName(), requestDto.getQuantity());
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(item);
+  }
+
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+  @PatchMapping("/{sku}")
   public ResponseEntity<InventoryItemResponseDto> updateQuantity(
-      @PathVariable String sku, @Valid @RequestBody QuantityUpdateDto dto) {
-    InventoryItem updatedItem = inventoryService.updateQuantity(sku, dto.getDelta());
-    return ResponseEntity.ok(mapToResponseDto(updatedItem));
+      @PathVariable @NotBlank String sku,
+      @Valid @RequestBody InventoryQuantityUpdateRequestDto dto) {
+
+    InventoryItemResponseDto updatedItem = inventoryService.updateQuantity(sku, dto.getDelta());
+    return ResponseEntity.ok(updatedItem);
   }
 
-  // Get All inventories
+  @PreAuthorize("isAuthenticated()")
   @GetMapping
-  public ResponseEntity<List<InventoryItemResponseDto>> getAllInventories() {
-    List<InventoryItem> inventoryItems = inventoryService.getAllInventories();
+  public ResponseEntity<List<InventoryItemResponseDto>> getInventories(
+      @RequestParam(required = false) String sku,
+      @RequestParam(required = false) String name,
+      @RequestParam(required = false) @Min(0) Integer minQuantity,
+      @RequestParam(required = false) @Min(0) Integer maxQuantity) {
 
-    List<InventoryItemResponseDto> dtos =
-        inventoryItems.stream().map(this::mapToResponseDto).collect(Collectors.toList());
-    return ResponseEntity.ok(dtos);
+    List<InventoryItemResponseDto> inventoryItems =
+        inventoryService.getInventoriesFiltered(sku, name, minQuantity, maxQuantity);
+
+    return ResponseEntity.ok(inventoryItems);
   }
 
-  // Get inventory by SKU
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/sku/{sku}")
-  public ResponseEntity<InventoryItemResponseDto> getInventoryBySku(@PathVariable String sku) {
-    InventoryItem item = inventoryService.getInventoryBySku(sku);
-    return ResponseEntity.ok(mapToResponseDto(item));
+  public ResponseEntity<InventoryItemResponseDto> getInventoryBySku(
+      @PathVariable @NotBlank String sku) {
+    InventoryItemResponseDto item = inventoryService.getInventoryBySku(sku);
+    return ResponseEntity.ok(item);
   }
 
-  // Get inventoryby Id
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/{id}")
-  public ResponseEntity<InventoryItemResponseDto> getInventoryById(@PathVariable Long id) {
-    InventoryItem item = inventoryService.getInventoryById(id);
-    return ResponseEntity.ok(mapToResponseDto(item));
+  public ResponseEntity<InventoryItemResponseDto> getInventoryById(@PathVariable @Min(1) Long id) {
+    InventoryItemResponseDto item = inventoryService.getInventoryById(id);
+    return ResponseEntity.ok(item);
   }
 
-  // Search inventory by Name
-  @GetMapping("/search/by-name")
-  public ResponseEntity<List<InventoryItemResponseDto>> getInventoryByName(
-      @RequestParam String name) {
-    List<InventoryItem> inventoryItems = inventoryService.getInventoryByName(name);
-    List<InventoryItemResponseDto> dtos =
-        inventoryItems.stream().map(this::mapToResponseDto).collect(Collectors.toList());
-    return ResponseEntity.ok(dtos);
-  }
-
-  // Filter by Quantity Range
-  @GetMapping("/search/by-quantity")
-  public ResponseEntity<List<InventoryItemResponseDto>> getInventoryByQuantity(
-      @RequestParam int minQuantity, @RequestParam int maxQuantity) {
-    List<InventoryItem> inventoryItems =
-        inventoryService.getInventoryByRange(minQuantity, maxQuantity);
-
-    List<InventoryItemResponseDto> dtos =
-        inventoryItems.stream().map(this::mapToResponseDto).collect(Collectors.toList());
-    return ResponseEntity.ok(dtos);
-  }
-
-  // Search by Combined Filters (Name + SKU)
-  @GetMapping("/search/by-sku-name")
-  public ResponseEntity<List<InventoryItemResponseDto>> getInventoryByFilter(
-      @RequestParam String sku, @RequestParam String name) {
-    List<InventoryItem> inventoryItems = inventoryService.getInventoryByFilter(sku, name);
-
-    List<InventoryItemResponseDto> dtos =
-        inventoryItems.stream().map(this::mapToResponseDto).collect(Collectors.toList());
-    return ResponseEntity.ok(dtos);
-  }
-
-  // Delete - Delete
-
-  // Mapping
-  private InventoryItemResponseDto mapToResponseDto(InventoryItem item) {
-    InventoryItemResponseDto dto = new InventoryItemResponseDto();
-    dto.setId(item.getId());
-    dto.setSku(item.getSku());
-    dto.setName(item.getName());
-    dto.setQuantity(item.getQuantity());
-    dto.setCreatedAt(item.getCreatedAt());
-    dto.setUpdatedAt(item.getUpdatedAt());
-
-    return dto;
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteInventory(@PathVariable @Min(1) Long id) {
+    inventoryService.deleteInventoryItem(id);
+    return ResponseEntity.noContent().build();
   }
 }

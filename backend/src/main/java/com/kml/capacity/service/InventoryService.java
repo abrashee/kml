@@ -1,35 +1,32 @@
 package com.kml.capacity.service;
 
+import com.kml.capacity.dto.InventoryItemResponseDto;
 import java.util.List;
-
-import com.kml.domain.inventory.InventoryItem;
 
 public interface InventoryService {
 
-  // Create Inventory
+  InventoryItemResponseDto createInventoryItem(String sku, String name, int quantity);
 
-  // Inevntory Update (increase or decrease)
-  InventoryItem updateQuantity(String sku, int delta);
+  InventoryItemResponseDto updateQuantity(String sku, int delta);
 
-  // Get All Inventories
-  List<InventoryItem> getAllInventories();
+  List<InventoryItemResponseDto> getAllInventories();
 
-  // Get Inventory by SKU
-  InventoryItem getInventoryBySku(String sku);
+  InventoryItemResponseDto getInventoryBySku(String sku);
 
-  // Get Inventory by Id
-  InventoryItem getInventoryById(Long id);
+  InventoryItemResponseDto getInventoryById(Long id);
 
-  // Search Inventory by Name
-  List<InventoryItem> getInventoryByName(String name);
+  List<InventoryItemResponseDto> getInventoryByName(String name);
 
-  // Filter Inventory by Quantity Range
-  List<InventoryItem> getInventoryByRange(int minQuantity, int maxQuantity);
+  List<InventoryItemResponseDto> getInventoryByRange(int minQuantity, int maxQuantity);
 
-  // | Combined Filters (SKU + name)
-  List<InventoryItem> getInventoryByFilter(String sku, String name);
+  List<InventoryItemResponseDto> getInventoryByFilter(String sku, String name);
 
-  List<InventoryItem> getInventoryByStorageUnitId(Long id);
+  List<InventoryItemResponseDto> getInventoryByStorageUnitId(Long id);
 
-  List<InventoryItem> getInventoryByWarehouseId(Long id);
+  List<InventoryItemResponseDto> getInventoryByWarehouseId(Long id);
+
+  List<InventoryItemResponseDto> getInventoriesFiltered(
+      String sku, String name, Integer minQuantity, Integer maxQuantity);
+
+  void deleteInventoryItem(Long id);
 }
