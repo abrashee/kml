@@ -5,7 +5,8 @@ import com.kml.domain.inventory.InventoryItem;
 
 public final class InventoryMapper {
 
-  private InventoryMapper() {}
+  private InventoryMapper() {
+  }
 
   public static InventoryItemResponseDto toDto(InventoryItem entity) {
     if (entity == null) return null;
