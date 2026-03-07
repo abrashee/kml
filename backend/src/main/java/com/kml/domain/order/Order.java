@@ -67,7 +67,6 @@ public class Order extends AuditableEntity {
     if (status == null) throw new IllegalArgumentException("Order status required");
   }
 
-  // Getters
   public Long getId() {
     return id;
   }

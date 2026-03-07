@@ -33,7 +33,7 @@ public class Warehouse extends AuditableEntity {
   @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<StorageUnit> storageUnits = new ArrayList<>();
 
-  protected Warehouse() {} // JPA constructor
+  protected Warehouse() {}
 
   private Warehouse(User owner, String name, String address) {
     if (owner == null) throw new IllegalArgumentException("Owner is required");
@@ -44,7 +44,6 @@ public class Warehouse extends AuditableEntity {
     this.address = address;
   }
 
-  /** Factory method enforcing ownership */
   public static Warehouse create(User owner, String name, String address) {
     return new Warehouse(owner, name, address);
   }

@@ -8,17 +8,13 @@ import com.kml.domain.user.User;
 
 public interface WarehouseService {
 
-  // Create warehouse, returns DTO to avoid entity leak
   WarehouseResponseDto createWarehouse(User owner, String name, String address);
 
-  // Get single warehouse by id, returns DTO
   Optional<WarehouseResponseDto> getWarehouseById(Long id);
 
   Optional<WarehouseResponseDto> getWarehouseByName(String name);
 
-  // Get all warehouses for current user
   List<WarehouseResponseDto> getAllWarehouses();
 
-  // Ownership check (internal)
   void enforceOwnership(Long warehouseId, User user);
 }

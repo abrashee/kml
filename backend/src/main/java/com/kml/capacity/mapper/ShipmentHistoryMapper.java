@@ -14,11 +14,7 @@ public final class ShipmentHistoryMapper {
     if (entity == null) return null;
 
     return new ShipmentHistoryResponseDto(
-        entity.getId(),
-        entity.getPreviousStatus(),
-        entity.getNewStatus(),
-        entity.getCreatedAt() // use AuditableEntity timestamp
-        );
+        entity.getId(), entity.getPreviousStatus(), entity.getNewStatus(), entity.getCreatedAt());
   }
 
   public static List<ShipmentHistoryResponseDto> toDtoList(List<ShipmentHistory> entities) {

@@ -13,7 +13,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** Logs user actions on entities for auditing. */
 @Entity
 @Table(name = "user_activity_log")
 public class UserActivityLog extends AuditableEntity {
