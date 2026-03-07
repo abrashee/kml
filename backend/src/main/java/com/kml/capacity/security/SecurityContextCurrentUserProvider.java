@@ -25,7 +25,6 @@ public class SecurityContextCurrentUserProvider implements CurrentUserProvider {
     String username = auth.getName();
     UserRole role = resolveRole(auth);
 
-    // This is a only "current principal" representation, not necessarily a persisted user.
     return new User("dev-principal", username, "N/A", role);
   }
 

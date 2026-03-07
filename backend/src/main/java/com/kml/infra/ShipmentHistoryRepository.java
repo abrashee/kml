@@ -10,6 +10,5 @@ import com.kml.domain.shipment.ShipmentHistory;
 @Repository
 public interface ShipmentHistoryRepository extends JpaRepository<ShipmentHistory, Long> {
 
-  // Order by createdAt (from AuditableEntity) instead of changedAt
   List<ShipmentHistory> findByShipment_IdOrderByCreatedAtAsc(Long shipmentId);
 }

@@ -142,18 +142,12 @@ public class StorageUnitServiceImpl implements StorageUnitService {
     storageUnitRepository.delete(unit);
   }
 
-  // -------------------
-  // Ownership checks
-  // -------------------
-
-  /** Enforce ownership of a StorageUnit by a User */
   public void enforceOwnership(StorageUnit entity, User user) {
     if (!entity.getOwner().getId().equals(user.getId())) {
       throw new OwnershipException("User does not own this StorageUnit");
     }
   }
 
-  /** Enforce ownership of a Warehouse by a User */
   public void enforceOwnership(Warehouse entity, User user) {
     if (!entity.getOwner().getId().equals(user.getId())) {
       throw new OwnershipException("User does not own this Warehouse");

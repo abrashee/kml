@@ -29,9 +29,8 @@ public class UserActivityLogServiceImpl implements UserActivityLogService {
                     log.getId(),
                     log.getUser().getId(),
                     log.getAction(),
-                    log.getCreatedAt(), // pass createdAt in constructor
-                    log.getUpdatedAt() // pass updatedAt in constructor
-                    ))
+                    log.getCreatedAt(),
+                    log.getUpdatedAt()))
         .collect(Collectors.toList());
   }
 

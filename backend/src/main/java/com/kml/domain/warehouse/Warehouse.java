@@ -44,7 +44,6 @@ public class Warehouse extends AuditableEntity {
     this.address = address;
   }
 
-  /** Factory method enforcing ownership */
   public static Warehouse create(User owner, String name, String address) {
     return new Warehouse(owner, name, address);
   }

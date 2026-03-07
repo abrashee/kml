@@ -26,13 +26,6 @@ public class ShipmentWarehouseResolverServiceImpl {
         Objects.requireNonNull(assignmentRepository, "assignmentRepository is required");
   }
 
-  /**
-   * Resolves the warehouses responsible for fulfilling a shipment by looking at inventory
-   * assignments of each order item.
-   *
-   * @param shipmentId the shipment id to resolve
-   * @return distinct list of warehouses involved in the shipment
-   */
   public List<Warehouse> resolveWarehouseForShipment(Long shipmentId) {
     if (shipmentId == null) throw new IllegalArgumentException("ShipmentId is required");
 
@@ -41,7 +34,6 @@ public class ShipmentWarehouseResolverServiceImpl {
             .findById(shipmentId)
             .orElseThrow(() -> new IllegalArgumentException("Shipment not found"));
 
-    // Streams through order items → inventory assignments → storage units → warehouses
     return shipment.getOrder().getItems().stream()
         .flatMap(
             orderItem ->

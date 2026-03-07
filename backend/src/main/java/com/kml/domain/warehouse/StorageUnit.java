@@ -44,7 +44,6 @@ public class StorageUnit extends AuditableEntity {
     this.capacity = capacity;
   }
 
-  /** Factory method used by services to create a new StorageUnit with owner validation. */
   public static StorageUnit create(User owner, String code, int capacity) {
     if (owner == null) {
       throw new IllegalArgumentException("Owner must not be null");

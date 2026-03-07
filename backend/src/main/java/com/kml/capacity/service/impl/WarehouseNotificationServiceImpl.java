@@ -17,16 +17,8 @@ public class WarehouseNotificationServiceImpl implements WarehouseNotificationSe
 
   private final List<ShipmentNotificationEvent> events = new ArrayList<>();
 
-  public WarehouseNotificationServiceImpl() {
-    // Default constructor
-  }
+  public WarehouseNotificationServiceImpl() {}
 
-  /**
-   * Notify warehouses that a shipment has been created.
-   *
-   * @param shipmentId the shipment id
-   * @param warehouseIds the ids of the warehouses to notify
-   */
   @Override
   @Transactional
   public void notifyShipmentCreated(Long shipmentId, Set<Long> warehouseIds) {
@@ -34,17 +26,11 @@ public class WarehouseNotificationServiceImpl implements WarehouseNotificationSe
     if (warehouseIds == null || warehouseIds.isEmpty()) return;
 
     for (Long warehouseId : warehouseIds) {
-      // Use the existing constructor that requires shipmentId and warehouseId
       ShipmentNotificationEvent event = new ShipmentNotificationEvent(shipmentId, warehouseId);
       events.add(event);
     }
   }
 
-  /**
-   * Get all recorded shipment notification events.
-   *
-   * @return immutable copy of the events
-   */
   public List<ShipmentNotificationEvent> getEvents() {
     return Collections.unmodifiableList(new ArrayList<>(events));
   }

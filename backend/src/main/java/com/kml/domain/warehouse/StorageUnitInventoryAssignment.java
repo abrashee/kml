@@ -54,7 +54,6 @@ public class StorageUnitInventoryAssignment extends AuditableEntity {
     this.assignedQuantity = assignedQuantity;
   }
 
-  /** Factory method for creating a new assignment with owner. */
   public static StorageUnitInventoryAssignment create(
       User owner, StorageUnit storageUnit, InventoryItem inventoryItem, int assignedQuantity) {
     return new StorageUnitInventoryAssignment(owner, storageUnit, inventoryItem, assignedQuantity);

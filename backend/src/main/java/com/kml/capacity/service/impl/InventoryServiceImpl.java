@@ -43,7 +43,6 @@ public class InventoryServiceImpl implements InventoryService {
     this.currentUserProvider = Objects.requireNonNull(currentUserProvider);
   }
 
-  // Helper to log user actions
   private void logActivity(String action, InventoryItem item) {
     User currentUser = currentUserProvider.getCurrentUser();
     UserActivityLog log =
@@ -82,7 +81,6 @@ public class InventoryServiceImpl implements InventoryService {
             .findBySku(sku)
             .orElseThrow(() -> new IllegalArgumentException("Inventory item not found"));
 
-    // Ownership enforcement
     User currentUser = currentUserProvider.getCurrentUser();
     if (!item.getOwner().getId().equals(currentUser.getId())) {
       throw new OwnershipException("Cannot modify inventory not owned by current user");
@@ -189,7 +187,6 @@ public class InventoryServiceImpl implements InventoryService {
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Inventory item not found"));
 
-    // Ownership enforcement
     User currentUser = currentUserProvider.getCurrentUser();
     if (!item.getOwner().getId().equals(currentUser.getId())) {
       throw new OwnershipException("Cannot delete inventory not owned by current user");
