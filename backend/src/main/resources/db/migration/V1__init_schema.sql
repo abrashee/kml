@@ -1,8 +1,5 @@
 -- ===========================================
 -- Flyway Migration: Initial Schema
--- Covers: users, user_activity_log, warehouses, storage_units,
---        inventory_items, storage_unit_inventory_item_assignments,
---        order_statuses, orders, order_items, shipments, shipment_history
 -- ===========================================
 
 -- USERS
@@ -52,6 +49,7 @@ CREATE TABLE inventory_items (
     sku VARCHAR(255) NOT NULL UNIQUE,
     name VARCHAR(255) NOT NULL,
     quantity INT NOT NULL,
+    owner_id BIGINT REFERENCES users(id),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -91,6 +89,7 @@ CREATE TABLE order_items (
     id BIGSERIAL PRIMARY KEY,
     order_id BIGINT NOT NULL REFERENCES orders(id),
     inventory_item_id BIGINT NOT NULL REFERENCES inventory_items(id),
+    owner_id BIGINT REFERENCES users(id),  -- added to match entity
     quantity INT NOT NULL,
     price_at_order DECIMAL(19,2) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

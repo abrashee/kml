@@ -1,4 +1,7 @@
--- V2__seed_order_statuses.sql
+-- ===========================================
+-- Flyway Migration: Seed Order Statuses
+-- ===========================================
+
 INSERT INTO order_statuses (name, description)
 VALUES
     ('PENDING', 'Order has been created but not yet processed'),
