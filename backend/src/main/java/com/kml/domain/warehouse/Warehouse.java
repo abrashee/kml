@@ -1,12 +1,7 @@
 package com.kml.domain.warehouse;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.kml.domain.common.AuditableEntity;
 import com.kml.domain.user.User;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +10,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Table(name = "warehouses")
@@ -33,7 +31,7 @@ public class Warehouse extends AuditableEntity {
   @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<StorageUnit> storageUnits = new ArrayList<>();
 
-  protected Warehouse() {} // JPA constructor
+  protected Warehouse() {}
 
   private Warehouse(User owner, String name, String address) {
     if (owner == null) throw new IllegalArgumentException("Owner is required");

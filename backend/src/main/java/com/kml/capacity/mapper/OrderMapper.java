@@ -2,8 +2,8 @@ package com.kml.capacity.mapper;
 
 import java.util.List;
 
-import com.kml.capacity.dto.OrderItemResponseDto;
-import com.kml.capacity.dto.OrderResponseDto;
+import com.kml.capacity.dto.order.OrderItemResponseDto;
+import com.kml.capacity.dto.order.OrderResponseDto;
 import com.kml.domain.order.Order;
 import com.kml.domain.order.OrderItem;
 

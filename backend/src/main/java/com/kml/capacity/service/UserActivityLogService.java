@@ -1,7 +1,8 @@
 package com.kml.capacity.service;
 
-import com.kml.capacity.dto.UserActivityLogDto;
 import java.util.List;
+
+import com.kml.capacity.dto.user.UserActivityLogDto;
 
 public interface UserActivityLogService {
 

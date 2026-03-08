@@ -2,8 +2,8 @@ package com.kml.capacity.service;
 
 import java.util.List;
 
-import com.kml.capacity.dto.OrderItemRequestDto;
-import com.kml.capacity.dto.OrderResponseDto;
+import com.kml.capacity.dto.order.OrderItemRequestDto;
+import com.kml.capacity.dto.order.OrderResponseDto;
 import com.kml.domain.user.User;
 
 public interface OrderService {

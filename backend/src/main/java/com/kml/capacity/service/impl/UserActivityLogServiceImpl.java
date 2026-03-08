@@ -1,14 +1,12 @@
 package com.kml.capacity.service.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.kml.capacity.dto.UserActivityLogDto;
+import com.kml.capacity.dto.user.UserActivityLogDto;
 import com.kml.capacity.service.UserActivityLogService;
 import com.kml.infra.UserActivityLogRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserActivityLogServiceImpl implements UserActivityLogService {

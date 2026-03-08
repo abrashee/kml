@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kml.capacity.dto.StorageUnitInventoryAssignmentDto;
+import com.kml.capacity.dto.storageUnit.StorageUnitInventoryAssignmentDto;
 import com.kml.capacity.mapper.StorageUnitMapper;
 import com.kml.capacity.security.CurrentUserProvider;
 import com.kml.capacity.service.InventoryItemLayoutService;

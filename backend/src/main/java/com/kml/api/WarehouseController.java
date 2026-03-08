@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kml.capacity.dto.WarehouseRequestDto;
-import com.kml.capacity.dto.WarehouseResponseDto;
+import com.kml.capacity.dto.warehouse.WarehouseRequestDto;
+import com.kml.capacity.dto.warehouse.WarehouseResponseDto;
 import com.kml.capacity.security.CurrentUserProvider;
 import com.kml.capacity.service.WarehouseService;
 import com.kml.domain.user.User;

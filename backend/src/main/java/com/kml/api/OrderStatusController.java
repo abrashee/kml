@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kml.capacity.dto.OrderStatusRequestDto;
-import com.kml.capacity.dto.OrderStatusResponseDto;
+import com.kml.capacity.dto.order.OrderStatusRequestDto;
+import com.kml.capacity.dto.order.OrderStatusResponseDto;
 import com.kml.capacity.security.CurrentUserProvider;
 import com.kml.capacity.service.OrderStatusService;
 import com.kml.domain.user.User;

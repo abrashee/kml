@@ -1,15 +1,14 @@
 package com.kml.capacity.service.impl;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.kml.capacity.dto.UserResponseDto;
+import com.kml.capacity.dto.user.UserResponseDto;
 import com.kml.capacity.mapper.UserMapper;
 import com.kml.capacity.service.UserService;
 import com.kml.domain.user.User;
 import com.kml.domain.user.UserRole;
 import com.kml.infra.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl implements UserService {

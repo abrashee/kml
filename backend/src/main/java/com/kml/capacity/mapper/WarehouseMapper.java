@@ -1,6 +1,6 @@
 package com.kml.capacity.mapper;
 
-import com.kml.capacity.dto.WarehouseResponseDto;
+import com.kml.capacity.dto.warehouse.WarehouseResponseDto;
 import com.kml.domain.warehouse.Warehouse;
 
 public final class WarehouseMapper {

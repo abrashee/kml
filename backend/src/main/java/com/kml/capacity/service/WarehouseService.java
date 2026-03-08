@@ -3,7 +3,7 @@ package com.kml.capacity.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.kml.capacity.dto.WarehouseResponseDto;
+import com.kml.capacity.dto.warehouse.WarehouseResponseDto;
 import com.kml.domain.user.User;
 
 public interface WarehouseService {

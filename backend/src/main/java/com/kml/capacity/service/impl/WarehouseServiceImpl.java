@@ -1,19 +1,17 @@
 package com.kml.capacity.service.impl;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.kml.api.error.OwnershipException;
-import com.kml.capacity.dto.WarehouseResponseDto;
+import com.kml.capacity.dto.warehouse.WarehouseResponseDto;
 import com.kml.capacity.mapper.WarehouseMapper;
 import com.kml.capacity.security.CurrentUserProvider;
 import com.kml.capacity.service.WarehouseService;
 import com.kml.domain.user.User;
 import com.kml.domain.warehouse.Warehouse;
 import com.kml.infra.WarehouseRepository;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WarehouseServiceImpl implements WarehouseService {

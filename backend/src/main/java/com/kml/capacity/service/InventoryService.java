@@ -1,7 +1,8 @@
 package com.kml.capacity.service;
 
-import com.kml.capacity.dto.InventoryItemResponseDto;
 import java.util.List;
+
+import com.kml.capacity.dto.inventory.InventoryItemResponseDto;
 
 public interface InventoryService {
 

@@ -1,14 +1,7 @@
 package com.kml.capacity.service.impl;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.kml.api.error.OwnershipException;
-import com.kml.capacity.dto.InventoryItemResponseDto;
+import com.kml.capacity.dto.inventory.InventoryItemResponseDto;
 import com.kml.capacity.mapper.InventoryMapper;
 import com.kml.capacity.security.CurrentUserProvider;
 import com.kml.capacity.service.InventoryService;
@@ -19,6 +12,11 @@ import com.kml.infra.InventoryRepository;
 import com.kml.infra.StorageUnitInventoryAssignmentRepository;
 import com.kml.infra.StorageUnitRepository;
 import com.kml.infra.UserActivityLogRepository;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class InventoryServiceImpl implements InventoryService {

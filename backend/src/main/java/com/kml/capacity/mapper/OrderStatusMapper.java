@@ -2,7 +2,7 @@ package com.kml.capacity.mapper;
 
 import java.time.LocalDateTime;
 
-import com.kml.capacity.dto.OrderStatusResponseDto;
+import com.kml.capacity.dto.order.OrderStatusResponseDto;
 import com.kml.domain.order.OrderStatus;
 
 public final class OrderStatusMapper {

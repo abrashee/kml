@@ -2,7 +2,7 @@ package com.kml.capacity.service;
 
 import java.util.List;
 
-import com.kml.capacity.dto.StorageUnitResponseDto;
+import com.kml.capacity.dto.storageUnit.StorageUnitResponseDto;
 import com.kml.domain.user.User;
 import com.kml.domain.warehouse.StorageUnit;
 

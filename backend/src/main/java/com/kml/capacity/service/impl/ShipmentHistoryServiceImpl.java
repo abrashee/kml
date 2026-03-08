@@ -1,14 +1,12 @@
 package com.kml.capacity.service.impl;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.kml.capacity.dto.ShipmentHistoryResponseDto;
+import com.kml.capacity.dto.shipment.ShipmentHistoryResponseDto;
 import com.kml.capacity.mapper.ShipmentHistoryMapper;
 import com.kml.capacity.service.ShipmentHistoryService;
 import com.kml.infra.ShipmentHistoryRepository;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ShipmentHistoryServiceImpl implements ShipmentHistoryService {
