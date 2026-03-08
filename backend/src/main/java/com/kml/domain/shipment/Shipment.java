@@ -1,14 +1,9 @@
 package com.kml.domain.shipment;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
+import com.kml.capacity.dto.ai.RoutePlanDto;
 import com.kml.domain.common.AuditableEntity;
 import com.kml.domain.order.Order;
 import com.kml.domain.user.User;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,6 +16,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "shipments")
@@ -48,6 +47,8 @@ public class Shipment extends AuditableEntity {
   private Order order;
 
   @Transient private List<Object> domainEvents = new ArrayList<>();
+
+  @Transient private RoutePlanDto lastRoutePlan;
 
   protected Shipment() {}
 
@@ -144,5 +145,13 @@ public class Shipment extends AuditableEntity {
 
   public void clearDomainEvents() {
     domainEvents.clear();
+  }
+
+  public RoutePlanDto getLastRoutePlan() {
+    return lastRoutePlan;
+  }
+
+  public void setLastRoutePlan(RoutePlanDto lastRoutePlan) {
+    this.lastRoutePlan = lastRoutePlan;
   }
 }

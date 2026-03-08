@@ -3,11 +3,11 @@ package com.kml.capacity.mapper;
 import java.util.Collections;
 import java.util.List;
 
-import com.kml.capacity.dto.InventoryItemLayoutDto;
-import com.kml.capacity.dto.StorageUnitInventoryAssignmentDto;
-import com.kml.capacity.dto.StorageUnitLayoutDto;
-import com.kml.capacity.dto.StorageUnitResponseDto;
-import com.kml.capacity.dto.WarehouseLayoutDto;
+import com.kml.capacity.dto.inventory.InventoryItemLayoutDto;
+import com.kml.capacity.dto.storageUnit.StorageUnitInventoryAssignmentDto;
+import com.kml.capacity.dto.storageUnit.StorageUnitLayoutDto;
+import com.kml.capacity.dto.storageUnit.StorageUnitResponseDto;
+import com.kml.capacity.dto.warehouse.WarehouseLayoutDto;
 import com.kml.domain.inventory.InventoryItem;
 import com.kml.domain.warehouse.StorageUnit;
 import com.kml.domain.warehouse.StorageUnitInventoryAssignment;

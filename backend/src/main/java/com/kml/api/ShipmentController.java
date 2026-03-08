@@ -1,13 +1,7 @@
 package com.kml.api;
 
-import com.kml.capacity.dto.ShipmentHistoryResponseDto;
-import com.kml.capacity.dto.ShipmentRequestDto;
-import com.kml.capacity.dto.ShipmentResponseDto;
-import com.kml.capacity.dto.ShipmentStatusUpdateRequestDto;
-import com.kml.capacity.service.ShipmentHistoryService;
-import com.kml.capacity.service.ShipmentService;
-import jakarta.validation.Valid;
 import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +13,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.kml.capacity.dto.shipment.ShipmentHistoryResponseDto;
+import com.kml.capacity.dto.shipment.ShipmentRequestDto;
+import com.kml.capacity.dto.shipment.ShipmentResponseDto;
+import com.kml.capacity.dto.shipment.ShipmentStatusUpdateRequestDto;
+import com.kml.capacity.service.ShipmentHistoryService;
+import com.kml.capacity.service.ShipmentService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/shipments")

@@ -1,6 +1,6 @@
 package com.kml.capacity.mapper;
 
-import com.kml.capacity.dto.UserResponseDto;
+import com.kml.capacity.dto.user.UserResponseDto;
 import com.kml.domain.user.User;
 
 public final class UserMapper {

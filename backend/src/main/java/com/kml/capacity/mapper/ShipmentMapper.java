@@ -3,7 +3,7 @@ package com.kml.capacity.mapper;
 import java.util.Collections;
 import java.util.List;
 
-import com.kml.capacity.dto.ShipmentResponseDto;
+import com.kml.capacity.dto.shipment.ShipmentResponseDto;
 import com.kml.domain.shipment.Shipment;
 
 public final class ShipmentMapper {

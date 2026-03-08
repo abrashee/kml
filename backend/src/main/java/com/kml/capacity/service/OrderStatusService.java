@@ -2,7 +2,7 @@ package com.kml.capacity.service;
 
 import java.util.List;
 
-import com.kml.capacity.dto.OrderStatusResponseDto;
+import com.kml.capacity.dto.order.OrderStatusResponseDto;
 import com.kml.domain.user.User;
 
 public interface OrderStatusService {

@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kml.capacity.dto.UserRequestDto;
-import com.kml.capacity.dto.UserResponseDto;
+import com.kml.capacity.dto.user.UserRequestDto;
+import com.kml.capacity.dto.user.UserResponseDto;
 import com.kml.capacity.service.UserService;
 
 import jakarta.validation.Valid;

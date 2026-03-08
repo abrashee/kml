@@ -1,13 +1,7 @@
 package com.kml.api;
 
-import com.kml.capacity.dto.InventoryItemRequestDto;
-import com.kml.capacity.dto.InventoryItemResponseDto;
-import com.kml.capacity.dto.InventoryQuantityUpdateRequestDto;
-import com.kml.capacity.service.InventoryService;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +14,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.kml.capacity.dto.inventory.InventoryItemRequestDto;
+import com.kml.capacity.dto.inventory.InventoryItemResponseDto;
+import com.kml.capacity.dto.inventory.InventoryQuantityUpdateRequestDto;
+import com.kml.capacity.service.InventoryService;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 
 @RestController
 @RequestMapping("/api/v1/inventories")

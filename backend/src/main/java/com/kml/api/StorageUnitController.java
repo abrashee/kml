@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kml.capacity.dto.StorageUnitRequestDto;
-import com.kml.capacity.dto.StorageUnitResponseDto;
+import com.kml.capacity.dto.storageUnit.StorageUnitRequestDto;
+import com.kml.capacity.dto.storageUnit.StorageUnitResponseDto;
 import com.kml.capacity.service.StorageUnitService;
 
 import jakarta.validation.Valid;

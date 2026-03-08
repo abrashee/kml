@@ -1,17 +1,15 @@
 package com.kml.capacity.service.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.kml.capacity.dto.OrderStatusResponseDto;
+import com.kml.capacity.dto.order.OrderStatusResponseDto;
 import com.kml.capacity.mapper.OrderStatusMapper;
 import com.kml.capacity.service.OrderStatusService;
 import com.kml.domain.order.OrderStatus;
 import com.kml.domain.user.User;
 import com.kml.infra.OrderStatusRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderStatusServiceImpl implements OrderStatusService {

@@ -1,11 +1,6 @@
 package com.kml.capacity.service.impl;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.kml.capacity.dto.StorageUnitInventoryAssignmentDto;
+import com.kml.capacity.dto.storageUnit.StorageUnitInventoryAssignmentDto;
 import com.kml.capacity.mapper.StorageUnitMapper;
 import com.kml.capacity.security.CurrentUserProvider;
 import com.kml.capacity.service.StorageUnitInventoryAssignmentService;
@@ -16,6 +11,9 @@ import com.kml.domain.warehouse.StorageUnitInventoryAssignment;
 import com.kml.infra.InventoryRepository;
 import com.kml.infra.StorageUnitInventoryAssignmentRepository;
 import com.kml.infra.StorageUnitRepository;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class StorageUnitInventoryAssignmentServiceImpl

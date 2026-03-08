@@ -1,6 +1,6 @@
 package com.kml.capacity.mapper;
 
-import com.kml.capacity.dto.UserActivityLogDto;
+import com.kml.capacity.dto.user.UserActivityLogDto;
 import com.kml.domain.audit.UserActivityLog;
 
 public final class UserActivityLogMapper {
