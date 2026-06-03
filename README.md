@@ -8,7 +8,7 @@ This project is intended **for educational and demonstrative purposes only**.
 It is **not a commercial product** and should **not be used in real-world logistics operations**.  
 All examples, datasets, and configurations are synthetic, anonymized, and safe for public use.
 
-This software is provided **“as-is”** under the [MIT License](../LICENSE), **without any warranty**.  
+This software is provided **“as-is”** under the [MIT License](./LICENSE), **without any warranty**.  
 The author is **not liable for any damages or misuse** arising from use of this project.
 
 
@@ -78,9 +78,9 @@ For detailed context on each module, see their individual README.md files:
 This folder contains all ADRs documenting the major architectural and design decisions of the KML project.
 
 ## ADR List
-1. [ADR-001: Project Architecture and Module Structure](../docs/adrs/ADR-001-modular-monolith.md)
-2. [ADR-002: Layered Architecture for Backend](../docs/adrs/ADR-002-layered-architecture.md)
-3. [ADR-003: Design Pattern Selection](../docs/adrs/ADR-003-design-pattern-selection.md)
+1. [ADR-001: Project Architecture and Module Structure](./docs/adrs/ADR-001-modular-monolith.md)
+2. [ADR-002: Layered Architecture for Backend](./docs/adrs/ADR-002-layered-architecture.md)
+3. [ADR-003: Design Pattern Selection](./docs/adrs/ADR-003-design-pattern-selection.md)
 
 Each ADR contains:
 

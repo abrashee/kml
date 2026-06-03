@@ -4,8 +4,7 @@
 The frontend module contains all client-facing applications for KML. Each frontend is implemented as an independent application and communicates with the backend through documented APIs. This module is responsible for the user experience, presentation logic, and integration with backend services.
 
 ## Applications
-- **React** – customer-facing interface.
-- **Angular** – admin-facing interface.
+- **Angular** – customer and admin-facing interface.
 
 Each application maintains its own folder structure, state management, and test strategy.
 

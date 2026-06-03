@@ -1,74 +1,100 @@
 package com.kml.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.kml.security.jwt.JwtAuthFilter;
+import com.kml.security.jwt.JwtTokenProvider;
+import com.kml.security.jwt.JwtUserDetailsService;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
+
+  private final JwtUserDetailsService jwtUserDetailsService;
+  private final JwtTokenProvider jwtTokenProvider;
+
+  public SecurityConfig(
+      JwtUserDetailsService jwtUserDetailsService,
+      JwtTokenProvider jwtTokenProvider) {
+    this.jwtUserDetailsService = jwtUserDetailsService;
+    this.jwtTokenProvider = jwtTokenProvider;
+  }
 
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
 
-  // MVP01 (Option B): Dev auth using HTTP Basic with in-memory users.
-  // MVP02: replace with JWT + refresh tokens + RBAC.
+  @Bean
+  public JwtAuthFilter jwtAuthFilter() {
+    return new JwtAuthFilter(jwtTokenProvider, jwtUserDetailsService);
+  }
+
+  @Bean
+  public DaoAuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    provider.setUserDetailsService(jwtUserDetailsService);
+    provider.setPasswordEncoder(passwordEncoder());
+    return provider;
+  }
+
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+      throws Exception {
+    return config.getAuthenticationManager();
+  }
+
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+
+    config.setAllowedOrigins(List.of("http://localhost:4200"));
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    config.setAllowedHeaders(List.of("*"));
+    config.setAllowCredentials(true);
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+
+    return source;
+  }
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable())
+    http
+        .cors(cors -> {})
+        .csrf(csrf -> csrf.disable())
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers(HttpMethod.POST, "/api/v1/users")
-                    .permitAll()
-                    .requestMatchers("/h2-console/**")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated())
-        .httpBasic(Customizer.withDefaults());
+        .authenticationProvider(authenticationProvider())
+        .authorizeHttpRequests(auth ->
+            auth.requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
+                .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**").permitAll()
+                .requestMatchers("/actuator/health/**").permitAll()
+                .anyRequest().authenticated()
+        )
+        .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
     http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
     return http.build();
-  }
-
-  @Bean
-  public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-    UserDetails admin =
-        User.withUsername("dev-admin")
-            .password(encoder.encode("dev-password"))
-            .roles("ADMIN")
-            .build();
-
-    UserDetails manager =
-        User.withUsername("dev-manager")
-            .password(encoder.encode("dev-password"))
-            .roles("MANAGER")
-            .build();
-
-    UserDetails user =
-        User.withUsername("dev-user")
-            .password(encoder.encode("dev-password"))
-            .roles("USER")
-            .build();
-
-    UserDetails customer =
-        User.withUsername("dev-customer")
-            .password(encoder.encode("dev-password"))
-            .roles("CUSTOMER")
-            .build();
-
-    return new InMemoryUserDetailsManager(admin, manager, user, customer);
   }
 }
