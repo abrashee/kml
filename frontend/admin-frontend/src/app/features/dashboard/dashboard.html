@@ -1,0 +1,42 @@
+<!-- Dashboard.html-->
+<!-- <div class="dashboard">
+
+  <div class="page-header" style="margin-bottom: 24px;">
+    <h1>Welcome, {{ role() | titlecase }}</h1>
+    <p class="text-muted">Operations Control Center</p>
+  </div>
+
+  <ng-container *ngIf="!canSeeInventory()">
+    <div class="card">
+      <h3>Your Active Tasks</h3>
+      <p>Check the <strong>Orders</strong> or <strong>Shipments</strong> tabs to view your assigned work.</p>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="canSeeInventory()">
+    <div class="search-bar">
+      <input
+        type="text"
+        placeholder="Quick search inventory..."
+        [value]="search()"
+        (input)="onSearchChange($any($event.target).value)"
+      />
+      <button class="btn btn-primary" (click)="loadInventory()">Search</button>
+    </div>
+
+    <div class="state" *ngIf="loading()">Loading...</div>
+
+    <div class="inventory-grid" *ngIf="page() as p">
+      <div class="inventory-card" *ngFor="let item of p.content">
+        <div class="name">{{ item.name }}</div>
+        <div class="sku">{{ item.sku }}</div>
+        <div class="qty" [class.low-stock]="item.quantity < 10">Qty: {{ item.quantity }}</div>
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="!loading() && page() && page()!.content.length === 0">
+      No inventory found
+    </div>
+  </ng-container>
+
+</div> -->

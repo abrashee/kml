@@ -19,7 +19,7 @@ A modular structure isolates responsibilities, allowing incremental evolution wi
 ## Decision
 The project will adopt a **modular monolith architecture** with the following modules:
 
-- **backend/** – Spring Boot application handling domain modeling, business logic, API exposure, and persistence coordination.
+- **services/** – Spring Boot microservices handling domain modeling, API exposure, and persistence per bounded context.
 - **frontend/** – Two separate applications:
   - **React** (customer-facing)
   - **Angular** (admin-facing)  

@@ -1,0 +1,38 @@
+{
+  "title": "KML Backend Overview",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "15s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "HTTP Request Rate",
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count[5m])",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "JVM Memory Used",
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Kafka Producer Records",
+      "targets": [
+        {
+          "expr": "increase(kafka_producer_record_send_total[5m])",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+name: Publish KML release images
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version, for example v1.0.0"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+  attestations: write
+  id-token: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      image_prefix: ${{ steps.values.outputs.image_prefix }}
+      version: ${{ steps.values.outputs.version }}
+    steps:
+      - id: values
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            version="$INPUT_VERSION"
+          else
+            version="$GITHUB_REF_NAME"
+          fi
+
+          if [[ ! "$version" =~ ^v[0-9]+(\.[0-9]+){2}([-.][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Version must use semantic format such as v1.0.0; received: $version" >&2
+            exit 1
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "image_prefix=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+  services:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: api-gateway
+            module: api-gateway
+          - image: user-service
+            module: user-service
+          - image: order-service
+            module: order-service
+          - image: inventory-service
+            module: inventory-service
+          - image: warehouse-service
+            module: warehouse-service
+          - image: shipment-service
+            module: shipment-service
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish ${{ matrix.image }}
+        id: push
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: services
+          file: services/Dockerfile
+          build-args: |
+            MODULE=${{ matrix.module }}
+          push: true
+          tags: |
+            ${{ needs.prepare.outputs.image_prefix }}/${{ matrix.image }}:${{ needs.prepare.outputs.version }}
+            ${{ needs.prepare.outputs.image_prefix }}/${{ matrix.image }}:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ needs.prepare.outputs.version }}
+
+      - name: Attest ${{ matrix.image }}
+        uses: actions/attest@v4
+        with:
+          subject-name: ${{ needs.prepare.outputs.image_prefix }}/${{ matrix.image }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+
+  frontends:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: admin-frontend
+            context: frontend/admin-frontend
+          - image: customer-frontend
+            context: frontend/customer-frontend
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish ${{ matrix.image }}
+        id: push
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: |
+            ${{ needs.prepare.outputs.image_prefix }}/${{ matrix.image }}:${{ needs.prepare.outputs.version }}
+            ${{ needs.prepare.outputs.image_prefix }}/${{ matrix.image }}:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ needs.prepare.outputs.version }}
+
+      - name: Attest ${{ matrix.image }}
+        uses: actions/attest@v4
+        with:
+          subject-name: ${{ needs.prepare.outputs.image_prefix }}/${{ matrix.image }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true

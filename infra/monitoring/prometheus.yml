@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'kml-services'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - 'api-gateway:8080'
+          - 'user-service:8080'
+          - 'order-service:8080'
+          - 'inventory-service:8080'
+          - 'warehouse-service:8080'
+          - 'shipment-service:8080'
