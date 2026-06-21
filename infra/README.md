@@ -132,7 +132,7 @@ Apply in this order:
 
 1. `kubectl apply -f infra/k8s/kml-namespace.yaml`
 2. `kubectl apply -f infra/k8s/kml-configmap.yaml`
-3. Configure and apply `infra/k8s/kml-external-secrets.example.yaml`, or apply a locally generated `kml-secrets` Secret
+3. Configure and apply `infra/k8s/kml-external-secrets.example.yaml` so the `kml-secrets` Secret is created by External Secrets
 4. Apply `infra/k8s/kml-service-discovery.example.yaml`
 5. Apply service-specific API gateway and domain Deployments
 

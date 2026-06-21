@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 COMPOSE_FILE="$ROOT_DIR/infra/docker-compose.microservices.yml"
-ENV_FILE="$ROOT_DIR/infra/.env.integration"
+ENV_FILE="${KML_ENV_FILE:-$ROOT_DIR/infra/.env}"
 PROJECT_NAME="${COMPOSE_PROJECT_NAME:-kml-it}"
 BASE_URL="${KML_GATEWAY_URL:-http://localhost:8080}"
 REUSE_STACK="${KML_REUSE_STACK:-false}"
