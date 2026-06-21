@@ -4,8 +4,11 @@ import java.util.NoSuchElementException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,6 +21,8 @@ import jakarta.servlet.http.HttpServletRequest;
 /** Centralized exception handling for API. */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+  private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ApiException> handleIllegalArgument(
@@ -59,6 +64,14 @@ public class GlobalExceptionHandler {
         .body(error(HttpStatus.NOT_FOUND, safeMessage(ex.getMessage(), "Resource not found"), request));
   }
 
+
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<ApiException> handleAuthenticationFailure(
+      AuthenticationException ex, HttpServletRequest request) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body(error(HttpStatus.UNAUTHORIZED, "Invalid username or password", request));
+  }
+
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<ApiException> handleAccessDenied(
       AccessDeniedException ex, HttpServletRequest request) {
@@ -82,6 +95,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiException> handleGenericException(Exception ex, HttpServletRequest request) {
+    log.error("Unhandled exception for {} {}", request.getMethod(), request.getRequestURI(), ex);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(error(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error", request));
   }
