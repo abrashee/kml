@@ -9,5 +9,6 @@ import java.math.BigDecimal;
 public record OrderItemRequestDto(
     @NotBlank String sku,
     @Min(1) int quantity,
-    @NotNull @DecimalMin("0.00") BigDecimal priceAtOrder) {
+    @NotNull @DecimalMin("0.00") BigDecimal priceAtOrder,
+    Long warehouseId) {
 }

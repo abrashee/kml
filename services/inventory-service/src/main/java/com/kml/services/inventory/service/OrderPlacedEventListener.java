@@ -35,6 +35,7 @@ public class OrderPlacedEventListener {
 
         for (OrderPlacedEvent.OrderLine line : event.lines()) {
             InventoryItem item = inventoryRepository.findBySku(line.sku()).stream()
+                .filter(candidate -> line.warehouseId() == null || line.warehouseId().equals(candidate.getWarehouseId()))
                 .filter(candidate -> candidate.getQuantity() >= line.quantity())
                 .sorted(Comparator.comparing(InventoryItem::getQuantity))
                 .findFirst()

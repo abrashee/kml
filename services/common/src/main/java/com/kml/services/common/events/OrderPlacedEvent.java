@@ -10,6 +10,6 @@ public record OrderPlacedEvent(
     List<OrderLine> lines,
     Instant occurredAt) {
 
-    public record OrderLine(String sku, int quantity) {
+    public record OrderLine(String sku, int quantity, Long warehouseId) {
     }
 }

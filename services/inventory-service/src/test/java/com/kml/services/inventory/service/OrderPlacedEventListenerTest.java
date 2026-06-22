@@ -33,7 +33,7 @@ class OrderPlacedEventListenerTest {
             100L,
             200L,
             "12 Test Street, Berlin",
-            List.of(new OrderPlacedEvent.OrderLine("SKU-1", 2)),
+            List.of(new OrderPlacedEvent.OrderLine("SKU-1", 2, 10L)),
             Instant.now()));
 
         ArgumentCaptor<InventoryReservedEvent> reservation =

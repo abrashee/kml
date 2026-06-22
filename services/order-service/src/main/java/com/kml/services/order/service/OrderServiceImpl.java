@@ -43,8 +43,13 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Order order = new Order(request.code(), request.userId(), shippingAddress);
-        request.items().forEach(item ->
-            order.addItem(new OrderItem(item.sku(), item.quantity(), item.priceAtOrder())));
+        request.items().forEach(item -> {
+            OrderItem orderItem = new OrderItem(item.sku(), item.quantity(), item.priceAtOrder());
+            if (item.warehouseId() != null) {
+                orderItem.assignWarehouse(item.warehouseId());
+            }
+            order.addItem(orderItem);
+        });
 
         Order saved = orderRepository.save(order);
         eventPublisher.publishOrderPlaced(new OrderPlacedEvent(
@@ -52,7 +57,7 @@ public class OrderServiceImpl implements OrderService {
             saved.getUserId(),
             shippingAddress,
             saved.getItems().stream()
-                .map(item -> new OrderPlacedEvent.OrderLine(item.getSku(), item.getQuantity()))
+                .map(item -> new OrderPlacedEvent.OrderLine(item.getSku(), item.getQuantity(), item.getWarehouseId()))
                 .toList(),
             Instant.now()));
 
