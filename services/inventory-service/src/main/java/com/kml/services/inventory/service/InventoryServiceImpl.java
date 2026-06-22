@@ -6,6 +6,7 @@ import com.kml.services.inventory.dto.InventoryItemResponseDto;
 import com.kml.services.inventory.entity.InventoryItem;
 import com.kml.services.inventory.mapper.InventoryMapper;
 import com.kml.services.inventory.repository.InventoryRepository;
+import com.kml.services.inventory.search.InventorySearchIndexer;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,15 @@ public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final InventoryEventPublisher eventPublisher;
+    private final InventorySearchIndexer searchIndexer;
 
-    public InventoryServiceImpl(InventoryRepository inventoryRepository, InventoryEventPublisher eventPublisher) {
+    public InventoryServiceImpl(
+        InventoryRepository inventoryRepository,
+        InventoryEventPublisher eventPublisher,
+        InventorySearchIndexer searchIndexer) {
         this.inventoryRepository = inventoryRepository;
         this.eventPublisher = eventPublisher;
+        this.searchIndexer = searchIndexer;
     }
 
     @Override
@@ -86,6 +92,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     private void publish(InventoryItem item) {
+        searchIndexer.index(item);
         eventPublisher.publishStockUpdated(new StockUpdatedEvent(
             item.getId(),
             item.getSku(),
