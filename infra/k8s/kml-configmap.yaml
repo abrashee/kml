@@ -10,6 +10,7 @@ data:
   KAFKA_BOOTSTRAP_SERVERS: "kafka.kml.svc.cluster.local:9092"
   RABBITMQ_HOST: "rabbitmq.kml.svc.cluster.local"
   KML_OPENSEARCH_URL: "http://opensearch.kml.svc.cluster.local:9200"
+  CORS_ALLOWED_ORIGINS: "https://admin.example.com,https://customer.example.com"
   MANAGEMENT_ENDPOINTS_WEB_BASE_PATH: "/actuator"
   MANAGEMENT_ENDPOINT_PROMETHEUS_ACCESS: "unrestricted"
   MANAGEMENT_TRACING_ENABLED: "true"
