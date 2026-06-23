@@ -9,6 +9,8 @@ import com.kml.services.inventory.repository.InventoryRepository;
 import com.kml.services.inventory.search.InventorySearchIndexer;
 import java.time.Instant;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,16 +70,26 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<InventoryItemResponseDto> getInventory(String sku, Long warehouseId) {
-        List<InventoryItem> items;
+    public Page<InventoryItemResponseDto> getInventory(
+        String sku,
+        Long warehouseId,
+        Pageable pageable) {
+
         if (sku != null && !sku.isBlank()) {
-            items = inventoryRepository.findBySku(sku);
-        } else if (warehouseId != null) {
-            items = inventoryRepository.findByWarehouseId(warehouseId);
-        } else {
-            items = inventoryRepository.findAll();
+            return inventoryRepository
+                .findBySku(sku, pageable)
+                .map(InventoryMapper::toDto);
         }
-        return items.stream().map(InventoryMapper::toDto).toList();
+
+        if (warehouseId != null) {
+            return inventoryRepository
+                .findByWarehouseId(warehouseId, pageable)
+                .map(InventoryMapper::toDto);
+        }
+
+        return inventoryRepository
+            .findAll(pageable)
+            .map(InventoryMapper::toDto);
     }
 
     @Override

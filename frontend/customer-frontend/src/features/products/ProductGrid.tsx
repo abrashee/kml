@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { ProductItem } from "./products.api";
 import { useProducts } from "./hooks";
@@ -8,14 +8,31 @@ import { VirtualizedCardGrid } from "../../components/common/VirtualizedCardGrid
 export default function ProductGrid() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(0);
   const debouncedSearch = useDebounce(searchQuery, 300);
 
-  const { data: responseData, isLoading, error } = useProducts(0, debouncedSearch);
+  useEffect(() => {
+    setPage(0);
+  }, [debouncedSearch]);
+
+  const { data: responseData, isLoading, error, isFetching } = useProducts(page, debouncedSearch);
 
   const productArray: ProductItem[] = useMemo(
-    () => (Array.isArray(responseData) ? responseData : responseData?.content ?? []),
+    () => responseData?.items ?? [],
     [responseData]
   );
+
+  const totalPages = responseData?.totalPages ?? 0;
+  const pageNumbers = useMemo(() => {
+    const maxVisiblePages = 5;
+    if (totalPages <= maxVisiblePages) {
+      return Array.from({ length: totalPages }, (_, index) => index);
+    }
+
+    const halfWindow = Math.floor(maxVisiblePages / 2);
+    const start = Math.max(0, Math.min(page - halfWindow, totalPages - maxVisiblePages));
+    return Array.from({ length: maxVisiblePages }, (_, index) => start + index);
+  }, [page, totalPages]);
 
   if (error) {
     return <div style={{ color: "var(--danger)", padding: "20px" }}>Error loading product catalog.</div>;
@@ -58,33 +75,63 @@ export default function ProductGrid() {
           Our shelves are temporarily empty. Check back soon!
         </div>
       ) : (
-        <VirtualizedCardGrid
-          items={productArray}
-          minCardWidth={240}
-          cardHeight={220}
-          gap={24}
-          renderItem={(item) => (
-            <div
-              className="product-card"
-              onClick={() => navigate(`/product/${item.id}`)}
-              style={{ background: "var(--panel)", border: "1px solid var(--border)", padding: "20px", borderRadius: "var(--radius-md)", cursor: "pointer", height: "100%" }}
-            >
-              <div className="image-box" style={{ height: "140px", background: "rgba(255,255,255,0.02)", marginBottom: "16px", borderRadius: "var(--radius-sm)" }} />
-              <h4 style={{ margin: "0 0 6px 0", color: "var(--text-strong)", fontSize: "16px", fontWeight: 600 }}>
-                {item.name}
-              </h4>
-              <div style={{ fontSize: "12.5px", opacity: 0.4, marginBottom: "12px", fontFamily: "monospace" }}>
-                SKU: {item.sku || "N/A"}
+        <>
+          <VirtualizedCardGrid
+            items={productArray}
+            minCardWidth={240}
+            cardHeight={220}
+            gap={24}
+            renderItem={(item) => (
+              <div
+                className="product-card"
+                onClick={() => navigate(`/product/${item.id}`)}
+                style={{ background: "var(--panel)", border: "1px solid var(--border)", padding: "20px", borderRadius: "var(--radius-md)", cursor: "pointer", height: "100%", opacity: isFetching ? 0.72 : 1 }}
+              >
+                <div className="image-box" style={{ height: "140px", background: "rgba(255,255,255,0.02)", marginBottom: "16px", borderRadius: "var(--radius-sm)" }} />
+                <h4 style={{ margin: "0 0 6px 0", color: "var(--text-strong)", fontSize: "16px", fontWeight: 600 }}>
+                  {item.name}
+                </h4>
+                <div style={{ fontSize: "12.5px", opacity: 0.4, marginBottom: "12px", fontFamily: "monospace" }}>
+                  SKU: {item.sku || "N/A"}
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13.5px" }}>
+                  <span style={{ opacity: 0.6 }}>In Stock:</span>
+                  <span style={{ fontWeight: 600, color: item.quantity > 0 ? "var(--success)" : "var(--danger)" }}>
+                    {item.quantity > 0 ? `${item.quantity} units` : "Out of Stock"}
+                  </span>
+                </div>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13.5px" }}>
-                <span style={{ opacity: 0.6 }}>In Stock:</span>
-                <span style={{ fontWeight: 600, color: item.quantity > 0 ? "var(--success)" : "var(--danger)" }}>
-                  {item.quantity > 0 ? `${item.quantity} units` : "Out of Stock"}
-                </span>
-              </div>
+            )}
+          />
+
+          {totalPages > 1 && (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", margin: "28px 0 8px", flexWrap: "wrap" }}>
+              <button disabled={page === 0 || isFetching} onClick={() => setPage(0)}>First</button>
+              <button disabled={page === 0 || isFetching} onClick={() => setPage((current) => Math.max(0, current - 1))}>Prev</button>
+
+              {pageNumbers[0] > 0 && <span style={{ opacity: 0.5 }}>...</span>}
+
+              {pageNumbers.map((pageNumber) => (
+                <button
+                  key={pageNumber}
+                  disabled={isFetching}
+                  onClick={() => setPage(pageNumber)}
+                  style={{
+                    fontWeight: pageNumber === page ? 700 : 400,
+                    border: pageNumber === page ? "1px solid var(--text-strong)" : "1px solid var(--border)"
+                  }}
+                >
+                  {pageNumber + 1}
+                </button>
+              ))}
+
+              {pageNumbers.at(-1)! < totalPages - 1 && <span style={{ opacity: 0.5 }}>...</span>}
+
+              <button disabled={page >= totalPages - 1 || isFetching} onClick={() => setPage((current) => Math.min(totalPages - 1, current + 1))}>Next</button>
+              <button disabled={page >= totalPages - 1 || isFetching} onClick={() => setPage(totalPages - 1)}>Last</button>
             </div>
           )}
-        />
+        </>
       )}
     </div>
   );

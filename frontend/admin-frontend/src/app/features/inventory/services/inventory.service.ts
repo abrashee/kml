@@ -55,17 +55,19 @@ export class InventoryService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  private toPage(response: InventoryItem[] | Page<InventoryItem>, page: number, size: number): Page<InventoryItem> {
-    if (Array.isArray(response)) {
+  private toPage(response: any, page: number, size: number): Page<InventoryItem> {
+    const payload = response?.data ?? response;
+
+    if (Array.isArray(payload)) {
       return {
-        content: response,
-        totalElements: response.length,
-        totalPages: response.length ? 1 : 0,
+        content: payload,
+        totalElements: payload.length,
+        totalPages: payload.length ? 1 : 0,
         size,
         number: page
       };
     }
 
-    return response;
+    return payload;
   }
 }
