@@ -87,9 +87,21 @@ export class WarehouseDashboardComponent implements OnInit {
 
   loadWarehouses(): void {
     this.loading.set(true);
+
+    const user = this.authService.currentUser() as any;
+    const isAdmin = user?.role === 'ADMIN';
+    const assignedWarehouseId = user?.warehouseId;
+
     this.warehouseService.getAll(0, 50).subscribe({
       next: (p) => {
-        this.page.set(p);
+        if (!isAdmin && assignedWarehouseId) {
+          this.page.set({
+            ...p,
+            content: p.content.filter(warehouse => warehouse.id === assignedWarehouseId)
+          });
+        } else {
+          this.page.set(p);
+        }
         this.loading.set(false);
       },
       error: () => this.loading.set(false)

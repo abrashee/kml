@@ -1,6 +1,7 @@
 package com.kml.services.order.controller;
 
 import com.kml.services.common.ApiResponse;
+import com.kml.services.order.dto.OrderItemsUpdateRequestDto;
 import com.kml.services.order.dto.OrderRequestDto;
 import com.kml.services.order.dto.OrderResponseDto;
 import com.kml.services.order.entity.OrderStatus;
@@ -44,6 +45,14 @@ public class OrderController {
         @RequestParam(required = false) Long userId,
         @RequestParam(required = false) OrderStatus status) {
         return ApiResponse.ok(orderService.getOrders(userId, status));
+    }
+
+
+    @PatchMapping("/{id}/items")
+    public ApiResponse<OrderResponseDto> updateItems(
+        @PathVariable Long id,
+        @Valid @RequestBody OrderItemsUpdateRequestDto request) {
+        return ApiResponse.ok(orderService.updateItems(id, request), "Order items updated");
     }
 
     @PatchMapping("/{id}/status/{status}")

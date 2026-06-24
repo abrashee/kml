@@ -44,14 +44,13 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (product?.name) document.title = product.name;
-    return () => { document.title = "Storefront"; };
+    return () => { document.title = "KML Logistics"; };
   }, [product]);
 
   const { mutate: placeNewOrder, isPending } = useMutation({
     mutationFn: () => {
       // ⚡ Target identity mapping securely addresses backend split database structures
-      const targetInventoryItemId = product!.inventoryItemId || product!.id;
-      return createOrder(targetInventoryItemId, qty, product!.price || 0);
+      return createOrder(product!.sku, qty, product!.price || 0);
     },
     onSuccess: () => {
       setErrorMsg(null);
@@ -86,7 +85,7 @@ export default function ProductDetail() {
 
           {/* Dynamic Price Render Integration */}
           <div className="price-tag-display" style={{ fontSize: "22px", fontWeight: 700, color: "var(--primary)", marginBottom: "16px" }}>
-            ${product.price ? (product.price * qty).toFixed(2) : "0.00"}
+            ${((product.price || 0) * qty).toFixed(2)}
             {qty > 1 && (
               <span style={{ fontSize: "14px", fontWeight: 400, color: "var(--text-muted)", marginLeft: "10px" }}>
                 (${product.price.toFixed(2)} each)

@@ -1,4 +1,4 @@
-// src / components / Header.tsx
+// src/components/Header.tsx
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../../lib/auth";
@@ -100,9 +100,9 @@ export default function Header() {
           {user && (
             <div className="header-right" ref={menuRef}>
               <div className="user" onClick={() => setOpen(!open)}>
-                {/* Fallback to premium placeholder layout if both live photo context data points are missing */}
+                {/* Fallback to local default-avatar.png inside the public directory */}
                 <img
-                  src={userData.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
+                  src={userData.avatarUrl || "/default-avatar.png"}
                   alt="User Avatar"
                   style={{ objectFit: "cover" }}
                 />

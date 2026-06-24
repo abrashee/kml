@@ -1,12 +1,10 @@
 // src/app/features/dashboard/dashboard.component.ts
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
-import { ForecastService } from '../inventory/services/forecast.service';
 import { OrderService } from '../orders/services/order.service';
 import { WarehouseService } from '../warehouses/services/warehouse.service';
 import { ShipmentService } from '../shipments/services/shipment.service';
 import { AuthService } from '../../core/auth/auth.service';
-import { ForecastResult } from '../inventory/models/inventory.model';
 import { Shipment } from '../shipments/models/shipment.model';
 import { Warehouse } from '../warehouses/models/warehouse.model';
 import { Page } from '../users/models/user.model';
@@ -331,7 +329,6 @@ import { Page } from '../users/models/user.model';
   `]
 })
 export class DashboardComponent implements OnInit {
-  private forecastService = inject(ForecastService);
   private orderService = inject(OrderService);
   private warehouseService = inject(WarehouseService);
   private shipmentService = inject(ShipmentService);
@@ -345,7 +342,7 @@ export class DashboardComponent implements OnInit {
   shipmentGraph = signal<Array<{ label: string; height: number }>>([]);
   capacityGraph = signal<Array<{ label: string; height: number }>>([]);
   shipmentSummary = signal({ totalShipments: 0, inTransit: 0 });
-  forecast = signal<ForecastResult | null>(null);
+  forecast = signal<any | null>(null);
 
   ngOnInit(): void {
     this.loadForecast();
@@ -427,10 +424,7 @@ export class DashboardComponent implements OnInit {
   }
 
   loadForecast(): void {
-    this.forecastService.getWeeklyDemandForecast(1).subscribe({
-      next: result => this.forecast.set(result),
-      error: () => this.forecast.set(null)
-    });
+    this.forecast.set(null);
   }
 
   private updateOrderGraph(orders: any[]): void {

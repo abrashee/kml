@@ -1,5 +1,6 @@
 package com.kml.services.order.service;
 
+import com.kml.services.order.dto.OrderItemsUpdateRequestDto;
 import com.kml.services.order.dto.OrderRequestDto;
 import com.kml.services.order.dto.OrderResponseDto;
 import com.kml.services.order.entity.OrderStatus;
@@ -12,6 +13,8 @@ public interface OrderService {
     OrderResponseDto getOrder(Long id);
 
     List<OrderResponseDto> getOrders(Long userId, OrderStatus status);
+
+    OrderResponseDto updateItems(Long id, OrderItemsUpdateRequestDto request);
 
     OrderResponseDto updateStatus(Long id, OrderStatus status);
 

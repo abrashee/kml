@@ -19,9 +19,9 @@ name?: string;
 }
 
 export interface CreateWarehouseRequest {
+  ownerUserId: number;
   name: string;
-  // location: string;
-  address: string; // Added to match backend entity
+  address: string;
 }
 
 export interface CreateStorageUnitRequest {

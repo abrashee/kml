@@ -1,6 +1,7 @@
 package com.kml.services.order.service;
 
 import com.kml.services.common.events.OrderPlacedEvent;
+import com.kml.services.order.dto.OrderItemsUpdateRequestDto;
 import com.kml.services.order.dto.OrderRequestDto;
 import com.kml.services.order.dto.OrderResponseDto;
 import com.kml.services.order.entity.Order;
@@ -84,6 +85,27 @@ public class OrderServiceImpl implements OrderService {
             orders = orderRepository.findAll();
         }
         return orders.stream().map(OrderMapper::toDto).toList();
+    }
+
+
+    @Override
+    @Transactional
+    public OrderResponseDto updateItems(Long id, OrderItemsUpdateRequestDto request) {
+        Order order = orderRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+
+        List<OrderItem> replacementItems = request.items().stream()
+            .map(item -> {
+                OrderItem orderItem = new OrderItem(item.sku(), item.quantity(), item.priceAtOrder());
+                if (item.warehouseId() != null) {
+                    orderItem.assignWarehouse(item.warehouseId());
+                }
+                return orderItem;
+            })
+            .toList();
+
+        order.replaceItems(replacementItems);
+        return OrderMapper.toDto(orderRepository.save(order));
     }
 
     @Override

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import type { ProductItem } from "./products.api";
 import { useProducts } from "./hooks";
 import { useDebounce } from "../../hooks/useDebounce";
-import { VirtualizedCardGrid } from "../../components/common/VirtualizedCardGrid";
 
 export default function ProductGrid() {
   const navigate = useNavigate();
@@ -76,16 +75,21 @@ export default function ProductGrid() {
         </div>
       ) : (
         <>
-          <VirtualizedCardGrid
-            items={productArray}
-            minCardWidth={240}
-            cardHeight={220}
-            gap={24}
-            renderItem={(item) => (
+          <div
+            className="product-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+              gap: "24px",
+              alignItems: "stretch"
+            }}
+          >
+            {productArray.map((item) => (
               <div
+                key={item.id}
                 className="product-card"
                 onClick={() => navigate(`/product/${item.id}`)}
-                style={{ background: "var(--panel)", border: "1px solid var(--border)", padding: "20px", borderRadius: "var(--radius-md)", cursor: "pointer", height: "100%", opacity: isFetching ? 0.72 : 1 }}
+                style={{ background: "var(--panel)", border: "1px solid var(--border)", padding: "20px", borderRadius: "var(--radius-md)", cursor: "pointer", minHeight: "220px", opacity: isFetching ? 0.72 : 1 }}
               >
                 <div className="image-box" style={{ height: "140px", background: "rgba(255,255,255,0.02)", marginBottom: "16px", borderRadius: "var(--radius-sm)" }} />
                 <h4 style={{ margin: "0 0 6px 0", color: "var(--text-strong)", fontSize: "16px", fontWeight: 600 }}>
@@ -101,8 +105,8 @@ export default function ProductGrid() {
                   </span>
                 </div>
               </div>
-            )}
-          />
+            ))}
+          </div>
 
           {totalPages > 1 && (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", margin: "28px 0 8px", flexWrap: "wrap" }}>

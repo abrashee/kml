@@ -234,8 +234,6 @@ export default function AccountSettings() {
     return <div style={{ padding: "40px", color: "var(--text-muted)" }}>Loading account information...</div>;
   }
 
-  const initials = identity.name ? identity.name.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2) : "CU";
-
   return (
     <div className="settings-viewport" style={{ textAlign: "left", position: "relative" }}>
       {toastMessage && (
@@ -252,11 +250,11 @@ export default function AccountSettings() {
       <div className="settings-panel core-unified-layout">
         <div className="integrated-avatar-center-wrapper">
           <div className="avatar-frame interactive-camera-frame" onClick={handleAvatarClick} style={{ cursor: "pointer", overflow: "hidden", position: "relative" }}>
-            {profile.avatarUrl ? (
-              <img src={profile.avatarUrl} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : (
-              <span className="avatar-initials">{initials}</span>
-            )}
+            <img
+              src={profile.avatarUrl || "/default-avatar.png"}
+              alt="Avatar"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
             <div className="camera-overlay">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="camera-icon-svg">
                 <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />

@@ -57,7 +57,7 @@ export default function OrdersPage() {
           ) : (
             activeOrders.map((order: any) => (
               <OrderRow
-                key={order.id}
+                key={order.orderId}
                 order={order}
                 isActive={true}
                 cancelMutation={cancelMutation}
@@ -73,7 +73,7 @@ export default function OrdersPage() {
           ) : (
             pastOrders.map((order: any) => (
               <OrderRow
-                key={order.id}
+                key={order.orderId}
                 order={order}
                 isActive={false}
                 cancelMutation={cancelMutation}
@@ -119,29 +119,26 @@ interface OrderRowProps {
 function OrderRow({ order, isActive, cancelMutation, updateMutation }: OrderRowProps) {
   // Gracefully handles older empty records by falling back safely to UI defaults
   const initialQty = order.items?.[0]?.quantity || 1;
-  const unitPrice = order.items?.[0]?.priceAtOrder || 0;
+  const unitPrice = order.items?.[0]?.unitPrice || 0;
 
   const [isEditing, setIsEditing] = useState(false);
   const [localQty, setLocalQty] = useState(initialQty);
 
   const calculatedTotal = isEditing
     ? localQty * unitPrice
-    : (order.items?.reduce((sum: number, item: any) => sum + (item.priceAtOrder * item.quantity), 0) ?? 0);
+    : (order.items?.reduce((sum: number, item: any) => sum + (item.unitPrice * item.quantity), 0) ?? 0);
 
   const handleSave = () => {
     // ROBUST FALLBACK ENGINE: Covers custom parameters, sub-items, and product entity contexts
     const extractedInventoryItemId =
-      order.items?.[0]?.inventoryItemId ||
-      order.inventoryItemId ||
-      order.productId ||
-      order.id; // Absolute fallback boundary to prevent null transmission
+      order.items?.[0]?.productId || order.orderId; // Absolute fallback boundary to prevent null transmission
 
     const payload = {
       code: order.code,
       statusId: order.statusId || 1,
       items: [
         {
-          inventoryItemId: extractedInventoryItemId,
+          sku: String(extractedInventoryItemId),
           quantity: localQty,
           priceAtOrder: unitPrice
         }
@@ -149,7 +146,7 @@ function OrderRow({ order, isActive, cancelMutation, updateMutation }: OrderRowP
     };
 
     updateMutation.mutate(
-      { id: order.id, payload },
+      { id: order.orderId, payload },
       {
         onSuccess: () => setIsEditing(false)
       }
@@ -165,21 +162,21 @@ function OrderRow({ order, isActive, cancelMutation, updateMutation }: OrderRowP
     <div style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid var(--border)", alignItems: "center" }}>
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{ fontWeight: 700, fontFamily: "monospace", fontSize: "15px" }}>{order.code}</span>
+          <span style={{ fontWeight: 700, fontFamily: "monospace", fontSize: "15px" }}>{order.orderNumber}</span>
           <span style={{
             fontSize: "11px",
             fontWeight: 600,
             padding: "2px 8px",
             borderRadius: "12px",
-            backgroundColor: order.statusName === 'Cancelled' ? 'rgba(239,68,68,0.15)' : isActive ? 'rgba(245,158,11,0.15)' : 'rgba(59,130,246,0.15)',
-            color: order.statusName === 'Cancelled' ? '#ff6b6b' : isActive ? '#f59e0b' : '#60a5fa'
+            backgroundColor: order.status === 'Cancelled' ? 'rgba(239,68,68,0.15)' : isActive ? 'rgba(245,158,11,0.15)' : 'rgba(59,130,246,0.15)',
+            color: order.status === 'Cancelled' ? '#ff6b6b' : isActive ? '#f59e0b' : '#60a5fa'
           }}>
-            {order.statusName || "Pending"}
+            {order.status || "Pending"}
           </span>
         </div>
 
         <div style={{ fontSize: "13px", opacity: 0.6, marginTop: "6px" }}>
-          Ordered on: {new Date(order.createdAt).toLocaleDateString()} • Items: {isEditing ? localQty : (order.items?.length || 0)}
+          Ordered on: {new Date(order.createdAt || order.orderDate).toLocaleDateString()} • Items: {isEditing ? localQty : (order.items?.length || 0)}
         </div>
       </div>
 
@@ -240,7 +237,7 @@ function OrderRow({ order, isActive, cancelMutation, updateMutation }: OrderRowP
                 <button
                   onClick={() => {
                     if (confirm("Are you sure you want to cancel this order?")) {
-                      cancelMutation.mutate(order.id);
+                      cancelMutation.mutate(order.orderId);
                     }
                   }}
                   style={{ padding: "6px 12px", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#ff6b6b", borderRadius: "4px", cursor: "pointer", fontSize: "13px" }}

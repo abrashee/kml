@@ -87,6 +87,18 @@ public class Order {
         this.status = status;
     }
 
+    public void replaceItems(List<OrderItem> replacementItems) {
+        if (this.status != OrderStatus.PENDING) {
+            throw new IllegalStateException("Only pending orders can be modified");
+        }
+        if (replacementItems == null || replacementItems.isEmpty()) {
+            throw new IllegalArgumentException("Order must contain at least one item");
+        }
+
+        this.items.clear();
+        replacementItems.forEach(this::addItem);
+    }
+
     public void assignWorker(Long workerId) {
         this.assignedWorkerId = workerId;
     }

@@ -6,7 +6,7 @@ export const warehouseRoutes: Routes = [
   {
     path: '',
     loadComponent: () => import('../components/warehouse-dashboard').then(m => m.WarehouseDashboardComponent),
-    canActivate: [roleGuard], data: { roles: ['ADMIN'] }
+    canActivate: [roleGuard], data: { roles: ['ADMIN', 'MANAGER', 'WORKER'] }
   },
   {
     path: 'new',

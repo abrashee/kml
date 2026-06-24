@@ -3,6 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../../core/auth/auth.service';
 import { WarehouseService } from '../services/warehouse.service';
 
 @Component({
@@ -55,6 +56,7 @@ import { WarehouseService } from '../services/warehouse.service';
 export class WarehouseFormComponent {
   private fb = inject(FormBuilder);
   private warehouseService = inject(WarehouseService);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   loading = signal(false);
@@ -73,10 +75,17 @@ export class WarehouseFormComponent {
   onSubmit(): void {
     if (this.form.invalid) return;
 
+    const ownerUserId = this.authService.currentUser()?.id;
+    if (!ownerUserId) {
+      alert('Cannot create warehouse: current user id is missing from the login session.');
+      this.loading.set(false);
+      return;
+    }
+
     this.loading.set(true);
     this.warehouseService.create({
+      ownerUserId,
       name: this.form.value.name!,
-      // location: this.form.value.location!,
       address: this.form.value.address!
     }).subscribe({
       next: () => this.router.navigate(['/warehouses']),

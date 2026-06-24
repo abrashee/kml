@@ -83,8 +83,9 @@ export async function createOrder(
 }
 
 export async function updateOrder(id: string | number, payload: { code: string; statusId: number; items: any[] }) {
-  const status = payload.statusId === 5 ? "CANCELLED" : "ROUTED";
-  const res = await api.patch(`/orders/${id}/status/${status}`, {});
+  const res = await api.patch(`/orders/${id}/items`, {
+    items: payload.items
+  });
   return toCustomerOrder(res.data);
 }
 
