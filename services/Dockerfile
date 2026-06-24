@@ -16,4 +16,5 @@ WORKDIR /app
 ARG MODULE
 COPY --from=build /workspace/${MODULE}/target/*.jar app.jar
 EXPOSE 8080
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=70 -XX:InitialRAMPercentage=25 -XX:+ExitOnOutOfMemoryError"
 ENTRYPOINT ["java","-jar","/app/app.jar"]

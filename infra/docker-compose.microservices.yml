@@ -172,6 +172,7 @@ services:
       - "${API_GATEWAY_PORT:-8080}:8080"
     profiles:
       - microservices
+    mem_limit: 1g
     expose:
       - "8080"
     networks:
@@ -196,6 +197,7 @@ services:
       - "${USER_SERVICE_PORT:-8081}:8080"
     profiles:
       - microservices
+    mem_limit: 1g
     expose:
       - "8080"
     networks:
@@ -222,6 +224,7 @@ services:
       - "${INVENTORY_SERVICE_PORT:-8082}:8080"
     profiles:
       - microservices
+    mem_limit: 1g
     expose:
       - "8080"
     networks:
@@ -250,6 +253,7 @@ services:
       - "${ORDER_SERVICE_PORT:-8083}:8080"
     profiles:
       - microservices
+    mem_limit: 1g
     expose:
       - "8080"
     networks:
@@ -278,6 +282,7 @@ services:
       - "${SHIPMENT_SERVICE_PORT:-8084}:8080"
     profiles:
       - microservices
+    mem_limit: 1g
     expose:
       - "8080"
     networks:
@@ -306,6 +311,7 @@ services:
       - "${WAREHOUSE_SERVICE_PORT:-8085}:8080"
     profiles:
       - microservices
+    mem_limit: 1g
     expose:
       - "8080"
     networks:
