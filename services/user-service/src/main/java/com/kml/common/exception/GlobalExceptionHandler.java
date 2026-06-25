@@ -10,7 +10,9 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -64,6 +66,21 @@ public class GlobalExceptionHandler {
         .body(error(HttpStatus.NOT_FOUND, safeMessage(ex.getMessage(), "Resource not found"), request));
   }
 
+
+
+  @ExceptionHandler(NoHandlerFoundException.class)
+  public ResponseEntity<ApiException> handleNoHandlerFound(
+      NoHandlerFoundException ex, HttpServletRequest request) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(error(HttpStatus.NOT_FOUND, "Resource not found", request));
+  }
+
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  public ResponseEntity<ApiException> handleMethodNotSupported(
+      HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+    return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+        .body(error(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed", request));
+  }
 
   @ExceptionHandler(AuthenticationException.class)
   public ResponseEntity<ApiException> handleAuthenticationFailure(

@@ -249,6 +249,8 @@ services:
       SPRING_APPLICATION_NAME: kml-order-service
       KML_SERVICE_BOUNDARY: order
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kml_order
+      JAVA_TOOL_OPTIONS: >-
+        -XX:StartFlightRecording=filename=/tmp/order-startup.jfr,settings=profile,dumponexit=true
     ports:
       - "${ORDER_SERVICE_PORT:-8083}:8080"
     profiles:

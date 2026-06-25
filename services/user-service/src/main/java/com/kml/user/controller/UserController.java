@@ -103,7 +103,7 @@ public class UserController {
     return ResponseEntity.ok(user);
   }
 
-  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+  @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/{id}")
   public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
     UserResponseDto user = userService.getUserById(id);
@@ -122,14 +122,14 @@ public class UserController {
     return ResponseEntity.noContent().build();
   }
 
-  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+  @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/{id}/activity")
   public ResponseEntity<List<UserActivityLogDto>> getUserActivity(@PathVariable Long id) {
     List<UserActivityLogDto> logs = userActivityLogService.getActivityLogsByUser(id);
     return ResponseEntity.ok(logs);
   }
 
-  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+  @PreAuthorize("hasRole('ADMIN')")
   @PatchMapping("/{id}/access")
   public ResponseEntity<UserResponseDto> updateStaffAccess(
           @PathVariable Long id,

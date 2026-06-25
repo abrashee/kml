@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kml.auth.dto.LoginRequestDto;
 import com.kml.auth.dto.RefreshTokenRequestDto;
 import com.kml.auth.dto.TokenResponseDto;
-import com.kml.security.jwt.JwtTokenProvider;
+import com.kml.services.common.security.jwt.JwtTokenProvider;
 import com.kml.security.jwt.JwtUserDetailsService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -77,16 +77,31 @@ public class AuthController {
       return ResponseEntity.status(401).build();
     }
 
-    String username = jwtTokenProvider.extractUsername(refreshToken);
-    UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(username);
+    try {
+      String username = jwtTokenProvider.extractUsername(refreshToken);
+      UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(username);
 
-    if (!jwtTokenProvider.validateToken(refreshToken, userDetails)) {
+      if (!jwtTokenProvider.validateRefreshToken(refreshToken, userDetails)) {
+        response.addHeader(HttpHeaders.SET_COOKIE, clearRefreshCookie().toString());
+        return ResponseEntity.status(401).build();
+      }
+
+      String newAccessToken = jwtTokenProvider.generateToken(userDetails);
+      String newRefreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+      response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie(newRefreshToken).toString());
+      return ResponseEntity.ok(new TokenResponseDto(newAccessToken));
+    } catch (Exception ex) {
       response.addHeader(HttpHeaders.SET_COOKIE, clearRefreshCookie().toString());
       return ResponseEntity.status(401).build();
     }
+  }
 
-    String newAccessToken = jwtTokenProvider.generateToken(userDetails);
-    return ResponseEntity.ok(new TokenResponseDto(newAccessToken));
+
+  @Operation(summary = "Logout and clear refresh token cookie")
+  @PostMapping("/logout")
+  public ResponseEntity<Void> logout(HttpServletResponse response) {
+    response.addHeader(HttpHeaders.SET_COOKIE, clearRefreshCookie().toString());
+    return ResponseEntity.noContent().build();
   }
 
   private ResponseCookie refreshCookie(String refreshToken) {

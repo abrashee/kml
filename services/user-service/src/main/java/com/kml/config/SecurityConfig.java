@@ -18,7 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.kml.security.jwt.JwtAuthFilter;
-import com.kml.security.jwt.JwtTokenProvider;
+import com.kml.services.common.security.jwt.JwtTokenProvider;
 import com.kml.security.jwt.JwtUserDetailsService;
 import com.kml.user.repository.UserRepository;
 import com.kml.security.ApiRateLimitFilter;
