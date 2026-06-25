@@ -1,4 +1,4 @@
-package com.kml.security.jwt;
+package com.kml.services.common.security.jwt;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
