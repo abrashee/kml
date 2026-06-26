@@ -17,7 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.kml.security.jwt.JwtAuthFilter;
+import com.kml.services.common.security.jwt.SharedJwtAuthFilter;
 import com.kml.services.common.security.jwt.JwtTokenProvider;
 import com.kml.security.jwt.JwtUserDetailsService;
 import com.kml.user.repository.UserRepository;
@@ -48,8 +48,8 @@ public class SecurityConfig {
   }
 
   @Bean
-  public JwtAuthFilter jwtAuthFilter() {
-    return new JwtAuthFilter(jwtTokenProvider, jwtUserDetailsService);
+  public SharedJwtAuthFilter jwtAuthFilter() {
+    return new SharedJwtAuthFilter(jwtTokenProvider);
   }
 
   @Bean
