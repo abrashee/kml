@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.kml.services.common.security.jwt.SharedJwtAuthFilter;
 import com.kml.services.common.security.jwt.JwtTokenProvider;
+import com.kml.services.common.security.jwt.JwtTokenInvalidationService;
 import com.kml.security.jwt.JwtUserDetailsService;
 import com.kml.user.repository.UserRepository;
 import com.kml.security.ApiRateLimitFilter;
@@ -31,14 +32,17 @@ public class SecurityConfig {
 
   private final JwtUserDetailsService jwtUserDetailsService;
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtTokenInvalidationService tokenInvalidationService;
   private final UserRepository userRepository;
 
   public SecurityConfig(
       JwtUserDetailsService jwtUserDetailsService,
       JwtTokenProvider jwtTokenProvider,
+      JwtTokenInvalidationService tokenInvalidationService,
       UserRepository userRepository) {
     this.jwtUserDetailsService = jwtUserDetailsService;
     this.jwtTokenProvider = jwtTokenProvider;
+    this.tokenInvalidationService = tokenInvalidationService;
     this.userRepository = userRepository;
   }
 
@@ -49,7 +53,7 @@ public class SecurityConfig {
 
   @Bean
   public SharedJwtAuthFilter jwtAuthFilter() {
-    return new SharedJwtAuthFilter(jwtTokenProvider);
+    return new SharedJwtAuthFilter(jwtTokenProvider, tokenInvalidationService);
   }
 
   @Bean
@@ -107,19 +111,13 @@ public class SecurityConfig {
             // GROUP 4: Developer Sandboxes, Diagnostics & Tooling
             .requestMatchers("/h2-console/**").permitAll()
             .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**").permitAll()
-            .requestMatchers("/actuator/health/**").permitAll()
+            .requestMatchers("/actuator/health/**", "/actuator/prometheus").permitAll()
 
-            // GROUP 5: Protected Customer Engine Storefront Boundaries
-            .requestMatchers("/api/v1/catalog/**").authenticated()
-            .requestMatchers("/api/wms/**").hasAnyRole("WORKER", "MANAGER")
-            .requestMatchers("/api/ims/forecast/**").hasAnyRole("MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.POST, "/api/v1/inventories/checkout/**").hasRole("CUSTOMER")
-            .requestMatchers(HttpMethod.PATCH, "/api/v1/inventories/**").hasAnyRole("MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.POST, "/api/v1/inventories").hasAnyRole("MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.DELETE, "/api/v1/inventories/**").hasAnyRole("MANAGER", "ADMIN")
-
-            // ⚡ FIX: Map the inventory search module routes directly into the security engine
-            .requestMatchers("/api/v1/search/inventory/**").authenticated()
+            // GROUP 5: Protected User Service Endpoints
+            .requestMatchers(HttpMethod.GET, "/api/v1/users/service-info").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/v1/users/me/avatar").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/v1/users/me").authenticated()
+            .requestMatchers(HttpMethod.PUT, "/api/v1/users/me/profile").authenticated()
 
             // GROUP 6: Fallback Default Security Lock Down
             .anyRequest().authenticated()

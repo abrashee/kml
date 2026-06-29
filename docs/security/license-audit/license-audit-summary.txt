@@ -1,0 +1,19 @@
+License Audit Summary
+
+Result: PASS
+
+Maven:
+- Reports generated for all services.
+- Risky-looking licenses reviewed.
+- GPL2 w/ CPE entries are classpath-exception dependencies.
+- RabbitMQ Java Client is multi-licensed.
+- No GPL-only blocker identified.
+
+NPM:
+- Admin and customer frontend production licenses reviewed.
+- Only risky entries are root private applications marked UNLICENSED.
+- Both frontend package.json files are private=true.
+- No third-party NPM license blocker identified.
+
+Checklist status:
+- License Audit complete.

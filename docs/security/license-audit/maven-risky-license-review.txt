@@ -1,0 +1,12 @@
+Maven Risky License Review
+
+Status: PASS
+
+Reviewed:
+- Jakarta Annotations API: GPL2 with Classpath Exception. Acceptable.
+- Jakarta Transaction API: GPL2 with Classpath Exception. Acceptable.
+- RabbitMQ Java Client: multi-licensed. No blocker.
+- RocksDB JNI: flagged by Maven report, but not identified as a direct GPL-only blocker for this project.
+
+Conclusion:
+No Maven dependency license issue requires dependency replacement.

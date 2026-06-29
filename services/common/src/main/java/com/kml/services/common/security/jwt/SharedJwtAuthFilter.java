@@ -17,9 +17,13 @@ public class SharedJwtAuthFilter extends OncePerRequestFilter {
   private static final Logger logger = LoggerFactory.getLogger(SharedJwtAuthFilter.class);
 
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtTokenInvalidationService tokenInvalidationService;
 
-  public SharedJwtAuthFilter(JwtTokenProvider jwtTokenProvider) {
+  public SharedJwtAuthFilter(
+      JwtTokenProvider jwtTokenProvider,
+      JwtTokenInvalidationService tokenInvalidationService) {
     this.jwtTokenProvider = jwtTokenProvider;
+    this.tokenInvalidationService = tokenInvalidationService;
   }
 
   @Override
@@ -32,6 +36,11 @@ public class SharedJwtAuthFilter extends OncePerRequestFilter {
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
       String token = authHeader.substring(7);
       try {
+        if (tokenInvalidationService.isInvalidated(token)) {
+          response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token revoked");
+          return;
+        }
+
         JwtAuthenticatedUser user = jwtTokenProvider.extractAuthenticatedUser(token);
         if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
           UsernamePasswordAuthenticationToken authToken =

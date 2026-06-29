@@ -6,6 +6,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kml.audit.userActivity.entity.UserActivityLog;
+import com.kml.audit.userActivity.repository.UserActivityLogRepository;
 import com.kml.user.dto.UserResponseDto;
 import com.kml.user.entity.Manager;
 import com.kml.user.entity.User;
@@ -16,7 +18,6 @@ import com.kml.user.dto.UserRequestDto;
 import com.kml.user.mapper.UserMapper;
 import com.kml.user.repository.UserRepository;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -24,10 +25,15 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserActivityLogRepository userActivityLogRepository;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            UserActivityLogRepository userActivityLogRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userActivityLogRepository = userActivityLogRepository;
     }
 
     @Override
@@ -59,6 +65,7 @@ public class UserServiceImpl implements UserService {
         userEntity.setAvatarUrl(dto.getAvatarUrl());
 
         User saved = userRepository.save(userEntity);
+        audit(saved, "USER_CREATED", "User", saved.getId());
         return UserMapper.toDto(saved);
     }
 
@@ -76,7 +83,9 @@ public class UserServiceImpl implements UserService {
             user.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
 
-        return UserMapper.toDto(userRepository.save(user));
+        User saved = userRepository.save(user);
+        audit(saved, "USER_PROFILE_UPDATED", "User", saved.getId());
+        return UserMapper.toDto(saved);
     }
 
     @Override
@@ -94,7 +103,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User entity not found"));
         user.setUserRole(newRole);
-        userRepository.save(user);
+        User saved = userRepository.save(user);
+        audit(saved, "USER_ROLE_ASSIGNED", "User", saved.getId());
     }
 
     @Override
@@ -133,7 +143,9 @@ public class UserServiceImpl implements UserService {
             } else if (oldUser instanceof Worker worker) {
                 if (dto.getWarehouseId() != null) worker.setWarehouseId(dto.getWarehouseId());
             }
-            return UserMapper.toDto(userRepository.save(oldUser));
+            User saved = userRepository.save(oldUser);
+            audit(saved, "USER_OPERATIONAL_ACCESS_UPDATED", "User", saved.getId());
+            return UserMapper.toDto(saved);
         }
 
         // Safe Polymorphic reassignment path via database row update sequence
@@ -160,6 +172,11 @@ public class UserServiceImpl implements UserService {
         newUser.setAvatarUrl(oldUser.getAvatarUrl());
 
         User saved = userRepository.save(newUser);
+        audit(saved, "USER_OPERATIONAL_ACCESS_UPDATED", "User", saved.getId());
         return UserMapper.toDto(saved);
+    }
+
+    private void audit(User user, String action, String entity, Long entityId) {
+        userActivityLogRepository.save(new UserActivityLog(user, user, action, entity, entityId));
     }
 }

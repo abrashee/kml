@@ -133,7 +133,7 @@ public class UserController {
   @PatchMapping("/{id}/access")
   public ResponseEntity<UserResponseDto> updateStaffAccess(
           @PathVariable Long id,
-          @RequestBody UpdateStaffAccessDto dto) {
+          @RequestBody @Valid UpdateStaffAccessDto dto) {
 
       UserResponseDto updated = userService.updateOperationalAccess(id, dto);
       return ResponseEntity.ok(updated);

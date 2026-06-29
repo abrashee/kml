@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kml.auth.dto.LoginRequestDto;
 import com.kml.auth.dto.RefreshTokenRequestDto;
 import com.kml.auth.dto.TokenResponseDto;
 import com.kml.services.common.security.jwt.JwtTokenProvider;
+import com.kml.services.common.security.jwt.JwtTokenInvalidationService;
 import com.kml.security.jwt.JwtUserDetailsService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,16 +38,19 @@ public class AuthController {
   private final AuthenticationManager authenticationManager;
   private final JwtUserDetailsService jwtUserDetailsService;
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtTokenInvalidationService tokenInvalidationService;
   private final boolean refreshCookieSecure;
 
   public AuthController(
       AuthenticationManager authenticationManager,
       JwtUserDetailsService jwtUserDetailsService,
       JwtTokenProvider jwtTokenProvider,
+      JwtTokenInvalidationService tokenInvalidationService,
       @Value("${kml.auth.refresh-cookie-secure:false}") boolean refreshCookieSecure) {
     this.authenticationManager = authenticationManager;
     this.jwtUserDetailsService = jwtUserDetailsService;
     this.jwtTokenProvider = jwtTokenProvider;
+    this.tokenInvalidationService = tokenInvalidationService;
     this.refreshCookieSecure = refreshCookieSecure;
   }
 
@@ -99,7 +104,16 @@ public class AuthController {
 
   @Operation(summary = "Logout and clear refresh token cookie")
   @PostMapping("/logout")
-  public ResponseEntity<Void> logout(HttpServletResponse response) {
+  public ResponseEntity<Void> logout(
+      @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+      @CookieValue(name = REFRESH_COOKIE_NAME, required = false) String refreshToken,
+      HttpServletResponse response) {
+    if (authorization != null && authorization.startsWith("Bearer ")) {
+      tokenInvalidationService.invalidate(authorization.substring(7));
+    }
+    if (refreshToken != null && !refreshToken.isBlank()) {
+      tokenInvalidationService.invalidate(refreshToken);
+    }
     response.addHeader(HttpHeaders.SET_COOKIE, clearRefreshCookie().toString());
     return ResponseEntity.noContent().build();
   }

@@ -2,8 +2,10 @@
 package com.kml.user.dto;
 
 import com.kml.user.entity.UserRole;
+import jakarta.validation.constraints.NotNull;
 
 public class UpdateStaffAccessDto {
+    @NotNull
     private UserRole role;
     private Long warehouseId;
     // Keeping fields flexible if you want to use status fields down the road

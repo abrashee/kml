@@ -1,6 +1,7 @@
 package com.kml.services.common.security.config;
 
 import com.kml.services.common.security.jwt.JwtTokenProvider;
+import com.kml.services.common.security.jwt.JwtTokenInvalidationService;
 import com.kml.services.common.security.jwt.SharedJwtAuthFilter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
@@ -12,7 +13,7 @@ public final class SharedSecurityConfigurer {
 
   private SharedSecurityConfigurer() {}
 
-  public static HttpSecurity statelessJwt(HttpSecurity http, JwtTokenProvider jwtTokenProvider)
+  public static HttpSecurity statelessJwt(HttpSecurity http, JwtTokenProvider jwtTokenProvider, JwtTokenInvalidationService tokenInvalidationService)
       throws Exception {
     return http
         .cors(Customizer.withDefaults())
@@ -22,7 +23,7 @@ public final class SharedSecurityConfigurer {
             (request, response, authException) ->
                 response.sendError(401, "Unauthorized")))
         .addFilterBefore(
-            new SharedJwtAuthFilter(jwtTokenProvider),
+            new SharedJwtAuthFilter(jwtTokenProvider, tokenInvalidationService),
             UsernamePasswordAuthenticationFilter.class);
   }
 
@@ -31,6 +32,6 @@ public final class SharedSecurityConfigurer {
           .AuthorizationManagerRequestMatcherRegistry auth) {
     auth
         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-        .requestMatchers("/actuator/health/**").permitAll();
+        .requestMatchers("/actuator/health/**", "/actuator/prometheus").permitAll();
   }
 }
