@@ -38,6 +38,7 @@
         <spring-kafka.version>3.3.16</spring-kafka.version>
         <postgresql.version>42.7.11</postgresql.version>
         <commons-fileupload.version>1.6.0</commons-fileupload.version>
+        <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
         <jackson.version>2.21.4</jackson.version>
     </properties>
 
@@ -81,6 +82,12 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logstash-logback-encoder.version}</version>
             </dependency>
 
         </dependencies>

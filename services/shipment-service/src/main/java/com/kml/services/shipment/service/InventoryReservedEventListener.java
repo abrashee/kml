@@ -21,7 +21,7 @@ public class InventoryReservedEventListener {
         this.shipmentService = shipmentService;
     }
 
-    @RabbitListener(queues = ShipmentMessagingConfig.INVENTORY_RESERVED_QUEUE)
+    @RabbitListener(queues = ShipmentMessagingConfig.INVENTORY_RESERVED_QUEUE, containerFactory = "shipmentRabbitListenerContainerFactory")
     @Transactional
     public void createShipmentForReservation(InventoryReservedEvent event) {
         if (!shipmentRepository.findByOrderId(event.orderId()).isEmpty()) {

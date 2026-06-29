@@ -10,6 +10,7 @@ import com.kml.services.common.events.OrderPlacedEvent;
 import com.kml.services.common.events.StockUpdatedEvent;
 import com.kml.services.inventory.entity.InventoryItem;
 import com.kml.services.inventory.repository.InventoryRepository;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ class OrderPlacedEventListenerTest {
     private final InventoryRepository inventoryRepository = Mockito.mock(InventoryRepository.class);
     private final InventoryEventPublisher eventPublisher = Mockito.mock(InventoryEventPublisher.class);
     private final OrderPlacedEventListener listener =
-        new OrderPlacedEventListener(inventoryRepository, eventPublisher);
+        new OrderPlacedEventListener(inventoryRepository, eventPublisher, new SimpleMeterRegistry());
 
     @Test
     void reservesInventoryAndPublishesReservationEvent() {

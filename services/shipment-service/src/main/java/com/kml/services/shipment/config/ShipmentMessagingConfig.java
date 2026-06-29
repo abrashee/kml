@@ -6,6 +6,13 @@ import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.retry.MessageRecoverer;
+import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
+import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -63,5 +70,36 @@ public class ShipmentMessagingConfig {
     @Bean
     public MessageConverter rabbitMessageConverter() {
         return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public MessageRecoverer shipmentMessageRecoverer(RabbitTemplate rabbitTemplate) {
+        return new RepublishMessageRecoverer(
+            rabbitTemplate,
+            DEAD_LETTER_EXCHANGE,
+            INVENTORY_RESERVED_DEAD_LETTER_ROUTING_KEY);
+    }
+
+    @Bean
+    public RetryOperationsInterceptor shipmentRetryInterceptor(MessageRecoverer shipmentMessageRecoverer) {
+        return RetryInterceptorBuilder.stateless()
+            .maxAttempts(3)
+            .backOffOptions(1000, 2.0, 10000)
+            .recoverer(shipmentMessageRecoverer)
+            .build();
+    }
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory shipmentRabbitListenerContainerFactory(
+        ConnectionFactory connectionFactory,
+        MessageConverter rabbitMessageConverter,
+        RetryOperationsInterceptor shipmentRetryInterceptor) {
+
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(rabbitMessageConverter);
+        factory.setAdviceChain(shipmentRetryInterceptor);
+        factory.setDefaultRequeueRejected(false);
+        return factory;
     }
 }

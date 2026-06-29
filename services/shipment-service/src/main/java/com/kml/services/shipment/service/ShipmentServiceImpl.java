@@ -9,6 +9,8 @@ import com.kml.services.shipment.entity.ShipmentStatus;
 import com.kml.services.shipment.mapper.ShipmentMapper;
 import com.kml.services.shipment.repository.ShipmentHistoryRepository;
 import com.kml.services.shipment.repository.ShipmentRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -21,14 +23,19 @@ public class ShipmentServiceImpl implements ShipmentService {
     private final ShipmentRepository shipmentRepository;
     private final ShipmentHistoryRepository shipmentHistoryRepository;
     private final ShipmentEventPublisher eventPublisher;
+    private final Counter shipmentsCreatedCounter;
 
     public ShipmentServiceImpl(
         ShipmentRepository shipmentRepository,
         ShipmentHistoryRepository shipmentHistoryRepository,
-        ShipmentEventPublisher eventPublisher) {
+        ShipmentEventPublisher eventPublisher,
+        MeterRegistry meterRegistry) {
         this.shipmentRepository = shipmentRepository;
         this.shipmentHistoryRepository = shipmentHistoryRepository;
         this.eventPublisher = eventPublisher;
+        this.shipmentsCreatedCounter = Counter.builder("kml_shipments_created")
+            .description("Total number of successfully created shipments")
+            .register(meterRegistry);
     }
 
     @Override
@@ -50,6 +57,7 @@ public class ShipmentServiceImpl implements ShipmentService {
             saved.getWarehouseId(),
             saved.getTrackingCode(),
             Instant.now()));
+        shipmentsCreatedCounter.increment();
         return ShipmentMapper.toDto(saved);
     }
 
