@@ -52,7 +52,7 @@ public class InventoryController {
     @PatchMapping("/{id}/quantity")
     public ApiResponse<InventoryItemResponseDto> adjustQuantity(
         @PathVariable Long id,
-        @RequestBody InventoryQuantityUpdateRequestDto request) {
+        @Valid @RequestBody InventoryQuantityUpdateRequestDto request) {
         return ApiResponse.ok(inventoryService.adjustQuantity(id, request.delta()), "Inventory quantity updated");
     }
 
