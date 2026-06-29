@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-frontend
+  namespace: kml
+  labels:
+    app: admin-frontend
+  annotations:
+    kml.io/release-tag-required: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-frontend
+  template:
+    metadata:
+      labels:
+        app: admin-frontend
+    spec:
+      imagePullSecrets:
+        - name: ghcr-pull
+      containers:
+        - name: admin-frontend
+          image: ghcr.io/abrashee/kml/admin-frontend:RELEASE_TAG
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-frontend
+  namespace: kml
+  labels:
+    app: admin-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: admin-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer-frontend
+  namespace: kml
+  labels:
+    app: customer-frontend
+  annotations:
+    kml.io/release-tag-required: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer-frontend
+  template:
+    metadata:
+      labels:
+        app: customer-frontend
+    spec:
+      imagePullSecrets:
+        - name: ghcr-pull
+      containers:
+        - name: customer-frontend
+          image: ghcr.io/abrashee/kml/customer-frontend:RELEASE_TAG
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customer-frontend
+  namespace: kml
+  labels:
+    app: customer-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: customer-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
