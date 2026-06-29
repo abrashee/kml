@@ -2,7 +2,7 @@
   "title": "KML Backend Overview",
   "schemaVersion": 38,
   "version": 1,
-  "refresh": "15s",
+  "refresh": "30m",
   "panels": [
     {
       "type": "timeseries",
