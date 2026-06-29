@@ -10,6 +10,8 @@ import com.kml.services.order.entity.OrderStatus;
 import com.kml.services.order.mapper.OrderMapper;
 import com.kml.services.order.repository.OrderRepository;
 import com.kml.services.order.user.InternalUserProfileService;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -21,14 +23,19 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderEventPublisher eventPublisher;
     private final InternalUserProfileService userProfileService;
+    private final Counter ordersCreatedCounter;
 
     public OrderServiceImpl(
         OrderRepository orderRepository,
         OrderEventPublisher eventPublisher,
-        InternalUserProfileService userProfileService) {
+        InternalUserProfileService userProfileService,
+        MeterRegistry meterRegistry) {
         this.orderRepository = orderRepository;
         this.eventPublisher = eventPublisher;
         this.userProfileService = userProfileService;
+        this.ordersCreatedCounter = Counter.builder("kml_orders_created")
+            .description("Total number of successfully created orders")
+            .register(meterRegistry);
     }
 
     @Override
@@ -61,6 +68,8 @@ public class OrderServiceImpl implements OrderService {
                 .map(item -> new OrderPlacedEvent.OrderLine(item.getSku(), item.getQuantity(), item.getWarehouseId()))
                 .toList(),
             Instant.now()));
+
+        ordersCreatedCounter.increment();
 
         return OrderMapper.toDto(saved);
     }

@@ -2,6 +2,7 @@ package com.kml.services.order.config;
 
 import com.kml.services.common.security.config.SharedSecurityConfigurer;
 import com.kml.services.common.security.jwt.JwtTokenProvider;
+import com.kml.services.common.security.jwt.JwtTokenInvalidationService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -18,9 +19,10 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(
       HttpSecurity http,
-      JwtTokenProvider jwtTokenProvider) throws Exception {
+      JwtTokenProvider jwtTokenProvider,
+      JwtTokenInvalidationService tokenInvalidationService) throws Exception {
 
-    SharedSecurityConfigurer.statelessJwt(http, jwtTokenProvider);
+    SharedSecurityConfigurer.statelessJwt(http, jwtTokenProvider, tokenInvalidationService);
 
     http.authorizeHttpRequests(auth -> {
       SharedSecurityConfigurer.permitCommonPublicEndpoints(auth);
