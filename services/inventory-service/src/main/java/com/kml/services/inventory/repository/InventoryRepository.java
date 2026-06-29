@@ -19,6 +19,8 @@ public interface InventoryRepository extends JpaRepository<InventoryItem, Long> 
 
     Page<InventoryItem> findByWarehouseId(Long warehouseId, Pageable pageable);
 
+    Page<InventoryItem> findBySkuAndWarehouseId(String sku, Long warehouseId, Pageable pageable);
+
     Optional<InventoryItem> findBySkuAndStorageUnitId(String sku, Long storageUnitId);
 
     @Query("select coalesce(sum(i.quantity), 0) from InventoryItem i where i.sku = :sku")

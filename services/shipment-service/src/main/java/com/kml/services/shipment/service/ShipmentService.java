@@ -1,5 +1,6 @@
 package com.kml.services.shipment.service;
 
+import com.kml.services.common.security.jwt.JwtAuthenticatedUser;
 import com.kml.services.shipment.dto.ShipmentRequestDto;
 import com.kml.services.shipment.dto.ShipmentResponseDto;
 import com.kml.services.shipment.entity.ShipmentStatus;
@@ -9,9 +10,11 @@ public interface ShipmentService {
 
     ShipmentResponseDto createShipment(ShipmentRequestDto request);
 
-    ShipmentResponseDto getShipment(Long id);
+    ShipmentResponseDto createShipment(ShipmentRequestDto request, JwtAuthenticatedUser principal);
 
-    List<ShipmentResponseDto> getShipments(Long orderId, Long userId, ShipmentStatus status);
+    ShipmentResponseDto getShipment(Long id, JwtAuthenticatedUser principal);
 
-    ShipmentResponseDto updateStatus(Long id, ShipmentStatus status);
+    List<ShipmentResponseDto> getShipments(Long orderId, Long userId, ShipmentStatus status, JwtAuthenticatedUser principal);
+
+    ShipmentResponseDto updateStatus(Long id, ShipmentStatus status, JwtAuthenticatedUser principal);
 }

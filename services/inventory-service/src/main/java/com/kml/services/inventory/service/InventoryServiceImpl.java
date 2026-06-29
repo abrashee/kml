@@ -1,6 +1,7 @@
 package com.kml.services.inventory.service;
 
 import com.kml.services.common.events.StockUpdatedEvent;
+import com.kml.services.common.security.jwt.JwtAuthenticatedUser;
 import com.kml.services.inventory.dto.InventoryItemRequestDto;
 import com.kml.services.inventory.dto.InventoryItemResponseDto;
 import com.kml.services.inventory.entity.InventoryItem;
@@ -32,7 +33,8 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional
-    public InventoryItemResponseDto createInventoryItem(InventoryItemRequestDto request) {
+    public InventoryItemResponseDto createInventoryItem(InventoryItemRequestDto request, JwtAuthenticatedUser principal) {
+        requireWarehouseScope(request.warehouseId(), principal);
         InventoryItem item = inventoryRepository.findBySkuAndStorageUnitId(request.sku(), request.storageUnitId())
             .orElseGet(() -> new InventoryItem(
                 request.ownerUserId(),
@@ -51,9 +53,10 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional
-    public InventoryItemResponseDto adjustQuantity(Long id, int delta) {
+    public InventoryItemResponseDto adjustQuantity(Long id, int delta, JwtAuthenticatedUser principal) {
         InventoryItem item = inventoryRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Inventory item not found"));
+        requireWarehouseScope(item.getWarehouseId(), principal);
         item.adjustQuantity(delta);
         InventoryItem saved = inventoryRepository.save(item);
         publish(saved);
@@ -62,10 +65,11 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public InventoryItemResponseDto getInventoryItem(Long id) {
-        return inventoryRepository.findById(id)
-            .map(InventoryMapper::toDto)
+    public InventoryItemResponseDto getInventoryItem(Long id, JwtAuthenticatedUser principal) {
+        InventoryItem item = inventoryRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Inventory item not found"));
+        requireWarehouseScope(item.getWarehouseId(), principal);
+        return InventoryMapper.toDto(item);
     }
 
     @Override
@@ -73,7 +77,16 @@ public class InventoryServiceImpl implements InventoryService {
     public Page<InventoryItemResponseDto> getInventory(
         String sku,
         Long warehouseId,
-        Pageable pageable) {
+        Pageable pageable,
+        JwtAuthenticatedUser principal) {
+
+        warehouseId = effectiveWarehouseId(warehouseId, principal);
+
+        if (sku != null && !sku.isBlank() && warehouseId != null) {
+            return inventoryRepository
+                .findBySkuAndWarehouseId(sku, warehouseId, pageable)
+                .map(InventoryMapper::toDto);
+        }
 
         if (sku != null && !sku.isBlank()) {
             return inventoryRepository
@@ -94,13 +107,40 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional
-    public void deleteInventoryItem(Long id) {
+    public void deleteInventoryItem(Long id, JwtAuthenticatedUser principal) {
         InventoryItem item = inventoryRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Inventory item not found"));
+        requireWarehouseScope(item.getWarehouseId(), principal);
         if (item.getQuantity() > 0) {
             throw new IllegalArgumentException("Inventory item quantity must be zero before deletion");
         }
         inventoryRepository.delete(item);
+    }
+
+    private Long effectiveWarehouseId(Long requestedWarehouseId, JwtAuthenticatedUser principal) {
+        if (isAdmin(principal)) {
+            return requestedWarehouseId;
+        }
+        if (principal == null || principal.warehouseId() == null) {
+            throw new SecurityException("Authenticated warehouse scope is missing");
+        }
+        if (requestedWarehouseId != null && !requestedWarehouseId.equals(principal.warehouseId())) {
+            throw new SecurityException("User cannot access inventory outside assigned warehouse");
+        }
+        return principal.warehouseId();
+    }
+
+    private void requireWarehouseScope(Long warehouseId, JwtAuthenticatedUser principal) {
+        if (isAdmin(principal)) {
+            return;
+        }
+        if (principal == null || principal.warehouseId() == null || !principal.warehouseId().equals(warehouseId)) {
+            throw new SecurityException("User cannot access inventory outside assigned warehouse");
+        }
+    }
+
+    private boolean isAdmin(JwtAuthenticatedUser principal) {
+        return principal != null && "ADMIN".equals(principal.role());
     }
 
     private void publish(InventoryItem item) {

@@ -1,5 +1,6 @@
 package com.kml.services.warehouse.service;
 
+import com.kml.services.common.security.jwt.JwtAuthenticatedUser;
 import com.kml.services.warehouse.dto.StorageUnitResponseDto;
 import com.kml.services.warehouse.dto.StorageUnitRequestDto;
 import com.kml.services.warehouse.dto.WarehouseRequestDto;
@@ -26,7 +27,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional
-    public WarehouseResponseDto createWarehouse(WarehouseRequestDto request) {
+    public WarehouseResponseDto createWarehouse(WarehouseRequestDto request, JwtAuthenticatedUser principal) {
         warehouseRepository.findByName(request.name()).ifPresent(existing -> {
             throw new IllegalArgumentException("Warehouse name already exists");
         });
@@ -40,24 +41,29 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional(readOnly = true)
-    public WarehouseResponseDto getWarehouse(Long id) {
-        return warehouseRepository.findById(id)
-            .map(WarehouseMapper::toDto)
+    public WarehouseResponseDto getWarehouse(Long id, JwtAuthenticatedUser principal) {
+        Warehouse warehouse = warehouseRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Warehouse not found"));
+        requireWarehouseScope(warehouse.getId(), principal);
+        return WarehouseMapper.toDto(warehouse);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<WarehouseResponseDto> getWarehouses(Long ownerUserId) {
+    public List<WarehouseResponseDto> getWarehouses(Long ownerUserId, JwtAuthenticatedUser principal) {
         List<Warehouse> warehouses = ownerUserId != null
             ? warehouseRepository.findByOwnerUserId(ownerUserId)
             : warehouseRepository.findAll();
-        return warehouses.stream().map(WarehouseMapper::toDto).toList();
+        return warehouses.stream()
+            .filter(warehouse -> canAccessWarehouse(warehouse.getId(), principal))
+            .map(WarehouseMapper::toDto)
+            .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<StorageUnitResponseDto> getStorageUnits(Long warehouseId) {
+    public List<StorageUnitResponseDto> getStorageUnits(Long warehouseId, JwtAuthenticatedUser principal) {
+        requireWarehouseScope(warehouseId, principal);
         return storageUnitRepository.findByWarehouse_Id(warehouseId).stream()
             .map(WarehouseMapper::toDto)
             .toList();
@@ -65,7 +71,8 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional
-    public StorageUnitResponseDto addStorageUnit(Long warehouseId, StorageUnitRequestDto request) {
+    public StorageUnitResponseDto addStorageUnit(Long warehouseId, StorageUnitRequestDto request, JwtAuthenticatedUser principal) {
+        requireWarehouseScope(warehouseId, principal);
         Warehouse warehouse = warehouseRepository.findById(warehouseId)
             .orElseThrow(() -> new IllegalArgumentException("Warehouse not found"));
         StorageUnit storageUnit = new StorageUnit(request.code(), request.capacity());
@@ -73,4 +80,26 @@ public class WarehouseServiceImpl implements WarehouseService {
         warehouseRepository.save(warehouse);
         return WarehouseMapper.toDto(storageUnit);
     }
+    private void requireWarehouseScope(Long warehouseId, JwtAuthenticatedUser principal) {
+        if (isAdmin(principal)) {
+            return;
+        }
+        if (principal == null || principal.warehouseId() == null || !principal.warehouseId().equals(warehouseId)) {
+            throw new SecurityException("User cannot access warehouses outside assigned warehouse");
+        }
+    }
+
+    private boolean canAccessWarehouse(Long warehouseId, JwtAuthenticatedUser principal) {
+        if (isAdmin(principal)) {
+            return true;
+        }
+        return principal != null
+            && principal.warehouseId() != null
+            && principal.warehouseId().equals(warehouseId);
+    }
+
+    private boolean isAdmin(JwtAuthenticatedUser principal) {
+        return principal != null && "ADMIN".equals(principal.role());
+    }
 }
+
