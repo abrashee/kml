@@ -11,6 +11,8 @@ x-kml-service-environment: &kml-service-environment
   RABBITMQ_HOST: rabbitmq
   RABBITMQ_USER: ${RABBITMQ_USER:-kml_broker}
   RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-change-me}
+  SPRING_DATA_REDIS_HOST: redis
+  SPRING_DATA_REDIS_PORT: 6379
   KML_OPENSEARCH_URL: http://opensearch:9200
   MANAGEMENT_TRACING_ENABLED: ${MANAGEMENT_TRACING_ENABLED:-true}
   MANAGEMENT_TRACING_SAMPLING_PROBABILITY: ${MANAGEMENT_TRACING_SAMPLING_PROBABILITY:-1.0}
@@ -34,6 +36,14 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-kml_logistics}
       POSTGRES_USER: ${POSTGRES_USER:-kml_admin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.track=all"
+      - "-c"
+      - "log_min_duration_statement=500"
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -44,6 +54,21 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - kml-services
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: kml-postgres-exporter
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATA_SOURCE_NAME: postgresql://${POSTGRES_USER:-kml_admin}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/postgres?sslmode=disable
+    ports:
+      - "${POSTGRES_EXPORTER_PORT:-9187}:9187"
+    profiles:
+      - microservices
     networks:
       - kml-services
 
@@ -90,6 +115,23 @@ services:
     networks:
       - kml-services
 
+  opensearch-exporter:
+    image: quay.io/prometheuscommunity/elasticsearch-exporter:v1.7.0
+    container_name: kml-opensearch-exporter
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    command:
+      - '--es.uri=http://opensearch:9200'
+      - '--es.all'
+      - '--es.indices'
+    ports:
+      - "${OPENSEARCH_EXPORTER_PORT:-9114}:9114"
+    profiles:
+      - microservices
+    networks:
+      - kml-services
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.1
     container_name: kml-zookeeper
@@ -132,6 +174,21 @@ services:
     networks:
       - kml-services
 
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:v1.7.0
+    container_name: kml-kafka-exporter
+    depends_on:
+      kafka:
+        condition: service_healthy
+    command:
+      - '--kafka.server=kafka:29092'
+    ports:
+      - "${KAFKA_EXPORTER_PORT:-9308}:9308"
+    profiles:
+      - microservices
+    networks:
+      - kml-services
+
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     container_name: kml-rabbitmq
@@ -168,6 +225,8 @@ services:
       <<: *kml-service-environment
       SPRING_APPLICATION_NAME: kml-api-gateway
       KML_SERVICE_BOUNDARY: gateway
+      KML_GATEWAY_RATE_LIMIT_CAPACITY: ${KML_GATEWAY_RATE_LIMIT_CAPACITY:-600}
+      KML_GATEWAY_RATE_LIMIT_WINDOW: ${KML_GATEWAY_RATE_LIMIT_WINDOW:-PT1M}
     ports:
       - "${API_GATEWAY_PORT:-8080}:8080"
     profiles:
@@ -368,6 +427,8 @@ services:
       - "${GRAFANA_PORT:-3000}:3000"
     volumes:
       - ./monitoring/grafana-datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ./monitoring/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./monitoring/grafana-dashboard.json:/etc/grafana/provisioning/dashboards/json/kml-backend-overview.json
       - grafana_data:/var/lib/grafana
     profiles:
       - microservices
