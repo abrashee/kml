@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.kml.user.entity.User;
+import com.kml.user.entity.Manager;
+import com.kml.user.entity.Worker;
 import com.kml.user.entity.UserAccountStatus;
 import com.kml.user.repository.UserRepository;
 
@@ -36,7 +38,22 @@ public class JwtUserDetailsService implements UserDetailsService {
     List<SimpleGrantedAuthority> authorities =
         List.of(new SimpleGrantedAuthority("ROLE_" + user.getUserRole().name()));
 
-    return new org.springframework.security.core.userdetails.User(
-        user.getUsername(), user.getPassword(), authorities);
+    Long warehouseId = null;
+    Long managerId = null;
+
+    if (user instanceof Manager manager) {
+      warehouseId = manager.getWarehouseId();
+    } else if (user instanceof Worker worker) {
+      warehouseId = worker.getWarehouseId();
+      managerId = worker.getManagerId();
+    }
+
+    return new KmlUserDetails(
+        user.getUsername(),
+        user.getPassword(),
+        authorities,
+        user.getId(),
+        warehouseId,
+        managerId);
   }
 }

@@ -2,6 +2,7 @@ package com.kml.services.common.security.jwt;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -35,8 +36,12 @@ public class JwtTokenProvider {
         .orElse("ROLE_CUSTOMER");
 
     return Jwts.builder()
+        .id(UUID.randomUUID().toString())
         .subject(userDetails.getUsername())
         .claim("role", role.replace("ROLE_", ""))
+        .claim("userId", scopedUserId(userDetails))
+        .claim("warehouseId", scopedWarehouseId(userDetails))
+        .claim("managerId", scopedManagerId(userDetails))
         .claim("type", "access")
         .issuedAt(new Date(now))
         .expiration(new Date(now + jwtProperties.getExpirationMs()))
@@ -44,9 +49,22 @@ public class JwtTokenProvider {
         .compact();
   }
 
+  private Long scopedUserId(UserDetails userDetails) {
+    return userDetails instanceof JwtScopedUserDetails scoped ? scoped.userId() : null;
+  }
+
+  private Long scopedWarehouseId(UserDetails userDetails) {
+    return userDetails instanceof JwtScopedUserDetails scoped ? scoped.warehouseId() : null;
+  }
+
+  private Long scopedManagerId(UserDetails userDetails) {
+    return userDetails instanceof JwtScopedUserDetails scoped ? scoped.managerId() : null;
+  }
+
   public String generateRefreshToken(UserDetails userDetails) {
     long now = System.currentTimeMillis();
     return Jwts.builder()
+        .id(UUID.randomUUID().toString())
         .subject(userDetails.getUsername())
         .issuedAt(new Date(now))
         .expiration(new Date(now + jwtProperties.getRefreshExpirationMs()))
@@ -57,6 +75,15 @@ public class JwtTokenProvider {
 
   public String extractUsername(String token) {
     return parseClaims(token).getSubject();
+  }
+
+  public String extractTokenId(String token) {
+    return parseClaims(token).getId();
+  }
+
+  public long remainingTtlMs(String token) {
+    long remaining = parseClaims(token).getExpiration().getTime() - System.currentTimeMillis();
+    return Math.max(remaining, 0);
   }
 
   public JwtAuthenticatedUser extractAuthenticatedUser(String token) {
@@ -72,7 +99,10 @@ public class JwtTokenProvider {
 
     return new JwtAuthenticatedUser(
         claims.getSubject(),
-        claims.get("role", String.class));
+        claims.get("role", String.class),
+        claims.get("userId", Long.class),
+        claims.get("warehouseId", Long.class),
+        claims.get("managerId", Long.class));
   }
 
   public boolean validateAccessToken(String token, UserDetails userDetails) {
