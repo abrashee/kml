@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "build:report": "vite build --mode production",
+    "analyze": "vite build --mode production"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.0",

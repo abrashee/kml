@@ -7,7 +7,9 @@
     "build": "ng build --configuration production --progress=false",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "build:stats": "ng build --configuration production --stats-json --progress=false",
+    "analyze": "npm run build:stats"
   },
   "prettier": {
     "printWidth": 100,
