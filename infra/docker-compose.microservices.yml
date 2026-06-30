@@ -206,11 +206,18 @@ services:
       args:
         MODULE: api-gateway
     depends_on:
-      - user-service
-      - order-service
-      - inventory-service
-      - warehouse-service
-      - shipment-service
+      redis:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      inventory-service:
+        condition: service_started
+      warehouse-service:
+        condition: service_started
+      shipment-service:
+        condition: service_started
     environment:
       <<: *kml-service-environment
       SPRING_APPLICATION_NAME: kml-api-gateway

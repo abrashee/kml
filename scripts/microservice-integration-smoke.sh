@@ -61,11 +61,12 @@ curl_json() {
 wait_for() {
   local name="$1"
   local url="$2"
-  for _ in {1..90}; do
+  for attempt in {1..90}; do
     if curl -fsS "$url" >/dev/null; then
       echo "$name is ready"
       return 0
     fi
+    echo "Waiting for $name at $url ($attempt/90)" >&2
     sleep 2
   done
   echo "Timed out waiting for $name at $url" >&2
@@ -80,15 +81,15 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ "$REUSE_STACK" != "true" ]]; then
-  compose up --build -d
+  compose up --build -d api-gateway
 fi
 
-wait_for "api-gateway" "$BASE_URL/actuator/health"
-wait_for "user-service" "http://localhost:8081/actuator/health"
-wait_for "inventory-service" "http://localhost:8082/actuator/health"
-wait_for "order-service" "http://localhost:8083/actuator/health"
-wait_for "shipment-service" "http://localhost:8084/actuator/health"
-wait_for "warehouse-service" "http://localhost:8085/actuator/health"
+wait_for "user-service" "http://localhost:8081/actuator/health/readiness"
+wait_for "inventory-service" "http://localhost:8082/actuator/health/readiness"
+wait_for "order-service" "http://localhost:8083/actuator/health/readiness"
+wait_for "shipment-service" "http://localhost:8084/actuator/health/readiness"
+wait_for "warehouse-service" "http://localhost:8085/actuator/health/readiness"
+wait_for "api-gateway" "$BASE_URL/actuator/health/readiness"
 
 suffix="$(date +%s%N)"
 sku="IT-SKU-$suffix"
@@ -104,6 +105,8 @@ admin_login_response="$(
 )"
 admin_access_token="$(printf '%s' "$admin_login_response" | json_get "data['accessToken']")"
 admin_auth_header="Authorization: Bearer $admin_access_token"
+
+
 
 customer_login_response="$(
   curl_json POST "$BASE_URL/api/v1/auth/login" "{\"username\":\"customer-$suffix\",\"password\":\"integration-password\"}"
