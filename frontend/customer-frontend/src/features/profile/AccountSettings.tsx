@@ -1,7 +1,9 @@
 // src/features/AccountSettings.tsx
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, apiOrigin } from "../../lib/apiClient";
+import { getCurrentUserProfile } from "./profile.api";
 
 interface UserIdentity {
   name: string;
@@ -29,6 +31,7 @@ export default function AccountSettings() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [editingFields, setEditingFields] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState<boolean>(true);
+  const queryClient = useQueryClient();
 
   // Core Identity State
   const [identity, setIdentity] = useState<UserIdentity>({
@@ -57,11 +60,20 @@ export default function AccountSettings() {
     address: { ...profile.address },
   });
 
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["current-user-profile"],
+    queryFn: getCurrentUserProfile,
+  });
+
   // 1. Fetch current customer data and parse the combined address string
   useEffect(() => {
-    api.get("/users/me")
-      .then((res) => {
-        const data = res.data;
+    if (isLoading) return;
+
+    if (isError || !data) {
+      console.error("Failed to load user profile context data");
+      setLoading(false);
+      return;
+    }
 
         const freshIdentity: UserIdentity = {
           name: data.name || "",
@@ -97,12 +109,7 @@ export default function AccountSettings() {
         setPristineIdentity({ ...freshIdentity });
         setPristineProfile({ ...freshProfile, address: { ...freshProfile.address } });
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to load user profile context data", err);
-        setLoading(false);
-      });
-  }, []);
+  }, [data, isLoading, isError]);
 
   const validateField = (fieldKey: string, value: string): string => {
     if (!value.trim() && fieldKey !== "password") return "This field cannot be left blank.";
@@ -151,6 +158,8 @@ export default function AccountSettings() {
       setProfile(prev => ({ ...prev, avatarUrl: freshAvatarUrl }));
 
       // Notify components like Header to sync updated avatar changes
+      await queryClient.invalidateQueries({ queryKey: ["current-user-profile"] });
+      await queryClient.invalidateQueries({ queryKey: ["current-user-profile"] });
       window.dispatchEvent(new CustomEvent("user-profile-updated"));
 
       setToastMessage("Avatar updated successfully!");

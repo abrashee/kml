@@ -1,8 +1,10 @@
 // src/components/Header.tsx
 import { useState, useEffect, useRef } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../../lib/auth";
-import { api, apiOrigin } from "../../lib/apiClient"; // Added to fetch real-time data
+import { apiOrigin } from "../../lib/apiClient";
+import { getCurrentUserProfile } from "../../features/profile/profile.api";
 import { motion, AnimatePresence } from "framer-motion";
 import logoAsset from "../../assets/kml_logo.svg";
 
@@ -13,49 +15,38 @@ interface HeaderUserData {
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const [userData, setUserData] = useState<HeaderUserData>({ name: "", avatarUrl: null });
   const navigate = useNavigate();
-  // const user = auth.getUser();
+  const queryClient = useQueryClient();
   const user = auth.getUser() as any;
 
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Sync profile details cleanly from backend mapping
-  const fetchLiveProfile = async () => {
-    if (!user) return;
-    try {
-      const res = await api.get("/users/me");
+  const { data: liveProfile } = useQuery({
+    queryKey: ["current-user-profile"],
+    queryFn: getCurrentUserProfile,
+    enabled: Boolean(user),
+  });
 
-      // Handle prefix checks safely for your avatar pathing
-      let rawUrl = res.data.avatarUrl;
-      if (rawUrl && !rawUrl.startsWith("http")) {
-        rawUrl = `${apiOrigin}${rawUrl}`;
-      }
+  let rawAvatarUrl = liveProfile?.avatarUrl || user?.avatar || null;
+  if (rawAvatarUrl && !rawAvatarUrl.startsWith("http")) {
+    rawAvatarUrl = `${apiOrigin}${rawAvatarUrl}`;
+  }
 
-      setUserData({
-        name: res.data.name || user.name,
-        avatarUrl: rawUrl || null,
-      });
-    } catch (err) {
-      console.error("Header profile sync failed", err);
-      // Fail-safe: fallback directly to baseline auth session info if API is sleeping
-      setUserData({
-        name: user?.name || "",
-        avatarUrl: user?.avatar || null
-      });
-    }
+  const userData: HeaderUserData = {
+    name: liveProfile?.name || user?.name || "",
+    avatarUrl: rawAvatarUrl,
   };
 
   useEffect(() => {
-    // Initial load on component initialization
-    fetchLiveProfile();
-
-    // Hook up listener for live notifications from AccountSettings
-    window.addEventListener("user-profile-updated", fetchLiveProfile);
-    return () => {
-      window.removeEventListener("user-profile-updated", fetchLiveProfile);
+    const syncProfile = () => {
+      queryClient.invalidateQueries({ queryKey: ["current-user-profile"] });
     };
-  }, []);
+
+    window.addEventListener("user-profile-updated", syncProfile);
+    return () => {
+      window.removeEventListener("user-profile-updated", syncProfile);
+    };
+  }, [queryClient]);
 
   const logout = () => {
     setOpen(false);
