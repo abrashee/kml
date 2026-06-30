@@ -31,7 +31,6 @@ x-kml-service-environment: &kml-service-environment
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: kml-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-kml_logistics}
       POSTGRES_USER: ${POSTGRES_USER:-kml_admin}
@@ -59,7 +58,6 @@ services:
 
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter:v0.15.0
-    container_name: kml-postgres-exporter
     depends_on:
       postgres:
         condition: service_healthy
@@ -74,7 +72,6 @@ services:
 
   redis:
     image: redis:7.2-alpine
-    container_name: kml-redis
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
@@ -88,7 +85,6 @@ services:
 
   opensearch:
     image: opensearchproject/opensearch:2.15.0
-    container_name: kml-opensearch
     environment:
       - cluster.name=kml-search-cluster
       - node.name=kml-node1
@@ -117,7 +113,6 @@ services:
 
   opensearch-exporter:
     image: quay.io/prometheuscommunity/elasticsearch-exporter:v1.7.0
-    container_name: kml-opensearch-exporter
     depends_on:
       opensearch:
         condition: service_healthy
@@ -134,7 +129,6 @@ services:
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.1
-    container_name: kml-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -151,7 +145,6 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.6.1
-    container_name: kml-kafka
     depends_on:
       zookeeper:
         condition: service_healthy
@@ -176,7 +169,6 @@ services:
 
   kafka-exporter:
     image: danielqsj/kafka-exporter:v1.7.0
-    container_name: kml-kafka-exporter
     depends_on:
       kafka:
         condition: service_healthy
@@ -191,7 +183,6 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
-    container_name: kml-rabbitmq
     ports:
       - "${RABBITMQ_PORT:-5672}:5672"
       - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
@@ -214,7 +205,6 @@ services:
       dockerfile: Dockerfile
       args:
         MODULE: api-gateway
-    container_name: kml-api-gateway
     depends_on:
       - user-service
       - order-service
@@ -243,7 +233,6 @@ services:
       dockerfile: Dockerfile
       args:
         MODULE: user-service
-    container_name: kml-user-service
     depends_on:
       postgres:
         condition: service_healthy
@@ -268,7 +257,6 @@ services:
       dockerfile: Dockerfile
       args:
         MODULE: inventory-service
-    container_name: kml-inventory-service
     depends_on:
       postgres:
         condition: service_healthy
@@ -295,7 +283,6 @@ services:
       dockerfile: Dockerfile
       args:
         MODULE: order-service
-    container_name: kml-order-service
     depends_on:
       postgres:
         condition: service_healthy
@@ -326,7 +313,6 @@ services:
       dockerfile: Dockerfile
       args:
         MODULE: shipment-service
-    container_name: kml-shipment-service
     depends_on:
       postgres:
         condition: service_healthy
@@ -355,7 +341,6 @@ services:
       dockerfile: Dockerfile
       args:
         MODULE: warehouse-service
-    container_name: kml-warehouse-service
     depends_on:
       postgres:
         condition: service_healthy
@@ -381,7 +366,6 @@ services:
   admin-frontend:
     build:
       context: ../frontend/admin-frontend
-    container_name: kml-admin-frontend
     depends_on:
       - api-gateway
     ports:
@@ -394,7 +378,6 @@ services:
   customer-frontend:
     build:
       context: ../frontend/customer-frontend
-    container_name: kml-customer-frontend
     depends_on:
       - api-gateway
     ports:
@@ -406,7 +389,6 @@ services:
 
   prometheus:
     image: prom/prometheus:v2.52.0
-    container_name: kml-prometheus
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -422,7 +404,6 @@ services:
 
   grafana:
     image: grafana/grafana:11.0.0
-    container_name: kml-grafana
     ports:
       - "${GRAFANA_PORT:-3000}:3000"
     volumes:
@@ -437,7 +418,6 @@ services:
 
   jaeger:
     image: jaegertracing/all-in-one:1.57
-    container_name: kml-jaeger
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
     ports:
@@ -449,7 +429,6 @@ services:
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.104.0
-    container_name: kml-otel-collector
     command: ["--config=/etc/otel-collector.yml"]
     volumes:
       - ./monitoring/otel-collector.yml:/etc/otel-collector.yml:ro
