@@ -44,7 +44,7 @@ services:
       - "-c"
       - "log_min_duration_statement=500"
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init-microservice-databases.sql:/docker-entrypoint-initdb.d/01-init-microservice-databases.sql:ro
@@ -64,7 +64,7 @@ services:
     environment:
       DATA_SOURCE_NAME: postgresql://${POSTGRES_USER:-kml_admin}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/postgres?sslmode=disable
     ports:
-      - "${POSTGRES_EXPORTER_PORT:-9187}:9187"
+      - "127.0.0.1:${POSTGRES_EXPORTER_PORT:-9187}:9187"
     profiles:
       - microservices
     networks:
@@ -73,7 +73,7 @@ services:
   redis:
     image: redis:7.2-alpine
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -101,7 +101,7 @@ services:
         soft: 65536
         hard: 65536
     ports:
-      - "${OPENSEARCH_PORT:-9200}:9200"
+      - "127.0.0.1:${OPENSEARCH_PORT:-9200}:9200"
     volumes:
       - opensearch_data:/usr/share/opensearch/data
     healthcheck:
@@ -121,7 +121,7 @@ services:
       - '--es.all'
       - '--es.indices'
     ports:
-      - "${OPENSEARCH_EXPORTER_PORT:-9114}:9114"
+      - "127.0.0.1:${OPENSEARCH_EXPORTER_PORT:-9114}:9114"
     profiles:
       - microservices
     networks:
@@ -133,7 +133,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - "${ZOOKEEPER_PORT:-2181}:2181"
+      - "127.0.0.1:${ZOOKEEPER_PORT:-2181}:2181"
     healthcheck:
       test: ["CMD-SHELL", "cub zk-ready localhost:2181 5 >/dev/null 2>&1"]
       interval: 10s
@@ -149,7 +149,7 @@ services:
       zookeeper:
         condition: service_healthy
     ports:
-      - "${KAFKA_PORT:-9092}:9092"
+      - "127.0.0.1:${KAFKA_PORT:-9092}:9092"
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
@@ -175,7 +175,7 @@ services:
     command:
       - '--kafka.server=kafka:29092'
     ports:
-      - "${KAFKA_EXPORTER_PORT:-9308}:9308"
+      - "127.0.0.1:${KAFKA_EXPORTER_PORT:-9308}:9308"
     profiles:
       - microservices
     networks:
@@ -184,8 +184,8 @@ services:
   rabbitmq:
     image: rabbitmq:4.3-management-alpine
     ports:
-      - "${RABBITMQ_PORT:-5672}:5672"
-      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+      - "127.0.0.1:${RABBITMQ_PORT:-5672}:5672"
+      - "127.0.0.1:${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-kml_broker}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-change-me}
@@ -225,7 +225,7 @@ services:
       KML_GATEWAY_RATE_LIMIT_CAPACITY: ${KML_GATEWAY_RATE_LIMIT_CAPACITY:-600}
       KML_GATEWAY_RATE_LIMIT_WINDOW: ${KML_GATEWAY_RATE_LIMIT_WINDOW:-PT1M}
     ports:
-      - "${API_GATEWAY_PORT:-8080}:8080"
+      - "127.0.0.1:${API_GATEWAY_PORT:-8080}:8080"
     profiles:
       - microservices
     mem_limit: 1g
@@ -249,7 +249,7 @@ services:
       KML_SERVICE_BOUNDARY: user
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kml_user
     ports:
-      - "${USER_SERVICE_PORT:-8081}:8080"
+      - "127.0.0.1:${USER_SERVICE_PORT:-8081}:8080"
     profiles:
       - microservices
     mem_limit: 1g
@@ -275,7 +275,7 @@ services:
       KML_SERVICE_BOUNDARY: inventory
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kml_inventory
     ports:
-      - "${INVENTORY_SERVICE_PORT:-8082}:8080"
+      - "127.0.0.1:${INVENTORY_SERVICE_PORT:-8082}:8080"
     profiles:
       - microservices
     mem_limit: 1g
@@ -305,7 +305,7 @@ services:
       JAVA_TOOL_OPTIONS: >-
         -XX:StartFlightRecording=filename=/tmp/order-startup.jfr,settings=profile,dumponexit=true
     ports:
-      - "${ORDER_SERVICE_PORT:-8083}:8080"
+      - "127.0.0.1:${ORDER_SERVICE_PORT:-8083}:8080"
     profiles:
       - microservices
     mem_limit: 1g
@@ -333,7 +333,7 @@ services:
       KML_SERVICE_BOUNDARY: shipment
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kml_shipment
     ports:
-      - "${SHIPMENT_SERVICE_PORT:-8084}:8080"
+      - "127.0.0.1:${SHIPMENT_SERVICE_PORT:-8084}:8080"
     profiles:
       - microservices
     mem_limit: 1g
@@ -361,7 +361,7 @@ services:
       KML_SERVICE_BOUNDARY: warehouse
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kml_warehouse
     ports:
-      - "${WAREHOUSE_SERVICE_PORT:-8085}:8080"
+      - "127.0.0.1:${WAREHOUSE_SERVICE_PORT:-8085}:8080"
     profiles:
       - microservices
     mem_limit: 1g
@@ -376,7 +376,7 @@ services:
     depends_on:
       - api-gateway
     ports:
-      - "${ADMIN_FRONTEND_PORT:-4200}:80"
+      - "127.0.0.1:${ADMIN_FRONTEND_PORT:-4200}:80"
     profiles:
       - microservices
     networks:
@@ -388,7 +388,7 @@ services:
     depends_on:
       - api-gateway
     ports:
-      - "${CUSTOMER_FRONTEND_PORT:-5173}:80"
+      - "127.0.0.1:${CUSTOMER_FRONTEND_PORT:-5173}:80"
     profiles:
       - microservices
     networks:
@@ -403,7 +403,7 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
     ports:
-      - "${PROMETHEUS_PORT:-9090}:9090"
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
     profiles:
       - microservices
     networks:
@@ -412,7 +412,7 @@ services:
   grafana:
     image: grafana/grafana:11.6.15
     ports:
-      - "${GRAFANA_PORT:-3000}:3000"
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
     volumes:
       - ./monitoring/grafana-datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
       - ./monitoring/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
@@ -428,7 +428,7 @@ services:
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
     ports:
-      - "${JAEGER_UI_PORT:-16686}:16686"
+      - "127.0.0.1:${JAEGER_UI_PORT:-16686}:16686"
     profiles:
       - microservices
     networks:
@@ -442,8 +442,8 @@ services:
     depends_on:
       - jaeger
     ports:
-      - "${OTEL_GRPC_PORT:-4317}:4317"
-      - "${OTEL_HTTP_PORT:-4318}:4318"
+      - "127.0.0.1:${OTEL_GRPC_PORT:-4317}:4317"
+      - "127.0.0.1:${OTEL_HTTP_PORT:-4318}:4318"
     profiles:
       - microservices
     networks:

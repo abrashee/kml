@@ -1,0 +1,76 @@
+services:
+  postgres:
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+
+  redis:
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+
+  rabbitmq:
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+
+  opensearch:
+    security_opt:
+      - no-new-privileges:true
+
+  zookeeper:
+    security_opt:
+      - no-new-privileges:true
+
+  kafka:
+    security_opt:
+      - no-new-privileges:true
+
+  postgres-exporter:
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  kafka-exporter:
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  opensearch-exporter:
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  prometheus:
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+
+  grafana:
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+
+  jaeger:
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+
+  otel-collector:
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp

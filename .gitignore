@@ -203,3 +203,7 @@ playwright-report/
 # =========================================================
 
 !.gitkeep
+
+# Local vulnerability scan reports
+trivy-reports/
+trivy-reports-core/
