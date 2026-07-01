@@ -1,0 +1,24 @@
+services:
+  api-gateway:
+    image: fra.ocir.io/frurj87kcrxi/kml-api-gateway:phase6-20260701-021639
+    build: null
+
+  user-service:
+    image: fra.ocir.io/frurj87kcrxi/kml-user-service:phase6-20260701-021639
+    build: null
+
+  inventory-service:
+    image: fra.ocir.io/frurj87kcrxi/kml-inventory-service:phase6-20260701-021639
+    build: null
+
+  order-service:
+    image: fra.ocir.io/frurj87kcrxi/kml-order-service:phase6-20260701-021639
+    build: null
+
+  shipment-service:
+    image: fra.ocir.io/frurj87kcrxi/kml-shipment-service:phase6-20260701-021639
+    build: null
+
+  warehouse-service:
+    image: fra.ocir.io/frurj87kcrxi/kml-warehouse-service:phase6-20260701-021639
+    build: null
