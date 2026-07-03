@@ -207,3 +207,4 @@ playwright-report/
 # Local vulnerability scan reports
 trivy-reports/
 trivy-reports-core/
+infra/.env.oracle
