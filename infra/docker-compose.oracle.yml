@@ -4,7 +4,7 @@ services:
     build: null
 
   user-service:
-    image: fra.ocir.io/frurj87kcrxi/kml-user-service:phase6-20260701-021639
+    image: fra.ocir.io/frurj87kcrxi/kml-user-service:phase6-20260704-adminhash
     build: null
 
   inventory-service:
