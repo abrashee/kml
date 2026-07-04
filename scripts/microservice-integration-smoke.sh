@@ -7,6 +7,7 @@ ENV_FILE="${KML_ENV_FILE:-$ROOT_DIR/infra/.env}"
 PROJECT_NAME="${COMPOSE_PROJECT_NAME:-kml-it}"
 BASE_URL="${KML_GATEWAY_URL:-http://localhost:8080}"
 REUSE_STACK="${KML_REUSE_STACK:-false}"
+ADMIN_PASSWORD="${KML_ADMIN_PASSWORD:?KML_ADMIN_PASSWORD is required}"
 
 if [[ ! -f "$ENV_FILE" ]]; then
   cp "$ROOT_DIR/infra/.env.example" "$ENV_FILE"
@@ -101,7 +102,7 @@ user_response="$(
 user_id="$(printf '%s' "$user_response" | json_get "data['id']")"
 
 admin_login_response="$(
-  curl_json POST "$BASE_URL/api/v1/auth/login" "{\"username\":\"admin\",\"password\":\"integration-admin-password\"}"
+  curl_json POST "$BASE_URL/api/v1/auth/login" "{\"username\":\"admin\",\"password\":\"$ADMIN_PASSWORD\"}"
 )"
 admin_access_token="$(printf '%s' "$admin_login_response" | json_get "data['accessToken']")"
 admin_auth_header="Authorization: Bearer $admin_access_token"

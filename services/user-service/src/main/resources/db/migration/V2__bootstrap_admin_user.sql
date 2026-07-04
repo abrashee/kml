@@ -10,7 +10,7 @@ INSERT INTO users (
 SELECT
     'Bootstrap Admin',
     'admin',
-    '$2b$10$omqdeIdcQbg.dkaPYxH2GOZ.AR4R3hlIQVrZ2PZaH5yntAiLy/Vz6',
+    '$2a$10$IzsA5Xcad9uCJH9WAIIX0OeUcD80.qrtVlxaAdNidpg/mCKGutFYK',
     'ADMIN',
     'ACTIVE',
     CURRENT_TIMESTAMP,
