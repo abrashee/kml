@@ -66,7 +66,10 @@ export async function createOrder(
 ): Promise<CustomerOrder> {
   const generatedCode = `ORD-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
   const user = auth.getUser();
-  const userId = user?.id && !Number.isNaN(Number(user.id)) ? Number(user.id) : 1;
+  if (!user?.id || Number.isNaN(Number(user.id))) {
+    throw new Error("Cannot create order without an authenticated customer user id");
+  }
+  const userId = Number(user.id);
 
   const res = await api.post("/orders", {
     code: generatedCode,
