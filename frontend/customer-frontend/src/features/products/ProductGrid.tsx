@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import type { ProductItem } from "./products.api";
 import { useProducts } from "./hooks";
 import { useDebounce } from "../../hooks/useDebounce";
 
 export default function ProductGrid() {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") ?? "");
   const [page, setPage] = useState(0);
   const debouncedSearch = useDebounce(searchQuery, 300);
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("search") ?? "");
+  }, [searchParams]);
 
   useEffect(() => {
     setPage(0);

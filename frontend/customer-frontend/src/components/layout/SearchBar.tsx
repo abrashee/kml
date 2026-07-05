@@ -1,19 +1,33 @@
-// src / components /SearchBar.tsx
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function SearchBar() {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+
+  const submitSearch = () => {
+    const q = query.trim();
+    navigate(q ? `/?search=${encodeURIComponent(q)}` : "/");
+  };
 
   return (
     <div className="search-shell">
       <div className="search-bar">
-        <input placeholder="Search product indices, logistics orders, tracking SKUs..." />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") submitSearch();
+          }}
+          placeholder="Search product indices, logistics orders, tracking SKUs..."
+        />
 
         <button className="ghost" onClick={() => setOpen(!open)}>
           {open ? "Hide Filters" : "Filters"}
         </button>
 
-        <button className="primary">Search</button>
+        <button className="primary" onClick={submitSearch}>Search</button>
       </div>
 
       <div className={`filter-panel ${open ? "open" : ""}`}>
