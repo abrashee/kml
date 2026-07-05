@@ -10,6 +10,7 @@ import com.kml.services.common.events.OrderPlacedEvent;
 import com.kml.services.common.events.StockUpdatedEvent;
 import com.kml.services.inventory.entity.InventoryItem;
 import com.kml.services.inventory.repository.InventoryRepository;
+import com.kml.services.inventory.search.InventorySearchIndexer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Instant;
 import java.util.List;
@@ -21,8 +22,9 @@ class OrderPlacedEventListenerTest {
 
     private final InventoryRepository inventoryRepository = Mockito.mock(InventoryRepository.class);
     private final InventoryEventPublisher eventPublisher = Mockito.mock(InventoryEventPublisher.class);
+    private final InventorySearchIndexer searchIndexer = Mockito.mock(InventorySearchIndexer.class);
     private final OrderPlacedEventListener listener =
-        new OrderPlacedEventListener(inventoryRepository, eventPublisher, new SimpleMeterRegistry());
+        new OrderPlacedEventListener(inventoryRepository, eventPublisher, searchIndexer, new SimpleMeterRegistry());
 
     @Test
     void reservesInventoryAndPublishesReservationEvent() {
@@ -39,6 +41,7 @@ class OrderPlacedEventListenerTest {
 
         ArgumentCaptor<InventoryReservedEvent> reservation =
             ArgumentCaptor.forClass(InventoryReservedEvent.class);
+        verify(searchIndexer).index(any(InventoryItem.class));
         verify(eventPublisher).publishStockUpdated(any(StockUpdatedEvent.class));
         verify(eventPublisher).publishInventoryReserved(reservation.capture());
 

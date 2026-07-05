@@ -8,6 +8,7 @@ import com.kml.services.inventory.entity.InventoryItem;
 import com.kml.services.inventory.mapper.InventoryMapper;
 import com.kml.services.inventory.repository.InventoryRepository;
 import com.kml.services.inventory.search.InventorySearchIndexer;
+import com.kml.services.inventory.search.InventorySearchService;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -21,14 +22,17 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryRepository inventoryRepository;
     private final InventoryEventPublisher eventPublisher;
     private final InventorySearchIndexer searchIndexer;
+    private final InventorySearchService inventorySearchService;
 
     public InventoryServiceImpl(
         InventoryRepository inventoryRepository,
         InventoryEventPublisher eventPublisher,
-        InventorySearchIndexer searchIndexer) {
+        InventorySearchIndexer searchIndexer,
+        InventorySearchService inventorySearchService) {
         this.inventoryRepository = inventoryRepository;
         this.eventPublisher = eventPublisher;
         this.searchIndexer = searchIndexer;
+        this.inventorySearchService = inventorySearchService;
     }
 
     @Override
@@ -82,16 +86,8 @@ public class InventoryServiceImpl implements InventoryService {
 
         warehouseId = effectiveWarehouseId(warehouseId, principal);
 
-        if (sku != null && !sku.isBlank() && warehouseId != null) {
-            return inventoryRepository
-                .findBySkuAndWarehouseId(sku, warehouseId, pageable)
-                .map(InventoryMapper::toDto);
-        }
-
         if (sku != null && !sku.isBlank()) {
-            return inventoryRepository
-                .findBySku(sku, pageable)
-                .map(InventoryMapper::toDto);
+            return inventorySearchService.search(sku, warehouseId, pageable);
         }
 
         if (warehouseId != null) {

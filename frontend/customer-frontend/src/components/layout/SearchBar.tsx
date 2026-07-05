@@ -4,10 +4,22 @@ import { useNavigate } from "react-router-dom";
 export default function SearchBar() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [context, setContext] = useState("Products");
   const navigate = useNavigate();
 
   const submitSearch = () => {
     const q = query.trim();
+
+    if (context === "Orders") {
+      navigate("/orders");
+      return;
+    }
+
+    if (context === "Shipments") {
+      navigate("/shipments");
+      return;
+    }
+
     navigate(q ? `/?search=${encodeURIComponent(q)}` : "/");
   };
 
@@ -33,8 +45,7 @@ export default function SearchBar() {
       <div className={`filter-panel ${open ? "open" : ""}`}>
         <div className="filter-group">
           <label>Category Context</label>
-          <select>
-            <option>All Assets</option>
+          <select value={context} onChange={(e) => setContext(e.target.value)}>
             <option>Products</option>
             <option>Orders</option>
             <option>Shipments</option>
@@ -43,7 +54,7 @@ export default function SearchBar() {
 
         <div className="filter-group">
           <label>Sort Ledger</label>
-          <select>
+          <select disabled title="Sorting is not available yet">
             <option>Newest Entries</option>
             <option>Price: Low to High</option>
             <option>Price: High to Low</option>

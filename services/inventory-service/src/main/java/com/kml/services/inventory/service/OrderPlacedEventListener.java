@@ -6,6 +6,7 @@ import com.kml.services.common.events.StockUpdatedEvent;
 import com.kml.services.inventory.config.InventoryMessagingConfig;
 import com.kml.services.inventory.entity.InventoryItem;
 import com.kml.services.inventory.repository.InventoryRepository;
+import com.kml.services.inventory.search.InventorySearchIndexer;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Instant;
@@ -21,15 +22,18 @@ public class OrderPlacedEventListener {
 
     private final InventoryRepository inventoryRepository;
     private final InventoryEventPublisher eventPublisher;
+    private final InventorySearchIndexer searchIndexer;
     private final Counter reservationsCounter;
     private final Counter reservationFailuresCounter;
 
     public OrderPlacedEventListener(
         InventoryRepository inventoryRepository,
         InventoryEventPublisher eventPublisher,
+        InventorySearchIndexer searchIndexer,
         MeterRegistry meterRegistry) {
         this.inventoryRepository = inventoryRepository;
         this.eventPublisher = eventPublisher;
+        this.searchIndexer = searchIndexer;
         this.reservationsCounter = Counter.builder("kml_inventory_reservations")
             .description("Total number of successful inventory reservations")
             .register(meterRegistry);
@@ -64,6 +68,7 @@ public class OrderPlacedEventListener {
 
             item.adjustQuantity(-line.quantity());
             InventoryItem saved = inventoryRepository.save(item);
+            searchIndexer.index(saved);
             if (warehouseId == null) {
                 warehouseId = saved.getWarehouseId();
             }
