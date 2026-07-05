@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 
 @Configuration
 public class SecurityConfig {
@@ -31,6 +32,7 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         SharedSecurityConfigurer.statelessJwt(http, jwtTokenProvider, tokenInvalidationService);
+        http.cors(Customizer.withDefaults());
         http.addFilterBefore(gatewayRateLimitFilter, SecurityContextHolderFilter.class);
 
         http.authorizeHttpRequests(auth -> {
