@@ -39,10 +39,21 @@ public class InventorySearchService {
                     "must", List.of(
                         isBlank(query)
                             ? Map.of("match_all", Map.of())
-                            : Map.of("multi_match", Map.of(
-                                "query", query,
-                                "fields", List.of("sku^4", "name^3"),
-                                "fuzziness", "AUTO"
+                            : Map.of("bool", Map.of(
+                                "should", List.of(
+                                    Map.of("multi_match", Map.of(
+                                        "query", query,
+                                        "fields", List.of("sku^4", "name^3"),
+                                        "fuzziness", "AUTO"
+                                    )),
+                                    Map.of("match_phrase_prefix", Map.of(
+                                        "name", Map.of("query", query, "boost", 3)
+                                    )),
+                                    Map.of("prefix", Map.of(
+                                        "sku.keyword", Map.of("value", query, "boost", 4)
+                                    ))
+                                ),
+                                "minimum_should_match", 1
                             ))
                     )
                 )
