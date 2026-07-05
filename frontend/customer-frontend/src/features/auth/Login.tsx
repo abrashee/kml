@@ -38,9 +38,12 @@ export default function Login() {
       try {
         const payloadBase64 = responseData.accessToken.split(".")[1];
         const claims = JSON.parse(atob(payloadBase64));
-        auth.setUser({ id: String(claims.id || "1"), name: claims.name || claims.sub || cleanUsername, role: claims.role || "CUSTOMER" });
+        const userId = claims.userId;
+        if (!userId) throw new Error("Missing userId claim");
+        auth.setUser({ id: String(userId), name: claims.name || claims.sub || cleanUsername, role: claims.role || "CUSTOMER" });
       } catch {
-        auth.setUser({ id: "1", name: cleanUsername, role: "CUSTOMER" });
+        auth.logout();
+        throw new Error("Login succeeded but token did not include a valid userId");
       }
       navigate("/");
     } catch (err: any) {
